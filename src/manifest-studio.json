@@ -1,0 +1,18 @@
+{
+  "name": "Studio // Polymath OS",
+  "short_name": "Studio",
+  "description": "Il tuo sistema di studio potenziato da AI",
+  "start_url": "/studio_polymath_v4.html",
+  "display": "standalone",
+  "background_color": "#060a0e",
+  "theme_color": "#060a0e",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

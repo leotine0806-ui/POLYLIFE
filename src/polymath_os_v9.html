@@ -1,0 +1,5068 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POLYMATH OS v2</title>
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-512.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="P·OS">
+<meta name="theme-color" content="#00e5ff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #060a0e;
+  --bg2:      #0a1018;
+  --bg3:      #0f1820;
+  --bg4:      #162030;
+  --border:   #1a2a38;
+  --border2:  #203040;
+  --text:     #e8eef5;
+  --text2:    #8da0b3;
+  --text3:    #3d5568;
+  --cyan:     #00e5ff;
+  --blue:     #4f8cff;
+  --purple:   #a78bfa;
+  --pink:     #ec4899;
+  --gold:     #fbbf24;
+  --green:    #10b981;
+  --red:      #ef4444;
+  --orange:   #f97316;
+  --studio-c: #4f8cff;
+  --library-c:#a78bfa;
+  --rpg-c:    #ef4444;
+  --leo-c:    #10b981;
+  --agora-c:  #c9a84c;
+  --dungeon-c:#00e5ff;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { background: var(--bg); color: var(--text); font-family: 'Space Mono', monospace; font-size: 14px; }
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 100% 60% at 15% -10%, rgba(0,229,255,0.05) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 85% 110%, rgba(167,139,250,0.05) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 30% at 50% 50%, rgba(79,140,255,0.02) 0%, transparent 60%);
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,229,255,0.008) 2px, rgba(0,229,255,0.008) 3px),
+    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,229,255,0.004) 40px, rgba(0,229,255,0.004) 41px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+/* ── HEADER ── */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 36px 0 28px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+  gap: 20px;
+}
+
+.header-left {}
+.header-eyebrow {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  color: var(--cyan);
+  opacity: 0.7;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.header-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: 0.1em;
+  line-height: 1;
+}
+.header-title span { color: var(--cyan); text-shadow: 0 0 20px rgba(0,229,255,0.4); }
+.header-sub {
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 8px;
+  letter-spacing: 0.05em;
+}
+
+.header-right {
+  text-align: right;
+  flex-shrink: 0;
+}
+.clock-display {
+  font-family: 'Orbitron', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+.clock-seconds { font-size: 16px; color: var(--text3); }
+.date-display {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  color: var(--text2);
+  letter-spacing: 0.12em;
+  margin-top: 5px;
+}
+.header-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+.btn-ghost {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text3);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-ghost:hover { border-color: var(--cyan); color: var(--cyan); }
+
+/* ── LEVEL BAR ── */
+.level-bar-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--cyan);
+  padding: 18px 24px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.level-bar-wrap::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 200px;
+  background: linear-gradient(90deg, transparent, rgba(0,229,255,0.02));
+  pointer-events: none;
+}
+.level-badge {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  color: var(--text3);
+  white-space: nowrap;
+}
+.level-num {
+  font-family: 'Orbitron', monospace;
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--cyan);
+  line-height: 1;
+  text-shadow: 0 0 30px rgba(0,229,255,0.5);
+}
+.xp-track {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.xp-bar-bg {
+  height: 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  position: relative;
+  overflow: hidden;
+}
+.xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--blue), var(--purple));
+  transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+  position: relative;
+}
+.xp-bar-fill::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 30px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5));
+  animation: shimmer 2.5s infinite;
+}
+@keyframes shimmer { 0%,100%{opacity:0} 50%{opacity:1} }
+.xp-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+}
+.total-xp-display {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  color: var(--gold);
+  white-space: nowrap;
+  text-align: right;
+}
+.total-xp-num { font-size: 22px; font-weight: 700; display: block; line-height: 1; }
+.level-name-badge {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  color: var(--bg);
+  background: var(--cyan);
+  padding: 3px 8px;
+  letter-spacing: 0.15em;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+/* ── INSIGHT STRIP ── */
+.insight-strip {
+  background: rgba(251,191,36,0.06);
+  border: 1px solid rgba(251,191,36,0.2);
+  border-left: 3px solid var(--gold);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+}
+.insight-icon { font-size: 14px; flex-shrink: 0; }
+.insight-text { font-size: 11px; color: var(--text2); line-height: 1.5; flex: 1; }
+.insight-text strong { color: var(--gold); }
+.insight-strip.hidden { display: none; }
+
+/* ── APP CARDS GRID ── */
+.apps-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.app-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s, background 0.2s;
+}
+.app-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.app-card.studio::before  { background: var(--studio-c); }
+.app-card.library::before { background: var(--library-c); }
+.app-card.rpg::before     { background: var(--rpg-c); }
+.app-card.leo::before     { background: var(--leo-c); }
+.app-card.agora::before   { background: var(--agora-c); }
+
+.app-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 80px; height: 80px;
+  border-radius: 0;
+  opacity: 0.03;
+  font-size: 60px;
+  pointer-events: none;
+}
+
+.app-card:hover {
+  border-color: var(--border2);
+  transform: translateY(-2px);
+  background: var(--bg3);
+}
+
+.app-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.app-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+}
+.app-card.studio  .app-name { color: var(--studio-c); }
+.app-card.library .app-name { color: var(--library-c); }
+.app-card.rpg     .app-name { color: var(--rpg-c); }
+.app-card.leo     .app-name { color: var(--leo-c); }
+.app-card.agora   .app-name { color: var(--agora-c); }
+
+.app-icon { font-size: 18px; }
+
+.app-stat-main {
+  font-family: 'Orbitron', monospace;
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.app-stat-label {
+  font-size: 9px;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.app-rows { display: flex; flex-direction: column; gap: 6px; }
+.app-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+.app-row-label { color: var(--text3); }
+.app-row-value { color: var(--text2); font-weight: 700; }
+.app-row-value.good   { color: var(--green); }
+.app-row-value.warn   { color: var(--gold); }
+.app-row-value.alert  { color: var(--red); }
+.app-row-value.accent { color: var(--cyan); }
+
+.alert-badge {
+  display: inline-block;
+  background: var(--red);
+  color: #fff;
+  font-family: 'Orbitron', monospace;
+  font-size: 7px;
+  padding: 2px 5px;
+  letter-spacing: 0.1em;
+  margin-left: 6px;
+  animation: pulse-badge 2s ease infinite;
+}
+@keyframes pulse-badge { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+.mini-bar { height: 3px; background: var(--bg4); margin-top: 12px; }
+.mini-bar-fill { height: 100%; transition: width 1s ease; }
+
+/* ── HABIT TRACKER ── */
+.habit-section {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--border2);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.section-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  letter-spacing: 0.28em;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.habit-grid-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.habit-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.habit-app-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  width: 90px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+.habit-dots {
+  display: flex;
+  gap: 5px;
+  flex: 1;
+}
+.habit-dot {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: var(--text3);
+  letter-spacing: 0;
+  font-family: 'Orbitron', monospace;
+  position: relative;
+  flex-shrink: 0;
+}
+.habit-dot.active {
+  border-color: currentColor;
+}
+.habit-dot.today-dot {
+  outline: 1px solid var(--cyan);
+  outline-offset: 2px;
+}
+.habit-summary {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  color: var(--text3);
+  width: 40px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.habit-day-labels {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 6px;
+  padding-left: 102px;
+}
+.habit-day-lbl {
+  width: 28px;
+  text-align: center;
+  font-size: 8px;
+  color: var(--text3);
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+/* ── STATS ROW ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-cell {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  text-align: center;
+}
+.stat-cell-val {
+  font-family: 'Orbitron', monospace;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--text);
+  line-height: 1;
+}
+.stat-cell-label {
+  font-size: 9px;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+/* ── ANALYTICS MINI DASHBOARD ── */
+.analytics-mini {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan);
+  padding: 16px 20px 14px;
+  margin-bottom: 20px;
+}
+.analytics-mini-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.analytics-mini-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--cyan);
+  text-transform: uppercase;
+}
+.analytics-mini-btn {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  background: none;
+  border: 1px solid var(--border);
+  padding: 3px 10px;
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  transition: all 0.2s;
+}
+.analytics-mini-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.analytics-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+.analytics-kpi {
+  text-align: center;
+  padding: 10px 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  position: relative;
+}
+.analytics-kpi-val {
+  font-family: 'Orbitron', monospace;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--text);
+  line-height: 1;
+}
+.analytics-kpi-val.good  { color: var(--green); }
+.analytics-kpi-val.warn  { color: var(--gold); }
+.analytics-kpi-val.cyan  { color: var(--cyan); }
+.analytics-kpi-val.purple{ color: var(--purple); }
+.analytics-kpi-label {
+  font-size: 8px;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  margin-top: 5px;
+  text-transform: uppercase;
+  line-height: 1.3;
+}
+.analytics-kpi-icon {
+  font-size: 13px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* ── ANALYTICS CENTER (sezione espandibile) ── */
+.analytics-center {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+  display: none;
+}
+.analytics-center.open { display: block; }
+.analytics-center-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.analytics-center-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--cyan);
+}
+.analytics-center-body { padding: 20px; }
+.analytics-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+.analytics-tab {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 6px 14px 8px;
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+.analytics-tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+.analytics-tab-panel { display: none; }
+.analytics-tab-panel.active { display: block; }
+.analytics-chart-title {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.analytics-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 90px;
+  margin-bottom: 16px;
+}
+.analytics-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+  justify-content: flex-end;
+}
+.analytics-bar {
+  width: 100%;
+  background: var(--cyan);
+  opacity: 0.7;
+  border-radius: 2px 2px 0 0;
+  min-height: 2px;
+  transition: height 0.4s;
+}
+.analytics-bar.tasks  { background: var(--green); }
+.analytics-bar.ai     { background: var(--purple); }
+.analytics-bar-label {
+  font-size: 7px;
+  color: var(--text3);
+  font-family: 'Space Mono', monospace;
+  white-space: nowrap;
+}
+.analytics-module-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.analytics-module-name {
+  font-size: 10px;
+  color: var(--text2);
+  width: 80px;
+  flex-shrink: 0;
+}
+.analytics-module-bar-wrap {
+  flex: 1;
+  height: 6px;
+  background: var(--bg4);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.analytics-module-bar-fill {
+  height: 100%;
+  background: var(--cyan);
+  border-radius: 3px;
+  transition: width 0.4s;
+}
+.analytics-module-count {
+  font-size: 9px;
+  color: var(--text3);
+  width: 40px;
+  text-align: right;
+}
+.analytics-ai-insight {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--purple);
+  padding: 14px 16px;
+  font-size: 11px;
+  color: var(--text2);
+  line-height: 1.7;
+  margin-top: 16px;
+}
+.analytics-ai-insight-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  color: var(--purple);
+  letter-spacing: 0.15em;
+  margin-bottom: 8px;
+}
+@media (max-width: 700px) {
+  .analytics-kpi-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ── BOTTOM GRID: FOCUS + RADAR ── */
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+/* ── FOCUS DEL GIORNO ── */
+.focus-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--gold);
+  padding: 20px;
+}
+.focus-text {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.9;
+}
+.focus-loading {
+  font-size: 11px;
+  color: var(--text3);
+  font-style: italic;
+}
+.btn-generate {
+  width: 100%;
+  margin-top: 14px;
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  padding: 11px;
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-generate:hover { background: rgba(251,191,36,0.08); }
+.btn-generate:disabled { opacity: 0.35; cursor: default; }
+
+/* ── RADAR CHART ── */
+.radar-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--purple);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.radar-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.radar-svg { flex-shrink: 0; }
+.radar-legend { flex: 1; display: flex; flex-direction: column; gap: 7px; }
+.radar-legend-item { display: flex; align-items: center; gap: 7px; }
+.radar-legend-dot { width: 7px; height: 7px; flex-shrink: 0; }
+.radar-legend-label { font-size: 9px; color: var(--text2); flex: 1; }
+.radar-legend-val { font-family: 'Orbitron', monospace; font-size: 10px; color: var(--text); font-weight: 700; }
+
+/* ── TIMELINE ── */
+.timeline-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--blue);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.timeline-list { display: flex; flex-direction: column; }
+.timeline-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.timeline-item:last-child { border-bottom: none; }
+.timeline-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+.timeline-time { font-size: 9px; color: var(--text3); white-space: nowrap; }
+.timeline-desc { font-size: 11px; color: var(--text2); line-height: 1.5; }
+.timeline-meta { display: flex; gap: 8px; margin-top: 3px; }
+.timeline-source { font-size: 9px; letter-spacing: 0.1em; opacity: 0.6; }
+.timeline-empty { font-size: 11px; color: var(--text3); font-style: italic; padding: 8px 0; }
+
+/* ── WEEKLY REVIEW ── */
+.weekly-section {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--green);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.review-form { display: flex; flex-direction: column; gap: 12px; }
+.review-field { display: flex; flex-direction: column; gap: 6px; }
+.review-label {
+  font-size: 9px;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.review-textarea {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  padding: 10px;
+  resize: vertical;
+  min-height: 60px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.review-textarea:focus { border-color: var(--green); }
+.review-actions { display: flex; gap: 10px; align-items: center; }
+.btn-save {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  padding: 9px 18px;
+  background: transparent;
+  border: 1px solid var(--green);
+  color: var(--green);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-save:hover { background: rgba(16,185,129,0.1); }
+.review-history-item {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+.review-history-item:last-child { border-bottom: none; }
+.review-history-date {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+.review-history-text { color: var(--text2); line-height: 1.6; }
+.review-toggle {
+  font-size: 10px;
+  color: var(--text3);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  background: none;
+  border: none;
+  font-family: 'Space Mono', monospace;
+}
+.review-toggle:hover { color: var(--text2); }
+
+/* ── NOTE RAPIDE ── */
+.notes-section {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--orange);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.quick-note-wrap {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.quick-note-input {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  padding: 10px;
+  outline: none;
+  resize: none;
+  min-height: 50px;
+  transition: border-color 0.15s;
+}
+.quick-note-input:focus { border-color: var(--orange); }
+.btn-note-save {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  padding: 10px 14px;
+  background: transparent;
+  border: 1px solid var(--orange);
+  color: var(--orange);
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.btn-note-save:hover { background: rgba(249,115,22,0.1); }
+.notes-list { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.note-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  font-size: 11px;
+}
+.note-item-time {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  color: var(--text3);
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+.note-item-text { flex: 1; color: var(--text2); line-height: 1.5; }
+.note-item-del {
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.note-item-del:hover { color: var(--red); }
+
+/* ── QUICK LINKS ── */
+.quick-links-section { margin-bottom: 20px; }
+.quick-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.quick-link {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  padding: 11px 18px;
+  border: 1px solid var(--border2);
+  background: var(--bg2);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  display: inline-block;
+  text-transform: uppercase;
+}
+.quick-link:hover { border-color: var(--cyan); color: var(--cyan); background: rgba(0,229,255,0.04); }
+.quick-link.studio-link:hover  { border-color: var(--studio-c); color: var(--studio-c); }
+.quick-link.library-link:hover { border-color: var(--library-c); color: var(--library-c); }
+.quick-link.rpg-link:hover     { border-color: var(--rpg-c); color: var(--rpg-c); }
+.quick-link.leo-link:hover     { border-color: var(--leo-c); color: var(--leo-c); }
+.quick-link.agora-link:hover   { border-color: var(--agora-c); color: var(--agora-c); }
+.quick-link.dungeon-link:hover { border-color: var(--dungeon-c); color: var(--dungeon-c); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(70px);
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--cyan);
+  padding: 11px 22px;
+  font-size: 11px;
+  color: var(--text);
+  transition: transform 0.28s ease;
+  z-index: 999;
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.green { border-left-color: var(--green); }
+.toast.gold  { border-left-color: var(--gold); }
+
+/* ── MODAL (Weekly Review history) ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6,10,14,0.85);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-top: 2px solid var(--green);
+  max-width: 560px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 24px;
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-title { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--green); }
+.modal-close { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 16px; }
+.modal-close:hover { color: var(--text); }
+
+/* ── ANIMATIONS ── */
+@keyframes fade-in { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.fade-in { animation: fade-in 0.45s ease both; }
+
+@keyframes xp-grow { from { width: 0% } }
+
+/* ── NO DATA ── */
+.no-data { font-size: 11px; color: var(--text3); font-style: italic; padding: 4px 0; }
+
+/* ── DIVIDER ── */
+.section-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0 20px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 680px) {
+  .apps-grid, .bottom-grid, .stats-row { grid-template-columns: 1fr; }
+  .header { flex-direction: column; gap: 14px; }
+  .header-right { text-align: left; }
+  .radar-inner { flex-direction: column; }
+  .habit-dots { flex-wrap: wrap; }
+}
+
+/* ── AI COACH MODAL ── */
+.ai-coach-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75); z-index: 2000;
+  align-items: center; justify-content: center; padding: 16px;
+}
+.ai-coach-overlay.open { display: flex; }
+.ai-coach-box {
+  background: var(--surface); border: 1px solid var(--cyan);
+  border-radius: 12px; width: 100%; max-width: 480px;
+  max-height: 85vh; display: flex; flex-direction: column;
+  box-shadow: 0 0 40px rgba(0,229,255,0.15);
+}
+.ai-coach-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+}
+.ai-coach-title { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--cyan); }
+.ai-coach-body { flex: 1; overflow-y: auto; padding: 20px; }
+.ai-msg { margin-bottom: 16px; }
+.ai-msg.user { text-align: right; }
+.ai-msg.user .ai-bubble {
+  background: var(--cyan); color: #000; display: inline-block;
+  padding: 10px 14px; border-radius: 12px 12px 2px 12px;
+  font-size: 13px; max-width: 85%; text-align: left;
+}
+.ai-msg.assistant .ai-bubble {
+  background: var(--surface2); color: var(--text);
+  display: inline-block; padding: 10px 14px;
+  border-radius: 12px 12px 12px 2px; font-size: 13px;
+  max-width: 95%; line-height: 1.6; text-align: left;
+  border: 1px solid var(--border);
+}
+.ai-coach-input-row {
+  display: flex; gap: 8px; padding: 12px 16px;
+  border-top: 1px solid var(--border);
+}
+.ai-coach-input {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-family: inherit;
+  font-size: 13px; padding: 10px 12px; resize: none; height: 44px;
+}
+.ai-coach-input:focus { outline: none; border-color: var(--cyan); }
+.ai-send-btn {
+  background: var(--cyan); color: #000; border: none;
+  border-radius: 8px; padding: 0 16px; font-weight: 700;
+  cursor: pointer; font-size: 16px; flex-shrink: 0;
+}
+.ai-send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.ai-thinking { display: flex; gap: 4px; padding: 8px 0; }
+.ai-thinking span {
+  width: 6px; height: 6px; background: var(--cyan);
+  border-radius: 50%; animation: ai-bounce 1.2s infinite;
+}
+.ai-thinking span:nth-child(2) { animation-delay: 0.2s; }
+.ai-thinking span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes ai-bounce {
+  0%,80%,100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-6px); opacity: 1; }
+}
+.ai-quick-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.ai-quick-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 20px; color: var(--text2); font-size: 11px;
+  padding: 6px 12px; cursor: pointer; font-family: inherit;
+  transition: all 0.15s;
+}
+.ai-quick-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+
+/* ── SECOND BRAIN ── */
+.second-brain-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.8); z-index: 2000;
+  align-items: center; justify-content: center; padding: 16px;
+}
+.second-brain-overlay.open { display: flex; }
+.sb-box {
+  background: var(--surface); border: 1px solid #a78bfa;
+  border-radius: 12px; width: 100%; max-width: 500px;
+  max-height: 85vh; display: flex; flex-direction: column;
+  box-shadow: 0 0 40px rgba(167,139,250,0.15);
+}
+.sb-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+}
+.sb-title { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 0.2em; color: #a78bfa; }
+.sb-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+.sb-input-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.sb-input {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-family: inherit;
+  font-size: 13px; padding: 10px 12px; resize: none; height: 44px;
+}
+.sb-input:focus { outline: none; border-color: #a78bfa; }
+.sb-save-btn {
+  background: #a78bfa; color: #000; border: none;
+  border-radius: 8px; padding: 0 16px; font-weight: 700;
+  cursor: pointer; font-size: 16px; flex-shrink: 0;
+}
+.sb-item {
+  position: relative; padding: 12px 36px 12px 12px;
+  border: 1px solid var(--border); border-radius: 8px;
+  margin-bottom: 8px; background: var(--surface2);
+}
+.sb-item-text { font-size: 13px; color: var(--text); line-height: 1.5; margin-bottom: 4px; }
+.sb-item-meta { font-size: 10px; color: var(--text3); display: flex; gap: 8px; flex-wrap: wrap; }
+.sb-connection { color: #a78bfa; }
+.sb-delete {
+  position: absolute; top: 8px; right: 8px;
+  background: none; border: none; color: var(--text3);
+  cursor: pointer; font-size: 12px; padding: 2px 6px;
+}
+.sb-delete:hover { color: var(--red); }
+.sb-connect-btn {
+  width: 100%; margin: 12px 0 8px;
+  background: transparent; border: 1px solid #a78bfa;
+  color: #a78bfa; border-radius: 8px; padding: 10px;
+  font-family: inherit; font-size: 12px; letter-spacing: 0.1em;
+  cursor: pointer; transition: all 0.15s;
+}
+.sb-connect-btn:hover { background: rgba(167,139,250,0.1); }
+.sb-connect-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.sb-conn-item {
+  padding: 10px 12px; border: 1px solid rgba(167,139,250,0.3);
+  border-radius: 8px; margin-bottom: 8px; font-size: 12px;
+  line-height: 1.6; background: rgba(167,139,250,0.05);
+}
+.sb-section-title {
+  font-family: 'Orbitron', monospace; font-size: 8px;
+  letter-spacing: 0.15em; color: var(--text3); margin: 12px 0 8px;
+}
+
+/* ── DECISION LOG ── */
+.decision-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.8); z-index: 2000;
+  align-items: center; justify-content: center; padding: 16px;
+}
+.decision-overlay.open { display: flex; }
+.dec-box {
+  background: var(--surface); border: 1px solid var(--gold);
+  border-radius: 12px; width: 100%; max-width: 500px;
+  max-height: 85vh; display: flex; flex-direction: column;
+  box-shadow: 0 0 40px rgba(245,158,11,0.1);
+}
+.dec-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+}
+.dec-title { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--gold); }
+.dec-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+.dec-field {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-family: inherit;
+  font-size: 13px; padding: 10px 12px; margin-bottom: 8px;
+  outline: none; transition: border-color 0.15s;
+}
+.dec-field:focus { border-color: var(--gold); }
+.dec-field::placeholder { color: var(--text3); }
+.dec-save-btn {
+  width: 100%; background: transparent; border: 1px solid var(--gold);
+  color: var(--gold); border-radius: 8px; padding: 10px;
+  font-family: inherit; font-size: 12px; letter-spacing: 0.1em;
+  cursor: pointer; margin-bottom: 16px; transition: all 0.15s;
+}
+.dec-save-btn:hover { background: rgba(245,158,11,0.1); }
+.dec-item {
+  padding: 12px; border: 1px solid var(--border);
+  border-radius: 8px; margin-bottom: 8px; background: var(--surface2);
+}
+.dec-decision { font-size: 13px; color: var(--text); font-weight: 600; margin-bottom: 6px; }
+.dec-meta { font-size: 11px; margin-bottom: 3px; }
+.dec-outcome { font-size: 11px; color: var(--green); margin-top: 6px; font-style: italic; }
+
+/* ── AI WEEKLY QUESTION ── */
+.ai-weekly-btn {
+  display: block; width: 100%; margin-top: 12px;
+  background: transparent; border: 1px solid var(--cyan);
+  color: var(--cyan); border-radius: 8px; padding: 10px;
+  font-family: inherit; font-size: 12px; letter-spacing: 0.1em;
+  cursor: pointer; transition: all 0.15s;
+}
+.ai-weekly-btn:hover { background: rgba(0,229,255,0.08); }
+.ai-weekly-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.ai-weekly-question {
+  display: none; margin-top: 12px; padding: 14px 16px;
+  background: rgba(0,229,255,0.06); border: 1px solid rgba(0,229,255,0.3);
+  border-radius: 8px; font-size: 14px; color: var(--text);
+  line-height: 1.6; font-style: italic;
+}
+
+
+/* ── SYSTEM STREAK BANNER ── */
+.system-streak-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; margin: 8px 16px;
+  border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface); animation: fadeIn 0.3s;
+}
+.system-streak-banner.on-fire {
+  border-color: var(--cyan); background: rgba(0,229,255,0.06);
+}
+.system-streak-banner.warning {
+  border-color: #f59e0b; background: rgba(245,158,11,0.06);
+}
+.system-streak-banner.broken {
+  border-color: var(--red); background: rgba(239,68,68,0.06);
+}
+.streak-banner-left { display: flex; align-items: center; gap: 10px; }
+.streak-banner-emoji { font-size: 20px; }
+.streak-banner-label { font-size: 9px; letter-spacing: 0.15em; color: var(--text3); font-family: 'Orbitron', monospace; }
+.streak-banner-value { font-size: 15px; font-weight: 700; color: var(--cyan); font-family: 'Orbitron', monospace; }
+.streak-banner-apps { display: flex; gap: 6px; }
+.streak-app-dot { font-size: 10px; padding: 3px 7px; border-radius: 20px; border: 1px solid var(--border); color: var(--text3); }
+.streak-app-dot.active { border-color: var(--cyan); color: var(--cyan); background: rgba(0,229,255,0.08); }
+.streak-app-dot.missed { border-color: var(--red); color: var(--red); }
+
+/* ── ANTI-RICADUTA ── */
+.emergency-btn {
+  position: fixed; bottom: 24px; right: 16px; z-index: 1500;
+  background: linear-gradient(135deg, #1a0a0a, #2a0a0a);
+  border: 1.5px solid #ef4444; border-radius: 50px;
+  color: #ef4444; font-family: 'Orbitron', monospace;
+  font-size: 9px; letter-spacing: 0.1em; padding: 10px 16px;
+  cursor: pointer; box-shadow: 0 0 20px rgba(239,68,68,0.3);
+  transition: all 0.2s;
+}
+.emergency-btn:hover { box-shadow: 0 0 30px rgba(239,68,68,0.5); transform: scale(1.05); }
+.emergency-overlay {
+  display: none; position: fixed; inset: 0; z-index: 2500;
+  background: rgba(0,0,0,0.92); align-items: center; justify-content: center;
+  padding: 20px;
+}
+.emergency-overlay.open { display: flex; }
+.emergency-box {
+  background: #0a0404; border: 1px solid #ef4444; border-radius: 16px;
+  padding: 28px 24px; max-width: 360px; width: 100%; text-align: center;
+}
+.emergency-title { font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 0.2em; color: #ef4444; margin-bottom: 8px; }
+.emergency-subtitle { font-size: 13px; color: var(--text2); margin-bottom: 24px; line-height: 1.6; }
+.emergency-steps { text-align: left; margin-bottom: 24px; }
+.emergency-step {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px; margin-bottom: 8px;
+  background: rgba(239,68,68,0.06); border-radius: 8px;
+  border: 1px solid rgba(239,68,68,0.15);
+}
+.emergency-step-num { font-family: 'Orbitron', monospace; color: #ef4444; font-size: 16px; font-weight: 700; flex-shrink: 0; line-height: 1.4; }
+.emergency-step-text { font-size: 13px; color: var(--text); line-height: 1.5; }
+.emergency-step-text strong { color: #ef4444; }
+.emergency-timer-display { font-family: 'Orbitron', monospace; font-size: 36px; color: #ef4444; margin: 8px 0 20px; letter-spacing: 0.1em; }
+.emergency-log-area { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: inherit; font-size: 13px; padding: 10px; resize: none; margin-bottom: 12px; box-sizing: border-box; }
+.emergency-log-area:focus { outline: none; border-color: #ef4444; }
+.emergency-survived { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 0.15em; color: var(--green); margin-top: 12px; display: none; }
+
+/* ── WEEKLY REVIEW AI ── */
+.ai-review-section { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px; }
+.ai-review-title { font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 0.15em; color: var(--cyan); margin-bottom: 12px; }
+.ai-review-msg { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 13px; color: var(--text); line-height: 1.6; min-height: 60px; }
+.ai-review-loading { display: flex; gap: 4px; padding: 8px; }
+.ai-review-loading span { width: 5px; height: 5px; background: var(--cyan); border-radius: 50%; animation: ai-bounce 1.2s infinite; }
+.ai-review-loading span:nth-child(2) { animation-delay: 0.2s; }
+.ai-review-loading span:nth-child(3) { animation-delay: 0.4s; }
+
+/* ══════════════════════════════════════
+   POLYFEED — FEED VERTICALE CURIOSITÀ
+   ══════════════════════════════════════ */
+.polyfeed-btn-entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--cyan);
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.polyfeed-btn-entry::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(0,229,255,0.03));
+  pointer-events: none;
+}
+.polyfeed-btn-entry:hover { border-color: var(--cyan); background: var(--bg3); }
+.polyfeed-entry-icon { font-size: 24px; flex-shrink: 0; }
+.polyfeed-entry-text { flex: 1; }
+.polyfeed-entry-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--cyan);
+  margin-bottom: 3px;
+}
+.polyfeed-entry-sub { font-size: 11px; color: var(--text3); }
+.polyfeed-entry-arrow {
+  font-family: 'Orbitron', monospace;
+  font-size: 16px;
+  color: var(--cyan);
+  opacity: 0.6;
+}
+.polyfeed-xp-badge {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  border: 1px solid rgba(251,191,36,0.3);
+  padding: 3px 8px;
+  background: rgba(251,191,36,0.06);
+}
+
+/* ── POLYFEED OVERLAY ── */
+.polyfeed-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 3000;
+  flex-direction: column;
+  overflow: hidden;
+}
+.polyfeed-overlay.open { display: flex; }
+
+/* Header bar */
+.pf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--bg2);
+  position: relative;
+}
+.pf-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--cyan), var(--purple), transparent);
+}
+.pf-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--cyan);
+}
+.pf-close {
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--text3);
+  font-size: 14px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.pf-close:hover { border-color: var(--red); color: var(--red); }
+.pf-xp-counter {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pf-xp-dot { width: 6px; height: 6px; background: var(--gold); transform: rotate(45deg); }
+
+/* Category tabs */
+.pf-cats {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+.pf-cats::-webkit-scrollbar { display: none; }
+.pf-cat-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text3);
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.pf-cat-btn.active {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan);
+}
+.pf-cat-btn:hover:not(.active) { color: var(--text2); }
+
+/* Feed container */
+.pf-feed {
+  flex: 1;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+
+/* Card */
+.pf-card {
+  scroll-snap-align: start;
+  min-height: calc(100vh - 140px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  transition: background 0.3s;
+}
+.pf-card.loading-card {
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.pf-card-bg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 180px;
+  user-select: none;
+}
+
+.pf-cat-tag {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border: 1px solid currentColor;
+  opacity: 0.8;
+  width: fit-content;
+}
+.pf-card-num {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  color: var(--text3);
+  margin-bottom: 8px;
+  letter-spacing: 0.1em;
+}
+.pf-hook {
+  font-family: 'Orbitron', monospace;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.35;
+  margin-bottom: 18px;
+  letter-spacing: 0.02em;
+}
+.pf-body {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.85;
+  margin-bottom: 22px;
+}
+.pf-body strong { color: var(--text); }
+.pf-body em { color: var(--cyan); font-style: normal; }
+
+/* Source pill */
+.pf-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--text3);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  margin-bottom: 20px;
+  font-family: 'Space Mono', monospace;
+}
+
+/* Challenge box */
+.pf-challenge {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--gold);
+  padding: 16px;
+  margin-bottom: 20px;
+  position: relative;
+}
+.pf-challenge-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pf-challenge-xp {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  color: var(--gold);
+  border: 1px solid rgba(251,191,36,0.4);
+  padding: 2px 7px;
+  background: rgba(251,191,36,0.08);
+}
+.pf-challenge-text {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.6;
+  font-weight: 600;
+}
+.pf-challenge-timer {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  color: var(--text3);
+  margin-top: 6px;
+}
+
+/* Action row */
+.pf-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.pf-btn-complete {
+  flex: 1;
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.pf-btn-complete:hover { background: rgba(251,191,36,0.1); }
+.pf-btn-complete.done {
+  border-color: var(--green);
+  color: var(--green);
+  background: rgba(16,185,129,0.08);
+  pointer-events: none;
+}
+.pf-btn-skip {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  padding: 12px 16px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text3);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.pf-btn-skip:hover { border-color: var(--text2); color: var(--text2); }
+.pf-btn-next {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  padding: 12px 16px;
+  background: transparent;
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.pf-btn-next:hover { background: rgba(0,229,255,0.08); }
+
+/* Loading spinner for AI */
+.pf-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: var(--text3);
+}
+.pf-spinner-ring {
+  width: 40px; height: 40px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--cyan);
+  border-radius: 50%;
+  animation: pf-spin 0.8s linear infinite;
+}
+@keyframes pf-spin { to { transform: rotate(360deg); } }
+.pf-spinner-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  animation: pf-pulse 1.5s ease infinite;
+}
+@keyframes pf-pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+/* XP Float in feed */
+.pf-xp-float {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  font-family: 'Orbitron', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+  text-shadow: 0 0 12px var(--gold);
+  pointer-events: none;
+  z-index: 4000;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.8s ease;
+  transform: translateY(0);
+}
+.pf-xp-float.show {
+  opacity: 1;
+  transform: translateY(-30px);
+}
+
+/* Streak in feed header */
+.pf-streak-pill {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: var(--orange);
+  border: 1px solid rgba(249,115,22,0.4);
+  padding: 3px 8px;
+  background: rgba(249,115,22,0.06);
+}
+
+/* Empty/error state */
+.pf-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text3);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.pf-empty-icon { font-size: 40px; margin-bottom: 14px; }
+
+/* ── API KEY SETUP OVERLAY ── */
+.apikey-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6,10,14,0.97);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.apikey-box {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-top: 3px solid var(--cyan);
+  max-width: 480px;
+  width: 100%;
+  padding: 36px;
+}
+.apikey-logo {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--cyan);
+  margin-bottom: 24px;
+}
+.apikey-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.apikey-sub {
+  font-size: 11px;
+  color: var(--text2);
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+.apikey-sub a { color: var(--cyan); text-decoration: none; }
+.apikey-label {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.apikey-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  padding: 12px 14px;
+  outline: none;
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+}
+.apikey-input:focus { border-color: var(--cyan); }
+.apikey-hint {
+  font-size: 10px;
+  color: var(--text3);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+.apikey-btn {
+  width: 100%;
+  background: var(--cyan);
+  color: #060a0e;
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  border: none;
+  padding: 14px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.apikey-btn:hover { opacity: 0.85; }
+.apikey-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.apikey-footer {
+  margin-top: 16px;
+  font-size: 10px;
+  color: var(--text3);
+  text-align: center;
+  line-height: 1.6;
+}
+.apikey-change-btn {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text3);
+  padding: 4px 10px;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+}
+.apikey-change-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.apikey-error {
+  color: var(--red);
+  font-size: 11px;
+  margin-bottom: 12px;
+  display: none;
+}
+
+</style>
+
+<script src="polylife-gamification.js"></script>
+</head>
+<body>
+<!-- API KEY SETUP OVERLAY -->
+<div class="apikey-overlay" id="apikey-overlay" style="display:none">
+  <div class="apikey-box">
+    <div class="apikey-logo">POLYMATH OS · SETUP</div>
+    <div class="apikey-title">Inserisci la tua Gemini API Key</div>
+    <div class="apikey-sub">
+      Per usare l'AI integrata (Coach, Focus, PolyFeed, Second Brain) serve una API key di Google Gemini.<br><br>
+      È <strong>completamente gratuita</strong> — nessuna carta di credito richiesta. La key viene salvata <strong>solo sul tuo dispositivo</strong> in localStorage.
+    </div>
+    <div class="apikey-label">Google Gemini API Key</div>
+    <div class="apikey-error" id="apikey-error">⚠ Key non valida — controlla e riprova</div>
+    <input class="apikey-input" id="apikey-input" type="password"
+      placeholder="AIza..."
+      onkeydown="if(event.key==='Enter') saveAPIKey()" />
+    <div class="apikey-hint">
+      Ottieni la key gratis su <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> → Get API Key → Create API key.<br>
+      Zero costi, zero carta di credito.
+    </div>
+    <button class="apikey-btn" id="apikey-btn" onclick="saveAPIKey()">⚡ ATTIVA POLYMATH OS</button>
+    <div class="apikey-footer">
+      Powered by Google Gemini 2.0 Flash · Gratuito
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header fade-in">
+    <div class="header-left">
+      <div class="header-eyebrow">Sistema integrato di crescita · v2.0</div>
+      <div class="header-title">POLYMATH <span>OS</span></div>
+      <div class="header-sub" id="date-label">Hub centrale · Dati in tempo reale da tutte le app</div>
+    </div>
+    <div class="header-right">
+      <div class="clock-display" id="clock-display">
+        <span id="clock-hm">--:--</span><span class="clock-seconds" id="clock-s">:--</span>
+      </div>
+      <div class="date-display" id="date-display">—</div>
+      <div class="header-actions">
+        <button class="btn-ghost" onclick="loadAll()">↺ REFRESH</button>
+        <button class="btn-ghost" onclick="openWeeklyReview()">📋 WEEKLY REVIEW</button>
+        <button class="btn-ghost" onclick="openSecondBrain()" style="border-color:#a78bfa;color:#a78bfa">🧠 SECOND BRAIN</button>
+        <button class="btn-ghost" onclick="openDecisionLog()" style="border-color:#f59e0b;color:#f59e0b">📋 DECISIONI</button>
+        <button class="btn-ghost" onclick="openAICoach()" style="border-color:#00e5ff;color:#00e5ff">🤖 AI COACH</button>
+        <button class="btn-ghost" onclick="openApp('hub')" style="border-color:#4f8cff;color:#4f8cff">📅 CALENDARIO</button>
+        <button class="apikey-change-btn" onclick="showAPIKeySetup()" title="Cambia API Key">🔑 KEY</button>
+        <button class="btn-ghost" onclick="confirmResetAll()" style="border-color:#ef4444;color:#ef4444;font-size:9px">⚠ RESET</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOBAL LEVEL BAR -->
+  <div class="level-bar-wrap fade-in" style="animation-delay:0.05s">
+    <div>
+      <div class="level-badge">LIVELLO</div>
+      <div class="level-num" id="global-level">—</div>
+      <div style="margin-top:4px"><span class="level-name-badge" id="xp-level-name">—</span></div>
+    </div>
+    <div class="xp-track">
+      <div class="xp-bar-bg">
+        <div class="xp-bar-fill" id="xp-fill" style="width:0%"></div>
+      </div>
+      <div class="xp-labels">
+        <span id="xp-label-left">0 XP</span>
+        <span id="xp-label-right">— XP</span>
+      </div>
+    </div>
+    <div class="total-xp-display">
+      <span class="total-xp-num" id="total-xp">0</span>
+      <span style="display:block;margin-top:2px">XP TOTALI</span>
+    </div>
+  </div>
+
+  <!-- INSIGHT STRIP -->
+  <div class="insight-strip hidden fade-in" id="insight-strip" style="animation-delay:0.08s">
+    <div class="insight-icon" id="insight-icon">💡</div>
+    <div class="insight-text" id="insight-text">—</div>
+  </div>
+
+
+  <!-- SYSTEM STREAK BANNER -->
+  <div class="system-streak-banner fade-in" id="system-streak-banner" style="animation-delay:0.09s">
+    <div class="streak-banner-left">
+      <div class="streak-banner-emoji" id="streak-banner-emoji">🔥</div>
+      <div>
+        <div class="streak-banner-label">STREAK DI SISTEMA</div>
+        <div class="streak-banner-value" id="streak-banner-value">— giorni</div>
+      </div>
+    </div>
+    <div class="streak-banner-apps" id="streak-banner-apps"></div>
+  </div>
+
+  <!-- STATS ROW -->
+  <div class="stats-row fade-in" style="animation-delay:0.1s">
+    <div class="stat-cell">
+      <div class="stat-cell-val" id="stat-streak-total">—</div>
+      <div class="stat-cell-label">Streak composita</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-cell-val" id="stat-sessions-week">—</div>
+      <div class="stat-cell-label">Sessioni questa settimana</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-cell-val" id="stat-books-total">—</div>
+      <div class="stat-cell-label">Libri completati</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-cell-val" id="stat-missions-total">—</div>
+      <div class="stat-cell-label">Missioni RPG oggi</div>
+    </div>
+    <div class="stat-cell" style="border-left:3px solid var(--cyan);">
+      <div class="stat-cell-val" id="stat-global-level" style="color:var(--cyan);">0</div>
+      <div class="stat-cell-label" id="stat-global-class">UNRANKED</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-cell-val" id="stat-global-xp" style="color:var(--text2);font-size:14px;">0</div>
+      <div class="stat-cell-label">XP globali totali</div>
+    </div>
+  </div>
+
+  <!-- APP CARDS -->
+  <div class="apps-grid fade-in" style="animation-delay:0.15s">
+
+    <!-- STUDIO -->
+    <div class="app-card studio" onclick="openApp('studio')">
+      <div class="app-card-header">
+        <div class="app-name">STUDIO</div>
+        <div class="app-icon">🎓</div>
+      </div>
+      <div class="app-stat-main" id="st-streak">—</div>
+      <div class="app-stat-label">Giorni streak</div>
+      <div class="app-rows">
+        <div class="app-row">
+          <span class="app-row-label">Compiti oggi</span>
+          <span class="app-row-value" id="st-compiti">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Voti registrati</span>
+          <span class="app-row-value accent" id="st-voti">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Sessioni focus</span>
+          <span class="app-row-value" id="st-sessions">—</span>
+        </div>
+        <div class="app-row" id="st-alert-row" style="display:none">
+          <span class="app-row-label">Prossima verifica<span class="alert-badge">!</span></span>
+          <span class="app-row-value alert" id="st-next-ver">—</span>
+        </div>
+      </div>
+      <div class="mini-bar"><div class="mini-bar-fill" id="st-bar" style="width:0%;background:var(--studio-c)"></div></div>
+    <div onclick="event.stopPropagation()" style="padding:6px 0 0;"><button onclick="openAICoach('studio')" style="font-family:'Orbitron',monospace;font-size:7px;letter-spacing:.12em;padding:5px 10px;background:rgba(79,140,255,.08);border:1px solid rgba(79,140,255,.3);color:#4f8cff;cursor:pointer;width:100%;transition:all .2s" onmouseover="this.style.background='rgba(79,140,255,.18)'" onmouseout="this.style.background='rgba(79,140,255,.08)'">🤖 TUTOR AI / LEARNING COACH →</button></div>
+    </div>
+
+    <!-- LIBRARY -->
+    <div class="app-card library" onclick="openApp('library')">
+      <div class="app-card-header">
+        <div class="app-name">LIBRARY</div>
+        <div class="app-icon">📚</div>
+      </div>
+      <div class="app-stat-main" id="lib-books-done">—</div>
+      <div class="app-stat-label">Libri completati</div>
+      <div class="app-rows">
+        <div class="app-row">
+          <span class="app-row-label">In lettura</span>
+          <span class="app-row-value accent" id="lib-reading">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Libro attivo</span>
+          <span class="app-row-value" id="lib-current-title" style="font-size:10px;text-align:right;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Progresso</span>
+          <span class="app-row-value good" id="lib-progress">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Pagine oggi</span>
+          <span class="app-row-value" id="lib-today-pages">—</span>
+        </div>
+      </div>
+      <div class="mini-bar"><div class="mini-bar-fill" id="lib-bar" style="width:0%;background:var(--library-c)"></div></div>
+    <div onclick="event.stopPropagation()" style="padding:6px 0 0;"><button onclick="openAICoach('library')" style="font-family:'Orbitron',monospace;font-size:7px;letter-spacing:.12em;padding:5px 10px;background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.3);color:#a78bfa;cursor:pointer;width:100%;transition:all .2s" onmouseover="this.style.background='rgba(167,139,250,.18)'" onmouseout="this.style.background='rgba(167,139,250,.08)'">🤖 READING MENTOR →</button></div>
+    </div>
+
+    <!-- LIFE RPG -->
+    <div class="app-card rpg" onclick="openApp('rpg')">
+      <div class="app-card-header">
+        <div class="app-name">LIFE RPG</div>
+        <div class="app-icon">⚔️</div>
+      </div>
+      <div class="app-stat-main" id="rpg-missions">—</div>
+      <div class="app-stat-label">Missioni completate oggi</div>
+      <div class="app-rows">
+        <div class="app-row">
+          <span class="app-row-label">XP Life RPG</span>
+          <span class="app-row-value accent" id="rpg-xp">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Streak giorni</span>
+          <span class="app-row-value good" id="rpg-streak">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Skill top</span>
+          <span class="app-row-value" id="rpg-top-skill">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Boss attivo</span>
+          <span class="app-row-value warn" id="rpg-boss">—</span>
+        </div>
+      </div>
+      <div class="mini-bar"><div class="mini-bar-fill" id="rpg-bar" style="width:0%;background:var(--rpg-c)"></div></div>
+    </div>
+
+    <!-- LEO PROTOCOL -->
+    <div class="app-card leo" onclick="openApp('leo')">
+      <div class="app-card-header">
+        <div class="app-name">LEO PROTOCOL</div>
+        <div class="app-icon">🏋️</div>
+      </div>
+      <div class="app-stat-main" id="leo-energy">—</div>
+      <div class="app-stat-label">Energia ultimo check-in</div>
+      <div class="app-rows">
+        <div class="app-row">
+          <span class="app-row-label">Sonno</span>
+          <span class="app-row-value" id="leo-sleep">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Motivazione</span>
+          <span class="app-row-value" id="leo-motivation">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Peso</span>
+          <span class="app-row-value accent" id="leo-weight">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Milestone completate</span>
+          <span class="app-row-value good" id="leo-milestones">—</span>
+        </div>
+      </div>
+      <div class="mini-bar"><div class="mini-bar-fill" id="leo-bar" style="width:0%;background:var(--leo-c)"></div></div>
+    <div onclick="event.stopPropagation()" style="padding:6px 0 0;"><button onclick="openAICoach('leo')" style="font-family:'Orbitron',monospace;font-size:7px;letter-spacing:.12em;padding:5px 10px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:#ef4444;cursor:pointer;width:100%;transition:all .2s" onmouseover="this.style.background='rgba(239,68,68,.18)'" onmouseout="this.style.background='rgba(239,68,68,.08)'">🤖 ALLENATORE / NUTRIZIONISTA →</button></div>
+    </div>
+
+    <div class="app-card agora" onclick="openApp('agora')">
+      <div class="app-card-header">
+        <div class="app-name">AGORA</div>
+        <div class="app-icon">🏛️</div>
+      </div>
+      <div class="app-stat-main" style="font-size:28px">🗣️</div>
+      <div class="app-stat-label">Dialoghi con i Grandi</div>
+      <div class="app-rows">
+        <div class="app-row">
+          <span class="app-row-label">Figure disponibili</span>
+          <span class="app-row-value accent">12+</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Epoche</span>
+          <span class="app-row-value">Antichità → Scienza</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Modalità</span>
+          <span class="app-row-value good">Dialogo AI</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Aggiungi figure</span>
+          <span class="app-row-value accent">Custom ✦</span>
+        </div>
+      </div>
+      <div class="mini-bar"><div class="mini-bar-fill" style="width:100%;background:var(--agora-c);opacity:0.5"></div></div>
+    </div>
+
+    <!-- AGORA ANIME -->
+    <div class="app-card agora" onclick="openApp('agora_anime')" style="--agora-c:#e879f9">
+      <div class="app-card-header">
+        <div class="app-name" style="color:#e879f9">AGORA ANIME</div>
+        <div class="app-icon">🎌</div>
+      </div>
+      <div class="app-stat-main" style="font-size:28px">✨</div>
+      <div class="app-stat-label">Dialoghi con Personaggi Anime</div>
+      <div class="app-rows">
+        <div class="app-row">
+          <span class="app-row-label">Personaggi</span>
+          <span class="app-row-value accent">10+</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Generi</span>
+          <span class="app-row-value">Shonen → Seinen</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Modalità</span>
+          <span class="app-row-value good">Dialogo AI</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Temi</span>
+          <span class="app-row-value accent">Crescita ✦</span>
+        </div>
+      </div>
+      <div class="mini-bar"><div class="mini-bar-fill" style="width:100%;background:#e879f9;opacity:0.5"></div></div>
+    </div>
+
+    <!-- ENGINEER -->
+    <div class="app-card rpg" onclick="openApp('engineer')" style="--rpg-c:#34d399">
+      <div class="app-card-header">
+        <div class="app-name" style="color:#34d399">ENGINEER</div>
+        <div class="app-icon">⚙️</div>
+      </div>
+      <div class="app-stat-main" style="font-size:28px">🔧</div>
+      <div class="app-stat-label">Modulo Ingegneristico AI</div>
+      <div class="app-rows">
+        <div class="app-row">
+          <span class="app-row-label">Specializzazione</span>
+          <span class="app-row-value accent">Tecnica</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Calcoli</span>
+          <span class="app-row-value good">Avanzati</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Modalità</span>
+          <span class="app-row-value good">Dialogo AI</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Problemi</span>
+          <span class="app-row-value accent">Custom ✦</span>
+        </div>
+      </div>
+      <div class="mini-bar"><div class="mini-bar-fill" style="width:100%;background:#34d399;opacity:0.5"></div></div>
+    </div>
+
+    <!-- DUNGEON OS v2 — ANIME POWER FANTASY -->
+    <div class="app-card rpg" onclick="openApp('dungeon')" style="--rpg-c:#00e5ff;border-color:rgba(0,229,255,0.2);background:rgba(0,229,255,0.01);position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#00e5ff,#c77dff,#ffd700,#00e5ff,transparent)"></div>
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,229,255,0.04),transparent 60%);pointer-events:none"></div>
+      <div class="app-card-header">
+        <div class="app-name" style="color:#00e5ff;font-family:'Orbitron',monospace;letter-spacing:2px;font-size:11px">DUNGEON OS v2</div>
+        <div class="app-icon">🌌</div>
+      </div>
+      <div class="app-stat-main" id="dungeon-power" style="color:#ffd700;font-family:'Orbitron',monospace">—</div>
+      <div class="app-stat-label">POWER LEVEL</div>
+      <div class="app-rows">
+        <div class="app-row">
+          <span class="app-row-label">Forma Attiva</span>
+          <span class="app-row-value" id="dungeon-form" style="color:#c77dff;font-size:9px">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Titolo</span>
+          <span class="app-row-value warn" id="dungeon-title2">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Esercito</span>
+          <span class="app-row-value accent" id="dungeon-army-hub">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Boss Sconfitti</span>
+          <span class="app-row-value good" id="dungeon-defeated2">—</span>
+        </div>
+      </div>
+      <div class="mini-bar"><div class="mini-bar-fill" id="dungeon-bar" style="width:0%;background:linear-gradient(90deg,#00e5ff,#c77dff,#7b2fff)"></div></div>
+    </div>
+
+
+  </div>
+
+    <!-- MISSION ORCHESTRATOR -->
+    <div class="app-card" onclick="openApp('missions')" style="border-color:rgba(142,68,173,0.3);background:rgba(142,68,173,0.03)">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#8e44ad,#6c3483,transparent)"></div>
+      <div class="app-card-header">
+        <div class="app-name" style="color:#a78bfa">ORCHESTRATOR</div>
+        <div class="app-icon">🎯</div>
+      </div>
+      <div class="app-stat-main" id="orch-today-done" style="color:#a78bfa">—</div>
+      <div class="app-stat-label">Missioni completate oggi</div>
+      <div class="app-rows">
+        <div class="app-row">
+          <span class="app-row-label">Piano AI attivo</span>
+          <span class="app-row-value" id="orch-plan-status">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Missioni in coda</span>
+          <span class="app-row-value" id="orch-pending">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Operating Profile</span>
+          <span class="app-row-value" id="orch-profile-status">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Slot liberi oggi</span>
+          <span class="app-row-value accent" id="orch-free-slots">—</span>
+        </div>
+      </div>
+      <div class="mini-bar"><div class="mini-bar-fill" id="orch-bar" style="width:0%;background:#a78bfa"></div></div>
+    </div>
+
+    <!-- RECOVERY CENTER -->
+    <div class="app-card" onclick="openApp('recovery')" style="border-color:rgba(249,115,22,0.25);background:rgba(249,115,22,0.03)">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--rec-c,#f97316),var(--red),transparent)"></div>
+      <div class="app-card-header">
+        <div class="app-name" style="color:#f97316">RECOVERY</div>
+        <div class="app-icon">⚡</div>
+      </div>
+      <div class="app-stat-main" id="rec-score" style="color:#f97316">—</div>
+      <div class="app-stat-label">Recovery Score (14gg)</div>
+      <div class="app-rows">
+        <div class="app-row">
+          <span class="app-row-label">Task in coda</span>
+          <span class="app-row-value alert" id="rec-queue">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Analisi totali</span>
+          <span class="app-row-value" id="rec-total">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Risolti</span>
+          <span class="app-row-value good" id="rec-resolved">—</span>
+        </div>
+        <div class="app-row">
+          <span class="app-row-label">Causa #1</span>
+          <span class="app-row-value accent" id="rec-top-cause">—</span>
+        </div>
+      </div>
+      <div class="mini-bar"><div class="mini-bar-fill" id="rec-bar" style="width:0%;background:#f97316"></div></div>
+    </div>
+
+
+  <!-- ARTE & MUSICA -->
+  <div class="app-card agora" onclick="openApp('arte_musica')" style="--agora-c:linear-gradient(135deg,#f472b6,#818cf8);border-color:rgba(244,114,182,0.2)">
+    <div class="app-card-header">
+      <div class="app-name" style="background:linear-gradient(135deg,#f472b6,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">ARTE & MUSICA</div>
+      <div class="app-icon">🎨</div>
+    </div>
+    <div class="app-stat-main" id="am-xp" style="background:linear-gradient(135deg,#f472b6,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">—</div>
+    <div class="app-stat-label">XP Creativi totali</div>
+    <div class="app-rows">
+      <div class="app-row">
+        <span class="app-row-label">XP Arte</span>
+        <span class="app-row-value accent" id="am-arte-xp">—</span>
+      </div>
+      <div class="app-row">
+        <span class="app-row-label">XP Musica</span>
+        <span class="app-row-value" id="am-musica-xp">—</span>
+      </div>
+      <div class="app-row">
+        <span class="app-row-label">Progetti attivi</span>
+        <span class="app-row-value good" id="am-projects">—</span>
+      </div>
+      <div class="app-row">
+        <span class="app-row-label">Streak pratica</span>
+        <span class="app-row-value accent" id="am-streak">—</span>
+      </div>
+    </div>
+    <div class="mini-bar"><div class="mini-bar-fill" id="am-bar" style="width:0%;background:linear-gradient(90deg,#f472b6,#818cf8)"></div></div>
+    <div onclick="event.stopPropagation()" style="padding:6px 0 0;"><button onclick="openAICoach('arte_musica')" style="font-family:'Orbitron',monospace;font-size:7px;letter-spacing:.12em;padding:5px 10px;background:rgba(244,114,182,.08);border:1px solid rgba(244,114,182,.3);color:#f472b6;cursor:pointer;width:100%;transition:all .2s" onmouseover="this.style.background='rgba(244,114,182,.18)'" onmouseout="this.style.background='rgba(244,114,182,.08)'">🤖 ART / MUSIC MENTOR →</button></div>
+  </div>
+  <!-- ANALYTICS MINI DASHBOARD -->
+  <div class="analytics-mini fade-in" style="animation-delay:0.18s">
+    <div class="analytics-mini-header">
+      <div class="analytics-mini-title">⬡ DAILY ANALYTICS — SISTEMA</div>
+      <button class="analytics-mini-btn" onclick="toggleAnalyticsCenter()">ANALYTICS CENTER →</button>
+    </div>
+    <div class="analytics-kpi-grid">
+      <div class="analytics-kpi">
+        <span class="analytics-kpi-icon">🔥</span>
+        <div class="analytics-kpi-val cyan" id="akpi-streak">—</div>
+        <div class="analytics-kpi-label">Giorni<br>consecutivi</div>
+      </div>
+      <div class="analytics-kpi">
+        <span class="analytics-kpi-icon">✅</span>
+        <div class="analytics-kpi-val good" id="akpi-completion">—</div>
+        <div class="analytics-kpi-label">Completion<br>rate oggi</div>
+      </div>
+      <div class="analytics-kpi">
+        <span class="analytics-kpi-icon">⏱</span>
+        <div class="analytics-kpi-val" id="akpi-time">—</div>
+        <div class="analytics-kpi-label">Minuti<br>oggi</div>
+      </div>
+      <div class="analytics-kpi">
+        <span class="analytics-kpi-icon">🏆</span>
+        <div class="analytics-kpi-val purple" id="akpi-topmod">—</div>
+        <div class="analytics-kpi-label">Modulo<br>più usato</div>
+      </div>
+      <div class="analytics-kpi">
+        <span class="analytics-kpi-icon">⚡</span>
+        <div class="analytics-kpi-val good" id="akpi-tasks">—</div>
+        <div class="analytics-kpi-label">Task<br>completati</div>
+      </div>
+      <div class="analytics-kpi">
+        <span class="analytics-kpi-icon">🤖</span>
+        <div class="analytics-kpi-val cyan" id="akpi-ai">—</div>
+        <div class="analytics-kpi-label">Interazioni<br>AI</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS CENTER (espandibile) -->
+  <div class="analytics-center fade-in" id="analytics-center" style="animation-delay:0.19s">
+    <div class="analytics-center-header" onclick="toggleAnalyticsCenter()">
+      <div class="analytics-center-title">◈ ANALYTICS CENTER — LABORATORIO DI ANALISI</div>
+      <span style="font-size:11px;color:var(--text3)">▲ CHIUDI</span>
+    </div>
+    <div class="analytics-center-body">
+      <!-- Tab bar -->
+      <div class="analytics-tabs">
+        <button class="analytics-tab active" onclick="switchAnalyticsTab('trend')">Trend</button>
+        <button class="analytics-tab" onclick="switchAnalyticsTab('modules')">Moduli</button>
+        <button class="analytics-tab" onclick="switchAnalyticsTab('tasks')">Task</button>
+        <button class="analytics-tab" onclick="switchAnalyticsTab('ai')">AI Insight</button>
+      </div>
+
+      <!-- TREND panel -->
+      <div class="analytics-tab-panel active" id="atab-trend">
+        <div class="analytics-chart-title">TEMPO DI UTILIZZO — ULTIMI 14 GIORNI (min)</div>
+        <div class="analytics-bar-chart" id="achart-time"></div>
+        <div class="analytics-chart-title">TASK COMPLETATI — ULTIMI 14 GIORNI</div>
+        <div class="analytics-bar-chart" id="achart-tasks"></div>
+      </div>
+
+      <!-- MODULES panel -->
+      <div class="analytics-tab-panel" id="atab-modules">
+        <div class="analytics-chart-title">RANKING MODULI — ULTIMI 30 GIORNI</div>
+        <div id="achart-modules"></div>
+      </div>
+
+      <!-- TASKS panel -->
+      <div class="analytics-tab-panel" id="atab-tasks">
+        <div class="analytics-chart-title">INTERAZIONI AI — ULTIMI 14 GIORNI</div>
+        <div class="analytics-bar-chart" id="achart-ai"></div>
+        <div style="margin-top:16px">
+          <div class="analytics-chart-title">RIEPILOGO SETTIMANA CORRENTE</div>
+          <div id="achart-week-summary" style="font-size:11px;color:var(--text2);line-height:1.8"></div>
+        </div>
+      </div>
+
+      <!-- AI INSIGHT panel -->
+      <div class="analytics-tab-panel" id="atab-ai">
+        <div class="analytics-chart-title">INSIGHT GENERATO DALL'AI</div>
+        <div class="analytics-ai-insight">
+          <div class="analytics-ai-insight-title">🤖 AI COACH — ANALISI COMPORTAMENTALE</div>
+          <div id="ai-insight-text" style="color:var(--text3);font-style:italic">Clicca per generare un'analisi del tuo utilizzo...</div>
+        </div>
+        <button class="btn-generate" style="margin-top:14px;width:100%" onclick="generateAnalyticsInsight()">
+          ⚡ GENERA INSIGHT AI
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HABIT TRACKER 7 GIORNI -->
+  <div class="habit-section fade-in" style="animation-delay:0.2s">
+    <div class="section-title">ATTIVITÀ — ULTIMI 7 GIORNI</div>
+    <div class="habit-day-labels" id="habit-day-labels"></div>
+    <div class="habit-grid-wrap" id="habit-grid"></div>
+  </div>
+
+  <!-- BOTTOM GRID: FOCUS + RADAR -->
+  <div class="bottom-grid fade-in" style="animation-delay:0.25s">
+
+    <!-- FOCUS DEL GIORNO -->
+    <div class="focus-card">
+      <div class="section-title">⚡ FOCUS DEL GIORNO</div>
+      <div id="focus-content">
+        <div class="focus-loading">Caricamento dati in corso...</div>
+      </div>
+      <button class="btn-generate" id="btn-ai-focus" onclick="generateFocus()">
+        ⚡ GENERA FOCUS CON AI
+      </button>
+    </div>
+
+    <!-- RADAR POLIMATA -->
+    <div class="radar-wrap">
+      <div class="section-title">PROFILO POLIMATA</div>
+      <div class="radar-inner">
+        <svg class="radar-svg" width="160" height="160" viewBox="0 0 160 160" id="radar-svg"></svg>
+        <div class="radar-legend" id="radar-legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="timeline-card fade-in" style="animation-delay:0.3s">
+    <div class="section-title">EVENTI — TUTTE LE APP</div>
+    <div class="timeline-list" id="timeline-list"></div>
+  </div>
+
+  <!-- NOTE RAPIDE -->
+  <div class="notes-section fade-in" style="animation-delay:0.32s">
+    <div class="section-title">🟠 NOTE RAPIDE</div>
+    <div class="quick-note-wrap">
+      <textarea class="quick-note-input" id="quick-note-input" placeholder="Scrivi un pensiero, insight, idea..." rows="2"></textarea>
+      <button class="btn-note-save" onclick="saveQuickNote()">+ SALVA</button>
+    </div>
+    <div class="notes-list" id="notes-list"></div>
+  </div>
+
+  <!-- QUICK LINKS -->
+  <div class="quick-links-section fade-in" style="animation-delay:0.35s">
+    <div class="section-title">APRI APP</div>
+    <div class="quick-links">
+      <a class="quick-link studio-link" onclick="openApp('studio')">🎓 STUDIO</a>
+      <a class="quick-link library-link" onclick="openApp('library')">📚 LIBRARY</a>
+      <a class="quick-link rpg-link" onclick="openApp('rpg')">⚔️ LIFE RPG</a>
+      <a class="quick-link leo-link" onclick="openApp('leo')">🏋️ LEO PROTOCOL</a>
+      <a class="quick-link agora-link" onclick="openApp('agora')">🏛️ AGORA</a>
+      <a class="quick-link agora-link" onclick="openApp('agora_anime')" style="--agora-c:#e879f9">🎌 AGORA ANIME</a>
+      <a class="quick-link" onclick="openApp('engineer')" style="color:#34d399;border-color:rgba(52,211,153,.3)">⚙️ ENGINEER</a>
+      <a class="quick-link rpg-link" onclick="openApp('missions')">⚔ MISSIONI</a>
+      <a class="quick-link" onclick="openApp('arte_musica')" style="color:#f472b6;border-color:rgba(244,114,182,0.3)">🎨 ARTE &amp; MUSICA</a>
+      <a class="quick-link" onclick="openApp('recovery')" style="color:#f97316;border-color:rgba(249,115,22,0.3)">⚡ RECOVERY</a>
+      <a class="quick-link" onclick="openApp('operating_profile')" style="color:#a78bfa;border-color:rgba(142,68,173,0.3)">⚙ PROFILO</a>
+      <a class="quick-link studio-link" onclick="openApp('hub')">📅 CALENDARIO</a>
+      <a class="quick-link studio-link" onclick="openApp('planner')">🤖 PLANNER AI</a>
+      <a class="quick-link library-link" onclick="openApp('flashcards')">🃏 FLASHCARD</a>
+      <a class="quick-link" onclick="openApp('settings')" style="color:var(--text-dim);border-color:rgba(255,255,255,.1)">⚙️ SETTINGS</a>
+      <a class="quick-link dungeon-link" onclick="openApp('dungeon')" style="--dungeon-c:#00e5ff;font-weight:700;color:#00e5ff;border-color:rgba(0,229,255,0.4)">🌌 DUNGEON</a>
+    </div>
+    <div style="margin-top:10px;font-size:9px;color:var(--text3)">
+      Apri le app nello stesso browser per sincronizzare i dati via localStorage.
+    </div>
+  </div>
+
+  <!-- POLYFEED ENTRY -->
+  <div class="polyfeed-btn-entry fade-in" style="animation-delay:0.38s" onclick="openPolyFeed()">
+    <div class="polyfeed-entry-icon">⚡</div>
+    <div class="polyfeed-entry-text">
+      <div class="polyfeed-entry-title">POLYFEED</div>
+      <div class="polyfeed-entry-sub">Curiosità da polimata · Sfide culturali · XP reali</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+      <div class="polyfeed-xp-badge">+XP → Life RPG</div>
+      <div class="polyfeed-entry-arrow">→</div>
+    </div>
+  </div>
+
+  <!-- AGORA: accesso via quick links, non in PolyFeed -->
+
+</div>
+
+<!-- WEEKLY REVIEW MODAL -->
+<div class="modal-overlay" id="weekly-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">📋 WEEKLY REVIEW</div>
+      <button class="modal-close" onclick="closeWeeklyReview()">✕</button>
+    </div>
+    <div id="weekly-review-content">
+      <div class="review-form" id="weekly-form">
+        <div class="review-field">
+          <div class="review-label">Cosa ho fatto questa settimana?</div>
+          <textarea class="review-textarea" id="rev-done" placeholder="Sessioni, libri, allenamenti, traguardi..."></textarea>
+        </div>
+        <div class="review-field">
+          <div class="review-label">Dove ho ceduto o mancato?</div>
+          <textarea class="review-textarea" id="rev-failed" placeholder="Sii onesto. La consapevolezza è forza."></textarea>
+        </div>
+        <div class="review-field">
+          <div class="review-label">Chi voglio essere la settimana prossima?</div>
+          <textarea class="review-textarea" id="rev-vision" placeholder="Intenzione concreta, non generica..."></textarea>
+        </div>
+        <div id="weekly-ai-output" style="display:none;margin:14px 0;padding:12px 14px;background:var(--bg3);border:1px solid rgba(167,139,250,0.25);border-left:3px solid var(--purple);font-size:11px;color:var(--text2);line-height:1.8;"></div>
+        <div class="review-actions">
+          <button class="btn-save" onclick="saveWeeklyReview()">💾 SALVA REVIEW</button>
+          <button class="btn-save" id="btn-weekly-ai" onclick="generateWeeklyAI()" style="background:transparent;border-color:var(--purple);color:var(--purple);">🤖 ANALISI AI</button>
+          <button class="review-toggle" onclick="showReviewHistory()">Vedi storico →</button>
+        </div>
+        <button class="ai-weekly-btn" id="ai-weekly-btn" onclick="generateAIWeeklyQuestion()">🧠 DOMANDA SCOMODA</button>
+        <div class="ai-weekly-question" id="ai-weekly-question"></div>
+      </div>
+      <div id="review-history-wrap" style="display:none">
+        <button class="review-toggle" onclick="hideReviewHistory()" style="margin-bottom:14px;">← Nuova review</button>
+        <div id="review-history-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  POLYMATH OS v2 — CORE
+// ═══════════════════════════════════════════════════
+
+const TODAY = new Date().toISOString().slice(0,10);
+const WEEKDAYS_IT = ['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'];
+const WEEKDAYS_SHORT = ['DO','LU','MA','ME','GI','VE','SA'];
+const MONTHS_IT   = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+
+// ── Level system ──
+const LEVEL_THRESHOLDS = [0,100,250,450,700,1000,1400,1900,2500,3200,4000];
+const LEVEL_NAMES = ['NEOFITA','APPRENDISTA','STUDIOSO','PRATICANTE','ESPERTO','MAESTRO','VIRTUOSO','SAPIENTE','POLIMATA','VISIONARIO','TRANSCENDENTE'];
+
+function getLevel(xp) {
+  for(let i=LEVEL_THRESHOLDS.length-1; i>=0; i--) {
+    if(xp >= LEVEL_THRESHOLDS[i]) return i+1;
+  }
+  return 1;
+}
+
+function getLevelProgress(xp) {
+  const lvl = getLevel(xp);
+  const idx = lvl - 1;
+  const curr = LEVEL_THRESHOLDS[idx] || 0;
+  const next = LEVEL_THRESHOLDS[idx+1] || LEVEL_THRESHOLDS[idx] + 500;
+  const pct  = Math.min(100, Math.round(((xp-curr)/(next-curr))*100));
+  return { lvl, curr, next, pct, name: LEVEL_NAMES[idx] || 'MAX' };
+}
+
+// ── Safe localStorage ──
+function safeGet(key) {
+  try { return JSON.parse(localStorage.getItem(key) || 'null'); }
+  catch { return null; }
+}
+function safeSet(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+}
+
+// ── Date helpers ──
+function isoDateDaysAgo(n) {
+  const d = new Date(); d.setDate(d.getDate() - n);
+  return d.toISOString().slice(0,10);
+}
+function getLast7Days() {
+  return Array.from({length:7}, (_,i) => isoDateDaysAgo(6-i));
+}
+
+// ── Clock ──
+function updateClock() {
+  const now = new Date();
+  const hm = now.toLocaleTimeString('it-IT', {hour:'2-digit',minute:'2-digit'});
+  const s  = ':' + String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('clock-hm').textContent = hm;
+  document.getElementById('clock-s').textContent  = s;
+}
+
+// ── Data readers (SQLite-first) ──
+async function studyBlob(k, def) {
+  if (window.db?.study?.getBlob) {
+    try {
+      const d = await window.db.study.getBlob(k);
+      if (d != null) return d;
+    } catch (_) {}
+  }
+  return safeGet('sv4_' + k) ?? def;
+}
+
+async function readStudio() {
+  const rec     = await studyBlob('rec', []);
+  const notes   = await studyBlob('notes', []);
+  const ver     = await studyBlob('ver', []);
+  const streak  = await studyBlob('streak', []);
+  const compiti = await studyBlob('compiti', []);
+  const voti    = await studyBlob('voti', []);
+
+  let streakDays = 0;
+  if(streak.length) {
+    const sorted = [...streak].sort((a,b) => b > a ? 1 : -1);
+    for(let i=0; i<sorted.length; i++) {
+      const expected = new Date();
+      expected.setDate(expected.getDate() - i);
+      const exp = expected.toISOString().slice(0,10);
+      if(sorted[i] === exp) streakDays++;
+      else break;
+    }
+  }
+  const pendingToday = compiti.filter(c => !c.done && c.dueDate === TODAY).length;
+  const futureVer = ver.filter(v => v.date >= TODAY).sort((a,b) => a.date > b.date ? 1 : -1);
+  const nextVer = futureVer[0] || null;
+  const sessionsTotal = rec.length;
+  // sessions this week
+  const week7 = getLast7Days();
+  const sessionsWeek = rec.filter(r => r.date && week7.includes(r.date)).length;
+  return { streakDays, pendingToday, votiCount: voti.length, sessionsTotal, sessionsWeek, nextVer, compiti, voti, notes, streak };
+}
+
+async function readLibrary() {
+  let state = null;
+  if (window.db?.libraryState?.get) {
+    try { state = await window.db.libraryState.get(); } catch (_) {}
+  }
+  if (!state) state = safeGet('leo_library_v1');
+  if(!state || !state.books) return null;
+  const books = state.books || [];
+  const done  = books.filter(b => b.status === 'done').length;
+  const reading = books.filter(b => b.status === 'reading');
+  const current = reading[0] || null;
+  const pct = current ? Math.round((current.progress / current.pages) * 100) : 0;
+  const todayPages = state.todayPages || 0;
+  return { done, readingCount: reading.length, current, pct, todayPages, books };
+}
+
+async function readRPG() {
+  let state = null;
+  if (window.db?.rpg?.getState) {
+    try { state = await window.db.rpg.getState(); } catch (_) {}
+  }
+  if (!state) state = safeGet('leo_rpg_state_v2');
+  if(!state) return null;
+  const done = state.done || {};
+  const missionsToday = Object.keys(done).filter(k => done[k] === true || done[k] === TODAY).length;
+  const skills = state.skills || {};
+  const skillEntries = Object.entries(skills);
+  const topSkill = skillEntries.sort((a,b) => b[1]-a[1])[0];
+  const hist = state.streakHistory || [];
+  const streak = hist.filter(h => h.complete).length;
+  const totalXp = state.totalXp || 0;
+  const lvl = getLevel(totalXp);
+  const BOSS_NAMES = {1:'CORPO SVEGLIATO',2:'MENTE ACCESA',3:'DISCIPLINA',4:'BIOHACKER',5:'INVESTITORE',6:'BUILDER',7:'OTTIMIZZATORE',8:'POLIMATA',9:'ARCHITETTO',10:'ESSERE LIBERO'};
+  const bossName = BOSS_NAMES[lvl] || `BOSS LV${lvl}`;
+  return { totalXp, missionsToday, topSkill, streak, lvl, bossName, skills };
+}
+
+
+async function readRecovery() {
+  try {
+    let log = [];
+    if (window.db?.recovery?.getAll) {
+      try { log = await window.db.recovery.getAll(); } catch (_) {}
+    }
+    if (!log.length) log = JSON.parse(localStorage.getItem('polylife_recovery_v1')||'[]');
+    const total   = log.length;
+    const resolved = log.filter(e=>e.resolved).length;
+    const last14  = log.filter(e=>(Date.now()-new Date(e.date))<14*864e5);
+    const score   = last14.length ? Math.round(last14.filter(e=>e.resolved).length/last14.length*100) : null;
+    const counts  = {};
+    log.forEach(e=>{ counts[e.cause]=(counts[e.cause]||0)+1; });
+    const topCause = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+    const causeNames = {dist:'Distrazioni',tired:'Stanchezza',over:'Sovraccarico',uncl:'Mancanza chiarezza',proc:'Procrastinazione',motiv:'Motivazione',ext:'Cause esterne',other:'Altro'};
+    return { total, resolved, score, queueLen: 0, topCause: topCause ? causeNames[topCause[0]]||topCause[0] : null };
+  } catch { return { total:0, resolved:0, score:null, queueLen:0, topCause:null }; }
+}
+
+async function readOrchestrator() {
+  try {
+    const today    = new Date().toISOString().slice(0,10);
+    let missions = [];
+    if (window.db?.dailyMissions?.getByDate) {
+      try { missions = await window.db.dailyMissions.getByDate(today); } catch (_) {}
+    }
+    if (!missions.length) {
+      const all = JSON.parse(localStorage.getItem('polylife_daily_missions_v1') || localStorage.getItem('polylife_missions_v1') || '[]');
+      missions = all.filter(m => m.date === today);
+    }
+    let plan = null;
+    if (window.db?.orchestrator?.getPlan) {
+      try { plan = await window.db.orchestrator.getPlan(today); } catch (_) {}
+    }
+    if (!plan) {
+      const plans = JSON.parse(localStorage.getItem('polylife_orchestrator_plan_v1') || '{}');
+      plan = plans[today];
+    }
+    let profile = null;
+    if (window.db?.profile?.get) {
+      try { profile = await window.db.profile.get(); } catch (_) {}
+    }
+    if (!profile) profile = JSON.parse(localStorage.getItem('polylife_operating_profile_v1') || 'null');
+    const todayMissions = missions;
+    const done    = todayMissions.filter(m => m.completed == 1 || m.completed === true).length;
+    const pending = todayMissions.filter(m => !(m.completed == 1 || m.completed === true)).length;
+    const todayPlan = plan;
+    return {
+      done, pending, total: todayMissions.length,
+      hasPlan: !!todayPlan,
+      missioneDelGiorno: todayPlan?.missioneDelGiorno || null,
+      profileConfigured: !!profile,
+    };
+  } catch { return null; }
+}
+
+async function readArteMusica() {
+  try {
+    let am = null;
+    if (window.db?.creativity?.getState) {
+      try { am = await window.db.creativity.getState(); } catch (_) {}
+    }
+    if (!am) am = JSON.parse(localStorage.getItem('polylife_arte_musica_v1') || 'null');
+
+    // Valori con fallback sicuri a 0 — nessun errore se non esistono dati
+    const arteXP    = (am && am.arte  && am.arte.xp)   ? am.arte.xp   : 0;
+    const musicaXP  = (am && am.musica && am.musica.xp) ? am.musica.xp : 0;
+    const totalXPam = arteXP + musicaXP;
+    const projects  = (am && Array.isArray(am.projects))
+      ? am.projects.filter(p => p.stato !== 'completato').length
+      : 0;
+    const streak    = (am && am.streak && am.streak.count) ? am.streak.count : 0;
+
+    // Aggiorna card Arte & Musica
+    const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    setEl('am-xp',        totalXPam.toLocaleString('it-IT'));
+    setEl('am-arte-xp',   arteXP   + ' XP');
+    setEl('am-musica-xp', musicaXP + ' XP');
+    setEl('am-projects',  projects + ' attivi');
+    setEl('am-streak',    streak   + ' gg');
+
+    // Barra progresso (cap 100%, 1 XP = 0.05% → 2000 XP = barra piena)
+    const barEl = document.getElementById('am-bar');
+    if (barEl) barEl.style.width = Math.min(100, Math.round(totalXPam / 20)) + '%';
+
+    return { arteXP, musicaXP, totalXPam, projects, streak };
+  } catch(e) {
+    console.warn('[readArteMusica] fallback silenzioso:', e.message);
+    // Fallback: mostra 0 senza crashare
+    const safe = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    safe('am-xp', '0'); safe('am-arte-xp', '0 XP'); safe('am-musica-xp', '0 XP');
+    safe('am-projects', '0 attivi'); safe('am-streak', '0 gg');
+    const barEl = document.getElementById('am-bar');
+    if (barEl) barEl.style.width = '0%';
+    return null;
+  }
+}
+
+async function readLEO() {
+  let checkins = [], milestones = [], prList = [];
+  if (window.db?.leo) {
+    try {
+      checkins = await window.db.leo.getCheckins('2000-01-01', '2099-12-31');
+      milestones = await window.db.leo.getMilestones();
+      prList = await window.db.leo.getPR();
+    } catch (_) {}
+  }
+  if (!checkins.length) checkins = safeGet('leo_checkin') || [];
+  if (!milestones.length) milestones = safeGet('leo_milestones') || [];
+  const pr = prList.length ? prList : (safeGet('leo_pr') || {});
+  const latest = checkins[0] || null;
+  const doneMilestones = milestones.filter(m => m.done || m.achieved).length;
+  return { latest, doneMilestones, totalMilestones: milestones.length, pr, checkins };
+}
+
+async function readAnalytics() {
+  if (!window.db?.analytics?.getDayStats) return null;
+  try {
+    return await window.db.analytics.getDayStats(new Date().toISOString().slice(0, 10));
+  } catch { return null; }
+}
+
+async function readGamification() {
+  if (!window.PolyGamification) return null;
+  try {
+    await window.PolyGamification.init();
+    return {
+      level: window.PolyGamification.getGlobalLevel(),
+      xp: window.PolyGamification.getTotalXP(),
+      class: window.PolyGamification.getProgressionClass(window.PolyGamification.getGlobalLevel()),
+    };
+  } catch { return null; }
+}
+
+// ── Total XP ──
+function computeTotalXP(studio, library, rpg, leo) {
+  let xp = 0;
+  if(rpg)     xp += rpg.totalXp || 0;
+  if(library) xp += (library.done || 0) * 50;
+  if(studio)  xp += (studio.sessionsTotal||0)*10 + (studio.votiCount||0)*5;
+  if(leo)     xp += (leo.doneMilestones||0) * 30;
+  return xp;
+}
+
+// ── Smart Insight detector ──
+function computeInsight(studio, library, rpg, leo) {
+  if(leo && leo.latest) {
+    const e = leo.latest.energy;
+    if(e !== null && e <= 3) {
+      return {
+        icon: '⚠️',
+        text: `Energia <strong>${e}/10</strong> rilevata nell'ultimo check-in LEO. Oggi punta alle sessioni brevi (25 min) e salta l'allenamento intenso. Il recupero <em>è</em> produttività.`
+      };
+    }
+    if(e !== null && e >= 8 && studio && studio.pendingToday > 0) {
+      return {
+        icon: '🔥',
+        text: `Energia <strong>${e}/10</strong> — sei al massimo. Affronta i <strong>${studio.pendingToday} compiti</strong> pendenti prima di sera. Giornata da non sprecare.`
+      };
+    }
+  }
+  if(studio && studio.nextVer) {
+    const daysLeft = Math.ceil((new Date(studio.nextVer.date) - new Date()) / 86400000);
+    if(daysLeft <= 2 && daysLeft >= 0) {
+      return {
+        icon: '📅',
+        text: `Verifica in <strong>${studio.nextVer.subj}</strong> tra <strong>${daysLeft === 0 ? 'oggi' : daysLeft + ' giorno/i'}</strong>. Ripassi fatti? Ogni sessione adesso vale doppio.`
+      };
+    }
+  }
+  if(library && library.current && library.pct > 0) {
+    const daysInactive = 3; // placeholder — in futuro leggi ultima data aggiornamento
+    if(library.current && library.todayPages === 0) {
+      return {
+        icon: '📖',
+        text: `"<strong>${library.current.title}</strong>" è al ${library.pct}% e aspetta. Anche solo 15 pagine oggi tengono viva la continuità mentale con il libro.`
+      };
+    }
+  }
+  if(rpg && rpg.missionsToday === 0) {
+    const now = new Date();
+    if(now.getHours() >= 18) {
+      return {
+        icon: '⚔️',
+        text: `Nessuna missione Life RPG completata oggi. Sono le ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')} — ancora in tempo per chiudere almeno 3. Non rompere la streak.`
+      };
+    }
+  }
+  return null;
+}
+
+// ── Habit Tracker 7 giorni ──
+function buildHabitData(studio, library, rpg, leo) {
+  const days = getLast7Days();
+  const tracks = [
+    {
+      label: 'STUDIO',
+      color: 'var(--studio-c)',
+      activeDays: studio ? studio.streak : []
+    },
+    {
+      label: 'LIBRARY',
+      color: 'var(--library-c)',
+      activeDays: [] // library doesn't track daily dates easily yet
+    },
+    {
+      label: 'LIFE RPG',
+      color: 'var(--rpg-c)',
+      activeDays: rpg ? (() => {
+        const hist = safeGet('leo_rpg_state_v2');
+        const sh = hist?.streakHistory || [];
+        return sh.filter(h => h.complete).map(h => h.date);
+      })() : []
+    },
+    {
+      label: 'LEO',
+      color: 'var(--leo-c)',
+      activeDays: leo ? leo.checkins.map(c => c.dateStr || c.date || '').filter(Boolean) : []
+    },
+  ];
+  return { days, tracks };
+}
+
+function renderHabitTracker(studio, library, rpg, leo) {
+  const { days, tracks } = buildHabitData(studio, library, rpg, leo);
+  const now = new Date();
+
+  // Day labels
+  const labelsEl = document.getElementById('habit-day-labels');
+  labelsEl.innerHTML = days.map(d => {
+    const dt = new Date(d + 'T12:00:00');
+    const isToday = d === TODAY;
+    return `<div class="habit-day-lbl" style="${isToday ? 'color:var(--cyan)' : ''}">${WEEKDAYS_SHORT[dt.getDay()]}</div>`;
+  }).join('');
+
+  const gridEl = document.getElementById('habit-grid');
+  gridEl.innerHTML = tracks.map(t => {
+    const dotsHtml = days.map(d => {
+      const active = t.activeDays.includes(d);
+      const isToday = d === TODAY;
+      const style = active ? `color:${t.color};background:${t.color}22;border-color:${t.color}` : '';
+      const todayCls = isToday ? ' today-dot' : '';
+      return `<div class="habit-dot${active ? ' active' : ''}${todayCls}" style="${style}">${active ? '✓' : ''}</div>`;
+    }).join('');
+
+    const total = t.activeDays.filter(d => days.includes(d)).length;
+    return `
+      <div class="habit-row">
+        <div class="habit-app-label" style="color:${t.color}">${t.label}</div>
+        <div class="habit-dots">${dotsHtml}</div>
+        <div class="habit-summary">${total}/7</div>
+      </div>`;
+  }).join('');
+}
+
+// ── Radar ──
+const RADAR_AXES = [
+  { key:'body',       label:'CORPO',          color:'var(--red)' },
+  { key:'mind',       label:'MENTE ANALITICA', color:'var(--blue)' },
+  { key:'humanities', label:'MENTE UMANISTICA',color:'var(--purple)' },
+  { key:'discipline', label:'DISCIPLINA',      color:'var(--gold)' },
+  { key:'health',     label:'BIO & SALUTE',    color:'var(--green)' },
+  { key:'finance',    label:'FINANZA',          color:'var(--cyan)' },
+];
+
+function computeRadarValues(rpg, library) {
+  const skills = rpg ? rpg.skills : {};
+  function skillVal(key) {
+    return Math.min(100, Math.round(((skills[key]||0) / 600) * 100));
+  }
+  const libVal = library ? Math.min(100, (library.done * 20) + Math.round(library.pct / 2)) : 0;
+  return {
+    body:       skillVal('body'),
+    mind:       skillVal('mind'),
+    humanities: Math.max(skillVal('mind'), libVal),
+    discipline: skillVal('discipline'),
+    health:     skillVal('health'),
+    finance:    skillVal('finance'),
+  };
+}
+
+function drawRadar(vals) {
+  const svg = document.getElementById('radar-svg');
+  const N = 6;
+  const CX = 80, CY = 80, R = 62;
+
+  function pt(i, r) {
+    const angle = (Math.PI * 2 * i / N) - Math.PI/2;
+    return [CX + r * Math.cos(angle), CY + r * Math.sin(angle)];
+  }
+
+  let html = '';
+  [0.25,0.5,0.75,1].forEach(f => {
+    const pts = RADAR_AXES.map((_,i) => pt(i, R*f).join(',')).join(' ');
+    html += `<polygon points="${pts}" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+  });
+  RADAR_AXES.forEach((_,i) => {
+    const [x,y] = pt(i,R);
+    html += `<line x1="${CX}" y1="${CY}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`;
+  });
+  const keys = ['body','mind','humanities','discipline','health','finance'];
+  const dataPts = keys.map((k,i) => pt(i, R * (vals[k]||0) / 100).join(',')).join(' ');
+  html += `<polygon points="${dataPts}" fill="rgba(0,229,255,0.1)" stroke="var(--cyan)" stroke-width="1.5"/>`;
+  keys.forEach((k,i) => {
+    const [x,y] = pt(i, R * (vals[k]||0) / 100);
+    html += `<circle cx="${x}" cy="${y}" r="3.5" fill="var(--cyan)" opacity="0.9"/>`;
+  });
+  svg.innerHTML = html;
+
+  const leg = document.getElementById('radar-legend');
+  leg.innerHTML = RADAR_AXES.map((a,i) => {
+    const v = vals[keys[i]] || 0;
+    return `<div class="radar-legend-item">
+      <div class="radar-legend-dot" style="background:${a.color}"></div>
+      <div class="radar-legend-label">${a.label}</div>
+      <div class="radar-legend-val">${v}%</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Timeline ──
+function buildTimeline(studio, library, rpg, leo) {
+  const events = [];
+
+  if(studio) {
+    studio.voti.slice(-3).forEach(v => {
+      events.push({ time: v.isoDate||v.date||TODAY, desc: `Voto ${v.val||'?'}/10 in ${v.subj||'—'}`, source: 'STUDIO', color: 'var(--studio-c)' });
+    });
+    if(studio.nextVer) {
+      events.push({ time: studio.nextVer.date, desc: `⚠️ Verifica: ${studio.nextVer.subj||'—'}`, source: 'STUDIO', color: 'var(--red)', future: true });
+    }
+  }
+  if(library && library.current) {
+    events.push({ time: TODAY, desc: `📖 "${library.current.title}" — ${library.pct}% completato`, source: 'LIBRARY', color: 'var(--library-c)' });
+  }
+  if(rpg) {
+    events.push({ time: TODAY, desc: `⚔️ ${rpg.missionsToday} missioni completate — ${rpg.totalXp.toLocaleString('it-IT')} XP totali`, source: 'LIFE RPG', color: 'var(--rpg-c)' });
+  }
+  if(leo && leo.latest) {
+    events.push({ time: leo.latest.dateStr||TODAY, desc: `💪 Check-in: energia ${leo.latest.energy}/10, sonno ${leo.latest.sleep}/10, peso ${leo.latest.weight}kg`, source: 'LEO', color: 'var(--leo-c)' });
+  }
+
+  events.sort((a,b) => {
+    if(a.future && !b.future) return -1;
+    if(!a.future && b.future) return 1;
+    return b.time > a.time ? 1 : -1;
+  });
+  return events.slice(0, 10);
+}
+
+function renderTimeline(events) {
+  const el = document.getElementById('timeline-list');
+  if(!events.length) {
+    el.innerHTML = '<div class="timeline-empty">Nessun dato ancora. Apri le app e inizia a usarle.</div>';
+    return;
+  }
+  el.innerHTML = events.map(e => `
+    <div class="timeline-item">
+      <div class="timeline-dot" style="background:${e.color}"></div>
+      <div style="flex:1">
+        <div class="timeline-desc">${e.desc}</div>
+        <div class="timeline-meta">
+          <span class="timeline-time">${e.time}</span>
+          <span class="timeline-source" style="color:${e.color}">${e.source}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── Score color ──
+function scoreColor(val) {
+  if(val === null || val === undefined) return '';
+  if(val >= 7) return 'good';
+  if(val >= 4) return 'warn';
+  return 'alert';
+}
+
+// ── Quick Notes ──
+function renderNotes() {
+  const notes = safeGet('polymath_quick_notes') || [];
+  const el = document.getElementById('notes-list');
+  if(!notes.length) { el.innerHTML = ''; return; }
+  el.innerHTML = notes.slice().reverse().slice(0, 8).map((n, ri) => {
+    const i = notes.length - 1 - ri;
+    return `<div class="note-item">
+      <div class="note-item-time">${n.time}</div>
+      <div class="note-item-text">${n.text.replace(/</g,'&lt;')}</div>
+      <div class="note-item-del" onclick="deleteNote(${i})">×</div>
+    </div>`;
+  }).join('');
+}
+
+function saveQuickNote() {
+  const input = document.getElementById('quick-note-input');
+  const text = input.value.trim();
+  if(!text) return;
+  const notes = safeGet('polymath_quick_notes') || [];
+  const now = new Date();
+  notes.push({
+    text,
+    time: now.toLocaleString('it-IT', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'})
+  });
+  safeSet('polymath_quick_notes', notes);
+  input.value = '';
+  renderNotes();
+  showToast('// Nota salvata', 'green');
+}
+
+function deleteNote(i) {
+  const notes = safeGet('polymath_quick_notes') || [];
+  notes.splice(i, 1);
+  safeSet('polymath_quick_notes', notes);
+  renderNotes();
+}
+
+// Handle Enter key in note input
+document.getElementById('quick-note-input').addEventListener('keydown', function(e) {
+  if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveQuickNote(); }
+});
+
+// ── Weekly Review ──
+function openWeeklyReview() {
+  document.getElementById('weekly-modal').classList.add('open');
+  document.getElementById('weekly-form').style.display = '';
+  document.getElementById('review-history-wrap').style.display = 'none';
+}
+function closeWeeklyReview() {
+  document.getElementById('weekly-modal').classList.remove('open');
+}
+function saveWeeklyReview() {
+  const done   = document.getElementById('rev-done').value.trim();
+  const failed = document.getElementById('rev-failed').value.trim();
+  const vision = document.getElementById('rev-vision').value.trim();
+  if(!done && !failed && !vision) { showToast('// Scrivi qualcosa prima di salvare'); return; }
+  const reviews = safeGet('polymath_weekly_reviews') || [];
+  reviews.push({ date: TODAY, done, failed, vision });
+  safeSet('polymath_weekly_reviews', reviews);
+  document.getElementById('rev-done').value = '';
+  document.getElementById('rev-failed').value = '';
+  document.getElementById('rev-vision').value = '';
+  closeWeeklyReview();
+  showToast('// Weekly review salvata ✓', 'green');
+}
+
+function showReviewHistory() {
+  const reviews = safeGet('polymath_weekly_reviews') || [];
+  const el = document.getElementById('review-history-list');
+  if(!reviews.length) {
+    el.innerHTML = '<div class="timeline-empty">Nessuna review ancora.</div>';
+  } else {
+    el.innerHTML = reviews.slice().reverse().map(r => `
+      <div class="review-history-item">
+        <div class="review-history-date">${r.date}</div>
+        <div class="review-history-text">
+          ${r.done ? `<strong style="color:var(--green)">✓ Fatto:</strong> ${r.done}<br>` : ''}
+          ${r.failed ? `<strong style="color:var(--red)">✗ Mancato:</strong> ${r.failed}<br>` : ''}
+          ${r.vision ? `<strong style="color:var(--cyan)">→ Prossima settimana:</strong> ${r.vision}` : ''}
+        </div>
+      </div>`).join('');
+  }
+  document.getElementById('weekly-form').style.display = 'none';
+  document.getElementById('review-history-wrap').style.display = '';
+}
+
+function hideReviewHistory() {
+  document.getElementById('weekly-form').style.display = '';
+  document.getElementById('review-history-wrap').style.display = 'none';
+}
+
+// Close modal on overlay click
+document.getElementById('weekly-modal').addEventListener('click', function(e) {
+  if(e.target === this) closeWeeklyReview();
+});
+
+// ── Main render ──
+async function loadAll() {
+updateStreakBanner();
+  const [studio, library, rpg, leo, arteMusica, recovery, orchestrator] = await Promise.all([
+    readStudio(),
+    readLibrary(),
+    readRPG(),
+    readLEO(),
+    readArteMusica(),
+    readRecovery(),
+    readOrchestrator(),
+  ]);
+
+  // Analytics mini-dashboard (async, non blocca il resto)
+  renderAnalyticsMini();
+
+  // ── Global Gamification widget ────────────────────────────────────────────
+  if(window.PolyGamification) {
+    (async () => {
+      const G = window.PolyGamification;
+      await G.init();
+      const lvl = G.getGlobalLevel();
+      const cls = G.getProgressionClass(lvl);
+      const xp  = G.getTotalXP();
+      const lvlEl = document.getElementById('stat-global-level');
+      const clsEl = document.getElementById('stat-global-class');
+      const xpEl  = document.getElementById('stat-global-xp');
+      if(lvlEl){ lvlEl.textContent = lvl; lvlEl.style.color = cls.color; }
+      if(clsEl){ clsEl.textContent = cls.name; }
+      if(xpEl) { xpEl.textContent = xp.toLocaleString('it-IT') + ' XP'; }
+    })();
+  }
+
+  // Date header
+  const now = new Date();
+  const weekday = WEEKDAYS_IT[now.getDay()];
+  const month   = MONTHS_IT[now.getMonth()];
+  document.getElementById('date-label').textContent = `Hub centrale · Dati in tempo reale da tutte le app`;
+  document.getElementById('date-display').textContent =
+    `${weekday.toUpperCase()} ${now.getDate()} ${month.toUpperCase()} ${now.getFullYear()}`;
+
+  // ── Global XP & Level ──
+  const totalXP = computeTotalXP(studio, library, rpg, leo);
+  const { lvl, pct, curr, next, name } = getLevelProgress(totalXP);
+  document.getElementById('global-level').textContent = lvl;
+  document.getElementById('xp-fill').style.width = pct + '%';
+  document.getElementById('xp-label-left').textContent  = curr.toLocaleString('it-IT') + ' XP';
+  document.getElementById('xp-label-right').textContent = next.toLocaleString('it-IT') + ' XP';
+  document.getElementById('xp-level-name').textContent  = name;
+  document.getElementById('total-xp').textContent = totalXP.toLocaleString('it-IT');
+
+  // ── Insight ──
+  const insight = computeInsight(studio, library, rpg, leo);
+  const insightEl = document.getElementById('insight-strip');
+  if(insight) {
+    document.getElementById('insight-icon').textContent = insight.icon;
+    document.getElementById('insight-text').innerHTML   = insight.text;
+    insightEl.classList.remove('hidden');
+  } else {
+    insightEl.classList.add('hidden');
+  }
+
+  // ── Stats row ──
+  const stStreak = studio ? studio.streakDays : 0;
+  const rpgStreak = rpg ? rpg.streak : 0;
+  document.getElementById('stat-streak-total').textContent = Math.max(stStreak, rpgStreak) + ' gg';
+  document.getElementById('stat-sessions-week').textContent = studio ? studio.sessionsWeek : '—';
+  document.getElementById('stat-books-total').textContent   = library ? library.done : '—';
+  document.getElementById('stat-missions-total').textContent = rpg ? rpg.missionsToday : '—';
+
+  // ── STUDIO CARD ──
+  document.getElementById('st-streak').textContent = studio ? studio.streakDays : '—';
+  if(studio) {
+    const compEl = document.getElementById('st-compiti');
+    compEl.textContent  = studio.pendingToday + ' da fare';
+    compEl.className    = 'app-row-value ' + (studio.pendingToday > 0 ? 'warn' : 'good');
+    document.getElementById('st-voti').textContent     = studio.votiCount + ' totali';
+    document.getElementById('st-sessions').textContent = studio.sessionsTotal + ' totali';
+    document.getElementById('st-bar').style.width = Math.min(100, (studio.streakDays/30)*100) + '%';
+    if(studio.nextVer) {
+      document.getElementById('st-alert-row').style.display = 'flex';
+      document.getElementById('st-next-ver').textContent = studio.nextVer.subj || '—';
+    }
+  }
+
+  // ── LIBRARY CARD ──
+  if(library) {
+    document.getElementById('lib-books-done').textContent     = library.done;
+    document.getElementById('lib-reading').textContent        = library.readingCount;
+    document.getElementById('lib-current-title').textContent  = library.current ? library.current.title : '—';
+    document.getElementById('lib-progress').textContent       = library.current ? library.pct + '%' : '—';
+    document.getElementById('lib-today-pages').textContent    = library.todayPages + ' pag';
+    document.getElementById('lib-bar').style.width            = library.pct + '%';
+  } else {
+    ['lib-books-done','lib-reading','lib-current-title','lib-progress','lib-today-pages'].forEach(id => {
+      document.getElementById(id).textContent = '—';
+    });
+  }
+
+  // ── LIFE RPG CARD ──
+  if(rpg) {
+    document.getElementById('rpg-missions').textContent  = rpg.missionsToday;
+    document.getElementById('rpg-xp').textContent        = (rpg.totalXp||0).toLocaleString('it-IT');
+    document.getElementById('rpg-streak').textContent    = rpg.streak + ' giorni';
+    document.getElementById('rpg-top-skill').textContent = rpg.topSkill ? rpg.topSkill[0].toUpperCase() : '—';
+    document.getElementById('rpg-boss').textContent      = rpg.bossName;
+    document.getElementById('rpg-bar').style.width = Math.min(100, (rpg.missionsToday/20)*100) + '%';
+  }
+
+  // ── LEO CARD ──
+  if(leo && leo.latest) {
+    const l = leo.latest;
+    document.getElementById('leo-energy').textContent     = l.energy + '/10';
+    document.getElementById('leo-sleep').textContent      = l.sleep + '/10';
+    document.getElementById('leo-sleep').className        = 'app-row-value ' + scoreColor(l.sleep);
+    document.getElementById('leo-motivation').textContent = l.motivation + '/10';
+    document.getElementById('leo-motivation').className   = 'app-row-value ' + scoreColor(l.motivation);
+    document.getElementById('leo-weight').textContent     = l.weight + ' kg';
+    document.getElementById('leo-milestones').textContent = leo.doneMilestones + '/' + leo.totalMilestones;
+    document.getElementById('leo-bar').style.width = Math.min(100,(leo.doneMilestones/(leo.totalMilestones||1))*100) + '%';
+  } else {
+    document.getElementById('leo-energy').textContent = '—';
+    ['leo-sleep','leo-motivation','leo-weight','leo-milestones'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.textContent = '—';
+    });
+  }
+
+  // ── Habit Tracker ──
+  renderHabitTracker(studio, library, rpg, leo);
+
+  // ── DUNGEON OS v2 CARD ──
+  (function() {
+    try {
+      const gamif = JSON.parse(localStorage.getItem('polylife_global_gamification_v1') || 'null');
+      const ds    = JSON.parse(localStorage.getItem('polylife_dungeon_v2') || 'null');
+      if (!gamif) return;
+      const skills = gamif.skills || {};
+      const totalXp = gamif.totalXp || Object.values(skills).reduce((a,b)=>a+b,0) || 0;
+      const streak  = gamif.streak || 0;
+      // xpToLevel inline
+      function xl(xp){let lv=0,t=0;while(true){const n=Math.floor(50*Math.pow(lv+1,1.6));if(t+n>xp)break;t+=n;lv++;}return lv;}
+      const globalLv = xl(totalXp);
+      const {pct:lvPct} = (()=>{const lv=globalLv;let t=0;for(let i=0;i<lv;i++)t+=Math.floor(50*Math.pow(i+1,1.6));const next=Math.floor(50*Math.pow(lv+1,1.6));return{pct:lv===0?0:Math.round(((totalXp-t)/next)*100)};})();
+      // Power Level (simplified)
+      const pl = Math.round(
+        xl(skills.focus||0)*12 + xl(skills.strength||0)*10 + xl(skills.endurance||0)*8 +
+        xl(skills.analysis||0)*14 + xl(skills.coding||0)*12 + xl(skills.engineering||0)*10 +
+        xl(skills.leadership||0)*18 + xl(skills.communication||0)*10 + xl(skills.discipline||0)*20 +
+        xl(skills.critical_thinking||0)*15 + streak*50
+      );
+      // Active transformation
+      const TFS=[
+        {id:'galactic_architect',name:'GALACTIC ARCHITECT',reqs:[{t:'level',v:100},{t:'streak',v:100}],mult:100},
+        {id:'cosmic_engineer',   name:'COSMIC ENGINEER',   reqs:[{t:'level',v:80},{t:'skill',s:'coding',v:100}],mult:25},
+        {id:'monarch',           name:'MONARCH',           reqs:[{t:'level',v:60},{t:'streak',v:60}],mult:10},
+        {id:'ascendant',         name:'ASCENDANT',         reqs:[{t:'level',v:30},{t:'streak',v:30}],mult:3},
+        {id:'awakened',          name:'AWAKENED',          reqs:[{t:'level',v:10},{t:'streak',v:7}],mult:1.5},
+      ];
+      let activeTf='BASE FORM',activeMult=1;
+      for(const tf of TFS){
+        const ok=tf.reqs.every(r=>{
+          if(r.t==='level')return globalLv>=r.v;
+          if(r.t==='streak')return streak>=r.v;
+          if(r.t==='skill')return xl(skills[r.s]||0)>=r.v;
+          return false;
+        });
+        if(ok){activeTf=tf.name;activeMult=tf.mult;break;}
+      }
+      const effectivePL = Math.round(pl * activeMult);
+      function fmt(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return String(n);}
+      // Ranks
+      const RANKS=[{n:'NOVIZIO',l:0},{n:'HUNTER',l:5},{n:'ELITE',l:15},{n:'MASTER',l:30},{n:'MONARCH',l:60},{n:'ARCHITECT',l:80},{n:'SUPREME COMMANDER',l:90},{n:'GALACTIC FOUNDER',l:100}];
+      let rank=RANKS[0];for(const r of RANKS){if(globalLv>=r.l)rank=r;}
+      // Army
+      const def = (ds?.defeatedBosses||[]);
+      const army = Math.floor(streak*10+def.length*50 + xl(skills.coding||0)*5 + xl(skills.engineering||0)*6 + xl(skills.leadership||0)*8);
+      // Populate
+      const pw=document.getElementById('dungeon-power');     if(pw)pw.textContent=fmt(effectivePL);
+      const fm=document.getElementById('dungeon-form');      if(fm)fm.textContent=activeTf;
+      const ti=document.getElementById('dungeon-title2');    if(ti)ti.textContent=rank.n;
+      const ar=document.getElementById('dungeon-army-hub');  if(ar)ar.textContent=fmt(army)+' unità';
+      const dd=document.getElementById('dungeon-defeated2'); if(dd)dd.textContent=def.length+'/8 boss';
+      const bar=document.getElementById('dungeon-bar');      if(bar)bar.style.width=Math.min(100,lvPct)+'%';
+    } catch(e) {}
+  })();
+
+  // ── Radar ──
+  const radarVals = computeRadarValues(rpg, library);
+  drawRadar(radarVals);
+
+  // ── Timeline ──
+  renderTimeline(buildTimeline(studio, library, rpg, leo));
+
+  // ── Focus placeholder ──
+  if(!document.getElementById('focus-content').dataset.generated) {
+    renderFocusPlaceholder(studio, library, rpg, leo);
+  }
+
+  // ── Notes ──
+  renderNotes();
+}
+
+function renderFocusPlaceholder(studio, library, rpg, leo) {
+  const items = [];
+  if(studio && studio.nextVer) items.push(`📅 Verifica in <strong>${studio.nextVer.subj||'—'}</strong> il ${studio.nextVer.date}.`);
+  if(library && library.current) items.push(`📚 Sei al ${library.pct}% di <em>${library.current.title}</em>.`);
+  if(rpg) items.push(`⚔️ Missioni oggi: <strong>${rpg.missionsToday}</strong>.`);
+  if(leo && leo.latest) {
+    const e = leo.latest.energy;
+    const msg = e >= 7 ? 'Energia alta — giornata piena.' : e >= 4 ? 'Energia media — focus selettivo.' : '⚠️ Energia bassa — prioritizza il recupero.';
+    items.push(`💡 ${msg}`);
+  }
+  const el = document.getElementById('focus-content');
+  el.innerHTML = items.length
+    ? `<div class="focus-text">${items.join('<br><br>')}</div>`
+    : `<div class="focus-loading">Nessun dato ancora. Apri le app e torna qui.</div>`;
+}
+
+// ── AI FOCUS GENERATOR ──
+async function generateFocus() {
+  const btn = document.getElementById('btn-ai-focus');
+  btn.disabled = true;
+  btn.textContent = '⏳ GENERAZIONE IN CORSO...';
+
+  const studio  = readStudio();
+  const library = readLibrary();
+  const rpg     = readRPG();
+  const leo     = readLEO();
+  const am      = readArteMusica();
+
+  const ctx = [];
+  if(studio) {
+    ctx.push(`STUDIO: streak ${studio.streakDays} giorni, ${studio.pendingToday} compiti pendenti oggi, ${studio.sessionsTotal} sessioni focus totali.`);
+    if(studio.nextVer) ctx.push(`Prossima verifica: ${studio.nextVer.subj} il ${studio.nextVer.date}.`);
+  }
+  if(library && library.current) {
+    ctx.push(`LIBRARY: libro attivo "${library.current.title}" al ${library.pct}%, ${library.done} libri completati in totale.`);
+  }
+  if(rpg) {
+    ctx.push(`LIFE RPG: ${rpg.missionsToday} missioni completate oggi, ${rpg.totalXp.toLocaleString('it-IT')} XP totali, boss attuale: ${rpg.bossName}.`);
+    if(rpg.topSkill) ctx.push(`Skill più sviluppata: ${rpg.topSkill[0]}.`);
+  }
+  if(leo && leo.latest) {
+    const l = leo.latest;
+    ctx.push(`LEO PROTOCOL: energia ${l.energy}/10, sonno ${l.sleep}/10, motivazione ${l.motivation}/10, peso ${l.weight}kg.`);
+  }
+  if(am && am.totalXPam > 0) {
+    ctx.push(`ARTE & MUSICA: ${am.arteXP} XP Arte, ${am.musicaXP} XP Musica, ${am.projects} progetti attivi, streak ${am.streak} gg.`);
+  }
+  const xp = computeTotalXP(studio, library, rpg, leo);
+  const { lvl, name } = getLevelProgress(xp);
+  ctx.push(`Livello polimata globale: ${lvl} (${name}), ${xp.toLocaleString('it-IT')} XP totali.`);
+
+  const prompt = `Sei il coach personale di un ragazzo di 17 anni che segue il sistema PolymathOS — un sistema integrato di crescita mentale, fisica e intellettuale che unisce studio scolastico, lettura autonoma, missioni quotidiane e allenamento fisico.
+
+Dati della sua giornata/settimana:
+${ctx.join('\n')}
+
+Genera un FOCUS DEL GIORNO breve, potente e personalizzato (massimo 4 frasi). Deve essere:
+- Specifico sui suoi dati reali (cita numeri reali se utile)
+- Motivante ma onesto, non vuoto
+- Indicare UNA priorità concreta da fare OGGI
+- Scritto in italiano, tono diretto e incisivo come un sensei: nessun "bravo!", nessun fluff
+- Se possibile, fa un collegamento cross-app (es. come l'energia del corpo influisce sullo studio)
+
+Rispondi SOLO con il testo del focus, senza titoli, preamble o markdown.`;
+
+  try {
+    const data = await apiFetch('focus', {
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1024,
+      system: buildSystemPrompt(),
+      messages: [{ role: 'user', content: prompt }]
+    }, 4);
+    const text = data.content?.map(c => c.text||'').join('') || 'Errore nella generazione.';
+    const el = document.getElementById('focus-content');
+    el.innerHTML = `<div class="focus-text">${text.replace(/\n/g,'<br>')}</div>`;
+    el.dataset.generated = '1';
+    btn.textContent = '↺ RIGENERA FOCUS';
+    btn.disabled = false;
+    showToast('// Focus generato ✓', 'gold');
+  } catch(err) {
+    btn.textContent = '⚡ GENERA FOCUS CON AI';
+    btn.disabled = false;
+    if(err.message !== 'API key mancante' && err.message !== 'Rate limit raggiunto') showToast('// Errore AI — riprova');
+  }
+}
+
+// ── Weekly Review AI ──
+async function generateWeeklyAI() {
+  const btn = document.getElementById('btn-weekly-ai');
+  const out = document.getElementById('weekly-ai-output');
+  const done    = document.getElementById('rev-done').value.trim();
+  const failed  = document.getElementById('rev-failed').value.trim();
+  const vision  = document.getElementById('rev-vision').value.trim();
+
+  if(!done && !failed && !vision) {
+    showToast('// Compila almeno un campo prima');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ ANALISI IN CORSO...';
+  out.style.display = 'none';
+
+  const studio  = readStudio();
+  const library = readLibrary();
+  const rpg     = readRPG();
+  const leo     = readLEO();
+  const am      = readArteMusica();
+
+  const stats = [];
+  if(studio) stats.push(`Studio: streak ${studio.streakDays} giorni, ${studio.sessionsWeek} sessioni questa settimana, ${studio.pendingToday} compiti pendenti.`);
+  if(library && library.current) stats.push(`Library: "${library.current.title}" al ${library.pct}%, ${library.done} libri completati totali.`);
+  if(rpg) stats.push(`Life RPG: ${rpg.missionsToday} missioni oggi, ${rpg.streak} giorni streak, XP totali ${rpg.totalXp}.`);
+  if(leo && leo.latest) stats.push(`Corpo: energia ${leo.latest.energy}/10, sonno ${leo.latest.sleep}/10, motivazione ${leo.latest.motivation}/10.`);
+  if(am && am.totalXPam > 0) stats.push(`Arte & Musica: ${am.arteXP} XP Arte, ${am.musicaXP} XP Musica, streak creativa ${am.streak} gg.`);
+
+  // Check if it's Sunday for structured prompt
+  const isSunday = new Date().getDay() === 0;
+  const dayNote = isSunday ? 'È domenica — il momento ideale per la review settimanale.' : '';
+
+  const prompt = `Sei il coach personale di un ragazzo di 17 anni che usa PolymathOS — un sistema di crescita integrato su studio, lettura, missioni e corpo.
+${dayNote}
+
+DATI OGGETTIVI SETTIMANA:
+${stats.join('\n') || 'Nessun dato disponibile.'}
+
+RIFLESSIONE SCRITTA:
+${done ? `Cosa ha fatto: ${done}` : ''}
+${failed ? `Dove ha ceduto: ${failed}` : ''}
+${vision ? `Intenzione settimana prossima: ${vision}` : ''}
+
+Fornisci un'analisi breve (max 5 frasi) strutturata così:
+1. UN insight potente che emerge dai dati + dal testo
+2. Il pattern più importante da correggere
+3. UNA azione concreta e specifica per la settimana prossima
+
+Tono: diretto, incisivo, niente fluff. Scrivi in italiano. Niente titoli, solo testo.`;
+
+  try {
+    const data = await apiFetch('weekly', {
+      system: buildSystemPrompt(),
+      max_tokens: 2048,
+      messages: [{ role: 'user', content: prompt }]
+    }, 4);
+    const text = data.content?.map(c => c.text||'').join('') || 'Errore nella generazione.';
+    out.innerHTML = text.replace(/\n/g,'<br>');
+    out.style.display = 'block';
+    btn.textContent = '↺ RIGENERA';
+    btn.disabled = false;
+    showToast('// Analisi AI completata ✓', 'green');
+  } catch(err) {
+    btn.textContent = '🤖 ANALISI AI';
+    btn.disabled = false;
+    if(err.message !== 'API key mancante' && err.message !== 'Rate limit raggiunto') showToast('// Errore AI — riprova');
+  }
+}
+
+// ── App navigation ──
+const APP_PATHS = {
+  studio:       '/studio_polymath_v4.html',
+  library:      '/library_fixed.html',
+  rpg:          '/life_rpg_v2.html',
+  leo:          '/leo_protocol_v8.html',
+  agora:        '/agora.html',
+  agora_anime:  '/agora_anime.html',
+  engineer:     '/engineer.html',
+  missions:     '/daily-missions.html',
+  hub:          '/hub-calendar.html',
+  planner:      '/studio-planner.html',
+  flashcards:   '/flashcards.html',
+  settings:     '/settings.html',
+  recovery:     '/recovery-center.html',
+  arte_musica:  '/arte-musica.html',
+  operating_profile:'/operating-profile.html',
+  daily_command:'/daily-command-center.html',
+  dungeon:      '/dungeon.html'
+};
+
+function openApp(key) {
+  const p = APP_PATHS[key];
+  if(p) {
+    // Traccia module_visit con debounce anti-duplicazione
+    _analytics.trackModuleVisit(key);
+    window.location.href = p;
+  }
+}
+
+// ── Toast ──
+function showToast(msg, type='', ms=2400) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' '+type : '');
+  setTimeout(() => t.classList.remove('show'), ms);
+}
+
+// ══════════════════════════════════════════════
+// ── ANALYTICS ENGINE — anti-duplicazione ──────
+// ══════════════════════════════════════════════
+
+const _analytics = (() => {
+  // ── Stato interno ──────────────────────────────────────────────────────────
+  const DEBOUNCE_MS    = 800;   // ms minimi tra due eventi dello stesso tipo+modulo
+  const SESSION_GUARD  = 'polylife_session_started';  // sessionStorage key
+  const lastEvent      = {};    // cache: `type:module` → timestamp ultimo evento
+
+  // ── Helper: safe async track ───────────────────────────────────────────────
+  function _track(type, module, value, meta) {
+    if (!window.analytics || !window.analytics.track) return;
+    window.analytics.track(type, module, value, meta).catch(() => {});
+  }
+
+  // ── Debounce guard ─────────────────────────────────────────────────────────
+  // Restituisce true se l'evento è un duplicato da ignorare
+  function _isDuplicate(type, module) {
+    const key = type + ':' + (module || '');
+    const now  = Date.now();
+    if (lastEvent[key] && (now - lastEvent[key]) < DEBOUNCE_MS) return true;
+    lastEvent[key] = now;
+    return false;
+  }
+
+  // ── 1. session_start ───────────────────────────────────────────────────────
+  // Tracciato UNA SOLA VOLTA per sessione di navigazione.
+  // In Electron: già tracciato da main.js — il frontend non lo riduplica.
+  // In browser standalone (fallback): usa sessionStorage come guard.
+  function initSession() {
+    const isElectron = !!(window.analytics && window.analytics._isElectron);
+    if (isElectron) return; // main.js si occupa di session_start/end
+
+    // Fallback browser: sessionStorage impedisce duplicati su reload/HMR
+    if (sessionStorage.getItem(SESSION_GUARD)) return;
+    sessionStorage.setItem(SESSION_GUARD, '1');
+    _track('session_start', 'hub', null, null);
+
+    // session_end con durata reale
+    const startTs = Date.now();
+    window.addEventListener('beforeunload', () => {
+      const durMin = Math.round((Date.now() - startTs) / 6000) / 10;
+      try { window.analytics.track('session_end', 'hub', durMin, null); } catch(_) {}
+    }, { once: true });
+  }
+
+  // ── 2. module_visit ────────────────────────────────────────────────────────
+  // Tracciato solo quando il modulo cambia realmente.
+  // Debounce di 800ms per doppi click.
+  let _lastModule = null;
+  function trackModuleVisit(module) {
+    if (!module || module === _lastModule) return;  // stesso modulo → skip
+    if (_isDuplicate('module_visit', module)) return; // doppio click → skip
+    _lastModule = module;
+    _track('module_visit', module, null, null);
+  }
+
+  // ── 3. task_complete ───────────────────────────────────────────────────────
+  // Chiamato SOLO quando un task passa da false→true.
+  // Guard: tiene un Set degli id già tracciati in questa sessione.
+  const _trackedTasks = new Set();
+  function trackTaskComplete(taskId, module) {
+    if (!taskId) return;
+    const key = String(taskId);
+    if (_trackedTasks.has(key)) return; // già tracciato in questa sessione
+    if (_isDuplicate('task_complete', module)) return;
+    _trackedTasks.add(key);
+    _track('task_complete', module || 'hub', 1, { taskId });
+  }
+
+  // ── 4. ai_interaction ─────────────────────────────────────────────────────
+  // Chiamato UNA SOLA VOLTA per ogni chiamata HTTP a /api/chat.
+  // Debounce di 800ms impedisce doppi fire su retry/race.
+  function trackAI(module, promptLen) {
+    if (_isDuplicate('ai_interaction', module)) return;
+    _track('ai_interaction', module || 'hub', promptLen || null, null);
+  }
+
+  // Inizializza sessione al caricamento pagina
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSession, { once: true });
+  } else {
+    initSession();
+  }
+
+  // ── API pubblica ───────────────────────────────────────────────────────────
+  return { trackModuleVisit, trackTaskComplete, trackAI };
+})();
+
+// Esponi globalmente per uso dagli altri moduli (daily-missions, studio, ecc.)
+window._analyticsTrack = {
+  taskComplete: _analytics.trackTaskComplete,
+  aiCall:       _analytics.trackAI,
+};
+
+// Toggle Analytics Center
+function toggleAnalyticsCenter() {
+  const el = document.getElementById('analytics-center');
+  const isOpen = el.classList.toggle('open');
+  if(isOpen) renderAnalyticsCenter();
+}
+
+// Switch tab
+function switchAnalyticsTab(tab) {
+  document.querySelectorAll('.analytics-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.analytics-tab-panel').forEach(p => p.classList.remove('active'));
+  const btn = document.querySelector(`.analytics-tab[onclick*="'${tab}'"]`);
+  if(btn) btn.classList.add('active');
+  const panel = document.getElementById('atab-' + tab);
+  if(panel) panel.classList.add('active');
+}
+
+// Render mini-dashboard KPI
+async function renderAnalyticsMini() {
+  if(!window.analytics) return;
+  try {
+    const today = new Date().toISOString().slice(0,10);
+    const stats = await window.analytics.getDayStats(today);
+    if(!stats) return;
+
+    const completion = await window.analytics.getCompletionRate(today);
+
+    const streakEl = document.getElementById('akpi-streak');
+    const compEl   = document.getElementById('akpi-completion');
+    const timeEl   = document.getElementById('akpi-time');
+    const topEl    = document.getElementById('akpi-topmod');
+    const tasksEl  = document.getElementById('akpi-tasks');
+    const aiEl     = document.getElementById('akpi-ai');
+
+    if(streakEl) {
+      streakEl.textContent = stats.streak + (stats.streak === 1 ? ' gg' : ' gg');
+      streakEl.className = 'analytics-kpi-val ' + (stats.streak >= 7 ? 'good' : stats.streak >= 3 ? 'cyan' : 'warn');
+    }
+    if(compEl) {
+      compEl.textContent = completion !== null ? completion + '%' : 'N/D';
+      compEl.className = 'analytics-kpi-val ' + (completion >= 80 ? 'good' : completion >= 50 ? 'warn' : '');
+    }
+    if(timeEl) {
+      const h = Math.floor(stats.sessionMin / 60);
+      const m = stats.sessionMin % 60;
+      timeEl.textContent = h > 0 ? `${h}h${m}m` : `${stats.sessionMin}m`;
+    }
+    if(topEl) {
+      const MOD_LABELS = { studio:'STUDIO', rpg:'RPG', leo:'LEO', library:'LIBRARY', agora:'AGORA', hub:'HUB', engineer:'ENG' };
+      topEl.textContent = stats.topModule ? (MOD_LABELS[stats.topModule] || stats.topModule.toUpperCase()) : '—';
+    }
+    if(tasksEl) tasksEl.textContent = stats.tasksDone;
+    if(aiEl)    aiEl.textContent    = stats.aiCalls;
+  } catch(e) {
+    console.warn('Analytics mini error:', e);
+  }
+}
+
+// Render Analytics Center completo
+async function renderAnalyticsCenter() {
+  if(!window.analytics) return;
+  try {
+    const today = new Date().toISOString().slice(0,10);
+    const d14ago = new Date(); d14ago.setDate(d14ago.getDate()-13);
+    const from14 = d14ago.toISOString().slice(0,10);
+    const d30ago = new Date(); d30ago.setDate(d30ago.getDate()-29);
+    const from30 = d30ago.toISOString().slice(0,10);
+
+    const [totals14, modRank, totals7] = await Promise.all([
+      window.analytics.getDailyTotals(from14, today),
+      window.analytics.getModuleRanking(from30, today),
+      window.analytics.getDailyTotals(isoDateDaysAgo(6), today),
+    ]);
+
+    // Genera array ultime 14 date con dati
+    const last14 = Array.from({length:14}, (_,i) => {
+      const d = new Date(); d.setDate(d.getDate() - 13 + i);
+      return d.toISOString().slice(0,10);
+    });
+    const byDate = {};
+    (totals14 || []).forEach(r => { byDate[r.date] = r; });
+
+    // Chart: tempo
+    renderAnalyticsBarChart('achart-time', last14, byDate, 'session_min', '', 80);
+    // Chart: task
+    renderAnalyticsBarChart('achart-tasks', last14, byDate, 'tasks_done', 'tasks', 10);
+    // Chart: AI
+    renderAnalyticsBarChart('achart-ai', last14, byDate, 'ai_calls', 'ai', 15);
+
+    // Moduli ranking
+    renderModuleRanking('achart-modules', modRank || []);
+
+    // Riepilogo settimana
+    const weekSummaryEl = document.getElementById('achart-week-summary');
+    if(weekSummaryEl && totals7) {
+      const totMin   = totals7.reduce((s,r)=>s+(r.session_min||0),0);
+      const totTasks = totals7.reduce((s,r)=>s+(r.tasks_done||0),0);
+      const totAi    = totals7.reduce((s,r)=>s+(r.ai_calls||0),0);
+      const activeDays = totals7.filter(r=>(r.session_min||0)>0 || (r.tasks_done||0)>0).length;
+      weekSummaryEl.innerHTML = `
+        <div>📅 Giorni attivi questa settimana: <strong style="color:var(--cyan)">${activeDays}/7</strong></div>
+        <div>⏱ Tempo totale: <strong style="color:var(--text)">${Math.floor(totMin/60)}h ${totMin%60}m</strong></div>
+        <div>✅ Task completati: <strong style="color:var(--green)">${totTasks}</strong></div>
+        <div>🤖 Interazioni AI: <strong style="color:var(--purple)">${totAi}</strong></div>
+      `;
+    }
+  } catch(e) {
+    console.warn('Analytics center error:', e);
+  }
+}
+
+function renderAnalyticsBarChart(elId, dates, byDate, field, colorClass, maxFallback) {
+  const el = document.getElementById(elId);
+  if(!el) return;
+  const values = dates.map(d => (byDate[d] && byDate[d][field]) ? byDate[d][field] : 0);
+  const maxVal = Math.max(...values, maxFallback, 1);
+  el.innerHTML = dates.map((d, i) => {
+    const val = values[i];
+    const pct = Math.max(2, Math.round((val / maxVal) * 86));
+    const label = d.slice(5); // MM-DD
+    return `
+      <div class="analytics-bar-col">
+        <div class="analytics-bar ${colorClass}" style="height:${pct}%"></div>
+        <div class="analytics-bar-label">${label}</div>
+      </div>`;
+  }).join('');
+}
+
+function renderModuleRanking(elId, rows) {
+  const el = document.getElementById(elId);
+  if(!el) return;
+  if(!rows || rows.length === 0) {
+    el.innerHTML = '<div style="font-size:11px;color:var(--text3);padding:8px 0">Nessun dato ancora — usa i moduli per vedere il ranking.</div>';
+    return;
+  }
+  const maxVisits = Math.max(...rows.map(r=>r.visits), 1);
+  const MOD_EMOJI = { studio:'🎓', rpg:'⚔️', leo:'🏋️', library:'📚', agora:'🏛️', hub:'🏠', engineer:'⚙️' };
+  el.innerHTML = rows.map(r => `
+    <div class="analytics-module-row">
+      <div class="analytics-module-name">${MOD_EMOJI[r.module] || '◈'} ${(r.module||'').toUpperCase()}</div>
+      <div class="analytics-module-bar-wrap">
+        <div class="analytics-module-bar-fill" style="width:${Math.round((r.visits/maxVisits)*100)}%"></div>
+      </div>
+      <div class="analytics-module-count">${r.visits} vis.</div>
+    </div>
+  `).join('');
+}
+
+// AI Insight per analytics
+async function generateAnalyticsInsight() {
+  const el = document.getElementById('ai-insight-text');
+  if(!el) return;
+  el.textContent = 'Analizzando i tuoi pattern di utilizzo...';
+  el.style.color = 'var(--text3)';
+  el.style.fontStyle = 'italic';
+
+  try {
+    const today = new Date().toISOString().slice(0,10);
+    const d7ago = new Date(); d7ago.setDate(d7ago.getDate()-6);
+    const from7 = d7ago.toISOString().slice(0,10);
+
+    const [dayStats, totals7, modRank7] = await Promise.all([
+      window.analytics.getDayStats(today),
+      window.analytics.getDailyTotals(from7, today),
+      window.analytics.getModuleRanking(from7, today),
+    ]);
+
+    const totMin   = (totals7||[]).reduce((s,r)=>s+(r.session_min||0),0);
+    const totTasks = (totals7||[]).reduce((s,r)=>s+(r.tasks_done||0),0);
+    const activeDays = (totals7||[]).filter(r=>(r.session_min||0)>0||(r.tasks_done||0)>0).length;
+    const topMods  = (modRank7||[]).slice(0,3).map(r=>r.module).join(', ');
+
+    const prompt = `Sei un coach di produttività personale. Analizza questi dati di utilizzo di PolyLife degli ultimi 7 giorni e fornisci un insight strategico breve (max 3 frasi in italiano):
+- Giorni attivi: ${activeDays}/7
+- Tempo totale: ${Math.round(totMin)} minuti
+- Task completati: ${totTasks}
+- Moduli più usati: ${topMods || 'nessuno'}
+- Streak attuale: ${dayStats?.streak || 0} giorni
+- Task oggi: ${dayStats?.tasksDone || 0}
+Identifica il pattern principale e dai UN consiglio concreto per la prossima settimana.`;
+
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({_module:'hub', messages: [{ role: 'user', content: prompt }], max_tokens: 200 })
+    });
+    const data = await res.json();
+    const text = data?.content?.[0]?.text || 'Nessun insight disponibile.';
+    el.textContent = text;
+    el.style.color = 'var(--text2)';
+    el.style.fontStyle = 'normal';
+  } catch(e) {
+    el.textContent = 'Errore nella generazione dell\'insight. Controlla la connessione al server.';
+    el.style.color = 'var(--red)';
+    el.style.fontStyle = 'italic';
+  }
+}
+
+// ── Init ──
+(async () => {
+  await loadAll();
+})();
+updateClock();
+setInterval(updateClock, 1000);
+setInterval(() => { loadAll(); }, 30000);
+
+// ══════════════════════════════════════════════
+// ── API KEY MANAGEMENT ────────────────────────
+// ══════════════════════════════════════════════
+
+// API key gestita lato server (Groq via .env) — nessuna chiave richiesta nel frontend
+const APIKEY_STORAGE = 'polymath_gemini_key';
+const GEMINI_MODEL   = 'groq-llama';
+
+function getAPIKey() {
+  // Restituisce sempre 'groq' — l'AI è gestita dal server locale
+  return 'groq';
+}
+
+function saveAPIKey() {
+  document.getElementById('apikey-overlay').style.display = 'none';
+  showToast('// AI attiva via server Groq ✓', 'green', 3000);
+}
+
+function showAPIKeySetup() {
+  showToast('// AI gestita dal server (Groq) — nessuna chiave necessaria', 'green', 3000);
+  overlay.style.display = 'flex';
+}
+
+function checkAPIKeyOnLoad() {
+  // AI gestita dal server Groq — overlay non necessario
+  document.getElementById('apikey-overlay').style.display = 'none';
+}
+
+// Close overlay on background click
+document.getElementById('apikey-overlay').addEventListener('click', function(e) {
+  if(e.target === this) {
+    this.style.display = 'none';
+  }
+});
+
+// ── Rate limiting ─────────────────────────────
+const _rlBuckets = {};
+function _checkRateLimit(feature, maxPerMin = 6) {
+  const now = Date.now();
+  if(!_rlBuckets[feature]) _rlBuckets[feature] = [];
+  _rlBuckets[feature] = _rlBuckets[feature].filter(t => now - t < 60000);
+  if(_rlBuckets[feature].length >= maxPerMin) return false;
+  _rlBuckets[feature].push(now);
+  return true;
+}
+
+// ── Universal AI fetch (proxy locale → Groq) ─
+async function apiFetch(feature, body, maxPerMin = 6) {
+  if(!_checkRateLimit(feature, maxPerMin)) {
+    showToast('// Troppe richieste — aspetta un minuto', '', 3000);
+    throw new Error('Rate limit raggiunto');
+  }
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if(!res.ok) {
+    showToast('// Errore connessione AI — riprova', '', 4000);
+    throw new Error('API error: ' + res.status);
+  }
+  return await res.json();
+}
+
+// Run key check after DOM is ready
+checkAPIKeyOnLoad();
+
+
+// ══════════════════════════════════════════════
+// ── AI COACH ──────────────────────────────────
+// ══════════════════════════════════════════════
+
+let aiHistory = [];
+
+function buildSystemPrompt() {
+  const studioRec     = safeGet('sv4_rec')    || [];
+  const studioVoti    = safeGet('sv4_voti')   || [];
+  const studioCompiti = safeGet('sv4_compiti')|| [];
+  const library       = safeGet('leo_library_v1') || {};
+  const rpg           = safeGet('leo_rpg_state_v2') || {};
+  const leoCheckins   = safeGet('leo_checkin')    || [];
+  const quickNotes    = safeGet('polymath_quick_notes') || [];
+  const secondBrain   = safeGet('polymath_second_brain') || [];
+  const decisionLog   = safeGet('polymath_decisions') || [];
+  const agoraHistory  = safeGet('agora_conv_history') || [];
+  const emergencyLog  = safeGet('polymath_emergency_log') || [];
+
+  const todayISO = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
+  const hour  = new Date().getHours();
+  const fascia = hour < 12 ? 'mattina' : hour < 18 ? 'pomeriggio' : 'sera';
+
+  const sessToday = studioRec.filter(r => r.date === todayISO).length;
+  const totMinStudy = studioRec.reduce((s,r) => s + (r.min||0), 0);
+  const votiRecenti = studioVoti.slice(-5).map(v => `${v.subject||v.subj} ${v.value||v.val}`).join(', ');
+  const compPendenti = studioCompiti.filter(c => !c.done).length;
+
+  const last7 = [...Array(7)].map((_,i) => {
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const ds = d.toISOString().split('T')[0];
+    return studioRec.filter(r=>r.date===ds).reduce((s,r)=>s+(r.min||0),0);
+  }).reverse();
+  const studyTrend = last7.map(m => m > 0 ? m+'m' : '\u2717').join(' ');
+  const studyDaysActive = last7.filter(m=>m>0).length;
+
+  const libBooks  = (library.books||[]).length;
+  const libDone   = (library.books||[]).filter(b => b.progress >= b.pages).length;
+  const libStreak = library.streak || 0;
+  const libCurrent = (library.books||[]).find(b => b.progress > 0 && b.progress < b.pages);
+
+  const rpgXP        = rpg.xp || 0;
+  const rpgLevel     = rpg.level || 1;
+  const rpgStreak    = rpg.streak || 0;
+  const rpgMissToday = (rpg.missions||[]).filter(m=>m.done).length;
+  const rpgMissTotal = (rpg.missions||[]).length;
+  const rpgSkills    = rpg.skills ? Object.entries(rpg.skills).map(([k,v])=>`${k}:${v.xp||0}xp`).join(', ') : '';
+
+  const leoLast5 = leoCheckins.slice(-5);
+  const leoLast  = leoLast5.map(c => {
+    const d = new Date(c.date).toLocaleDateString('it-IT',{weekday:'short'});
+    return `${d}: sonno ${c.sleep||'?'}/10 energia ${c.energy||'?'}/10`;
+  }).join(' | ');
+
+  let correlationInsight = '';
+  if(leoLast5.length >= 3) {
+    const lowSleepDays = leoLast5.filter(c => (c.sleep||10) < 6).length;
+    if(lowSleepDays >= 2) {
+      const avgStudy = leoLast5.filter(c=>(c.sleep||10)<6)
+        .map(c=>studioRec.filter(r=>r.date===c.date).reduce((s,r)=>s+(r.min||0),0))
+        .reduce((a,b,_,arr)=>arr.length?a+b/arr.length:0,0);
+      if(avgStudy < 30) correlationInsight = '\u26a0 CORRELAZIONE: nei giorni con sonno basso studi meno di 30min. Sonno = moltiplicatore.';
+    }
+  }
+
+  const recentIdeas = secondBrain.slice(-3).map(n=>n.text).join(' | ');
+  const agoraRecent = agoraHistory.slice(0,3).map(c=>c.charName).join(', ');
+  const recentDecisions = decisionLog.slice(-2).map(d=>`"${d.decision}"`).join(' | ');
+  const recentImpulses = emergencyLog.slice(-3).map(e=>e.text||'impulso').join(', ');
+
+  return `Sei il coach AI personale di questo ragazzo. Conosci tutto di lui — vai dritto al punto con i dati reali.
+
+CHI E':
+- 17 anni, studente liceo scientifico, alta ambizione
+- Vantaggio reale: inizia ora, il compounding ha 10+ anni di pista
+- Pattern: parte forte -> crolla dopo 2-3 giorni -> riparte -> ciclo
+- Problema principale: gestione impulsi e identita' instabile, non mancanza di conoscenza
+
+OBIETTIVI:
+- Breve: disciplina stabile, primi asset concreti, skill monetizzabili
+- Lungo: indipendenza economica digitale, identita' forte mente+corpo
+- BLOCCHI: dopamina facile, identita' instabile, all-in poi burnout
+
+${correlationInsight ? '\nPATTERN DAI DATI:\n' + correlationInsight + '\n' : ''}
+Oggi e' ${today}, ${fascia}.
+
+DATI REALI:
+
+STUDIO (7gg: ${studyTrend}):
+- Giorni attivi: ${studyDaysActive}/7 | Sessioni oggi: ${sessToday} | Tot minuti: ${totMinStudy}
+- Compiti pendenti: ${compPendenti} | Ultimi voti: ${votiRecenti || 'nessuno'}
+
+LIBRARY: ${libBooks} libri (${libDone} completati) | Streak: ${libStreak}gg${libCurrent ? ' | In lettura: "' + libCurrent.title + '"' : ''}
+
+RPG: Lv${rpgLevel} | XP:${rpgXP} | Streak:${rpgStreak}gg | Missioni oggi:${rpgMissToday}/${rpgMissTotal}
+Skills: ${rpgSkills || 'nessuna'}
+
+LEO: ${leoLast || 'nessun check-in'}
+
+AGORA (consultazioni recenti): ${agoraRecent || 'nessuna'}
+SECOND BRAIN (idee): ${recentIdeas || 'nessuna'}
+DECISIONI RECENTI: ${recentDecisions || 'nessuna'}
+${recentImpulses ? 'IMPULSI LOGGATI: ' + recentImpulses : ''}
+
+COME COMPORTARTI:
+- Italiano, diretto, onesto — mai generico, usa sempre i dati sopra
+- Quando vedi pattern nei dati (es. sonno+studio), nominali esplicitamente
+- Se chiede priorita' con poco tempo, dai UNA sola cosa motivata
+- Risposte dense (max 180 parole), zero fronzoli
+- Ricordagli il suo vantaggio: 17 anni + sistema = compounding raro`;
+}
+
+// ── #2 SECOND BRAIN ───────────────────────────────────────────────────────────
+function openSecondBrain() {
+  document.getElementById('second-brain-overlay').classList.add('open');
+  renderSecondBrainList();
+}
+function closeSecondBrain() {
+  document.getElementById('second-brain-overlay').classList.remove('open');
+}
+function renderSecondBrainList() {
+  const ideas = safeGet('polymath_second_brain') || [];
+  const list  = document.getElementById('sb-list');
+  document.getElementById('sb-count').textContent = ideas.length + ' idee';
+  if(!ideas.length) {
+    list.innerHTML = '<div style="color:var(--text3);font-size:12px;font-style:italic;padding:16px 0">Nessuna idea ancora. Inizia a catturare pensieri.</div>';
+    return;
+  }
+  list.innerHTML = ideas.slice().reverse().map((n,ri) => {
+    const i = ideas.length - 1 - ri;
+    return `<div class="sb-item">
+      <div class="sb-item-text">${n.text}</div>
+      <div class="sb-item-meta">
+        <span>${n.date||''}</span>
+        ${n.connection ? '<span class="sb-connection">\ud83d\udd17 '+n.connection+'</span>' : ''}
+      </div>
+      <button class="sb-delete" onclick="deleteIdea(${i})">&#x2715;</button>
+    </div>`;
+  }).join('');
+}
+function saveIdea() {
+  const input = document.getElementById('sb-input');
+  const text = input.value.trim();
+  if(!text) return;
+  const ideas = safeGet('polymath_second_brain') || [];
+  ideas.push({ text, date: new Date().toLocaleDateString('it-IT'), connection: null });
+  safeSet('polymath_second_brain', ideas);
+  input.value = '';
+  renderSecondBrainList();
+  showToast('// Idea catturata');
+}
+function deleteIdea(idx) {
+  const ideas = safeGet('polymath_second_brain') || [];
+  ideas.splice(idx, 1);
+  safeSet('polymath_second_brain', ideas);
+  renderSecondBrainList();
+}
+async function findConnections() {
+  const ideas = safeGet('polymath_second_brain') || [];
+  if(ideas.length < 2) { showToast('Aggiungi almeno 2 idee prima'); return; }
+  const btn = document.getElementById('sb-connect-btn');
+  btn.disabled = true; btn.textContent = '...';
+  const out = document.getElementById('sb-connections');
+  out.innerHTML = '<div style="color:var(--text3);font-size:12px">Analisi in corso...</div>';
+  try {
+    const data = await apiFetch('secondbrain', {
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1024,
+      system: 'Trova connessioni non ovvie tra idee. Rispondi SOLO JSON valido: {"connections":[{"a":"idea breve","b":"idea breve","link":"connessione in 1 frase"}]}. Max 3. Niente markdown.',
+      messages: [{ role: 'user', content: 'Connessioni tra queste idee:\n' + ideas.map((n,i)=>`${i+1}. ${n.text}`).join('\n') }]
+    }, 4);
+    const raw = data.content?.map(c=>c.text||'').join('')||'';
+    const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    const conns = parsed.connections || [];
+    out.innerHTML = conns.length
+      ? conns.map(c=>`<div class="sb-conn-item">\ud83d\udd17 <strong>${c.a.slice(0,35)}...</strong> &harr; <strong>${c.b.slice(0,35)}...</strong><br><span style="color:var(--text3);font-size:11px;line-height:1.5">${c.link}</span></div>`).join('')
+      : '<div style="color:var(--text3);font-size:12px">Aggiungi pi\u00f9 idee per trovare connessioni.</div>';
+  } catch(e) {
+    out.innerHTML = '<div style="color:var(--text3);font-size:12px">Errore — riprova.</div>';
+  } finally {
+    btn.disabled = false; btn.textContent = '\ud83d\udd17 TROVA CONNESSIONI';
+  }
+}
+
+// ── #3 WEEKLY REVIEW — domanda scomoda AI ────────────────────────────────────
+async function generateAIWeeklyQuestion() {
+  const btn = document.getElementById('ai-weekly-btn');
+  const out = document.getElementById('ai-weekly-question');
+  if(!btn||!out) return;
+  btn.disabled = true; btn.textContent = '...';
+  out.style.display = 'none';
+  try {
+    const data = await apiFetch('weeklyq', {
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 256,
+      system: buildSystemPrompt(),
+      messages: [{ role: 'user', content: "Guardando i miei dati, qual e' LA domanda scomoda che non mi sto facendo ma dovrei? Una sola domanda, breve e diretta. Solo la domanda." }]
+    }, 4);
+    const q = data.content?.map(c=>c.text||'').join('')||'';
+    out.textContent = q.trim();
+    out.style.display = 'block';
+  } catch(e) {
+    out.textContent = 'Errore \u2014 riprova.';
+    out.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = '\ud83e\udde0 DOMANDA SCOMODA';
+  }
+}
+
+// ── #4 DECISION LOG ──────────────────────────────────────────────────────────
+function openDecisionLog() {
+  document.getElementById('decision-overlay').classList.add('open');
+  renderDecisions();
+}
+function closeDecisionLog() {
+  document.getElementById('decision-overlay').classList.remove('open');
+}
+function renderDecisions() {
+  const decisions = safeGet('polymath_decisions') || [];
+  const list = document.getElementById('dec-list');
+  if(!decisions.length) {
+    list.innerHTML = '<div style="color:var(--text3);font-size:12px;font-style:italic;padding:16px 0">Nessuna decisione loggata. Le grandi menti tracciano le loro scelte.</div>';
+    return;
+  }
+  list.innerHTML = decisions.slice().reverse().map(d => `
+    <div class="dec-item">
+      <div class="dec-decision">${d.decision}</div>
+      <div class="dec-meta"><span style="color:var(--text3)">Perch\u00e9: ${d.reason||'—'}</span></div>
+      <div class="dec-meta"><span style="color:var(--cyan)">Atteso: ${d.expected||'—'}</span><span style="color:var(--text3);margin-left:8px">${d.date}</span></div>
+      ${d.outcome ? '<div class="dec-outcome">\u21b3 Risultato: '+d.outcome+'</div>' : ''}
+    </div>
+  `).join('');
+}
+function saveDecision() {
+  const dec = document.getElementById('dec-decision').value.trim();
+  const reason = document.getElementById('dec-reason').value.trim();
+  const expected = document.getElementById('dec-expected').value.trim();
+  if(!dec) return;
+  const decisions = safeGet('polymath_decisions') || [];
+  decisions.push({ decision: dec, reason, expected, date: new Date().toLocaleDateString('it-IT'), outcome: null });
+  safeSet('polymath_decisions', decisions);
+  ['dec-decision','dec-reason','dec-expected'].forEach(id => document.getElementById(id).value = '');
+  renderDecisions();
+  showToast('// Decisione loggata');
+}
+
+
+// ── CONTEXTUAL COACH SYSTEM ──────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+
+// All coach system prompts inline (mirrors coach-config.js for offline use)
+const COACH_PROMPTS = {
+  'hub::strategic_advisor': {
+    name: '🧭 Strategic Advisor',
+    role: 'Analizza priorità generali, coerenza tra visione e azione, rischi di dispersione.',
+    prompt: `Agisci come Strategic Advisor senior. Hai accesso ai dati reali di tutti i moduli PolyLife.
+Il tuo compito: identificare se c'è coerenza tra ciò che dichiara di volere e ciò che fa davvero.
+Sii diretto e chirurgico. Non rassicurare, non motivare genericamente. Analizza il pattern, nomina il rischio principale, indica una sola azione correttiva.
+Tono: mentor strategico. Max 200 parole. Usa i dati reali. Evita: elenchi lunghi, consigli generici, tono da life coach.`
+  },
+  'command::daily_strategist': {
+    name: '⚡ Daily Strategist',
+    role: 'Organizza la giornata, limita la dispersione, definisce Top 3 e minimo non negoziabile.',
+    prompt: `Agisci come Daily Strategist operativo. Ricevi i dati della giornata e produci un piano di attacco concreto.
+Non sei un motivatore. Sei un sistema di ottimizzazione giornaliera.
+Analizza constraint, energia, top 3 e produci: sequenza temporale, come gestire il limite principale, cosa fare se tutto va storto.
+Max 180 parole. Risposte in punti operativi con →. Sii militarmente preciso. Evita: frasi lunghe, filosofia, motivazione generica.`
+  },
+  'studio::tutor_ai': {
+    name: '🎓 Tutor AI',
+    role: 'Spiegazioni chiare, esempi concreti, ripasso guidato, recupero lacune.',
+    prompt: `Sei un tutor AI specializzato in didattica adattiva per un liceale scientifico di 17 anni.
+Metodo: spiega con analogie concrete, costruisci dal fondamentale, usa esempi reali.
+Quando spieghi: definisci il concetto → esempio concreto → meccanismo → applicazione.
+Max 250 parole per spiegazione. Usa formattazione chiara.
+Evita: linguaggio accademico denso, lunghe premesse, tono professorale.`
+  },
+  'studio::learning_strategist': {
+    name: '🧠 Learning Strategist',
+    role: 'Metodo di studio, organizzazione sessioni, ottimizzazione apprendimento.',
+    prompt: `Sei un Learning Strategist specializzato in ottimizzazione dell'apprendimento accelerato.
+Conosci: spaced repetition, active recall, interleaving, metodo Feynman.
+Analizza il profilo reale dell'utente dai dati e progetta la strategia ottimale.
+Non proporre piani irrealistici. Adatta al tempo reale disponibile.
+Sii specifico: "Studia X per Y minuti usando Z tecnica perché..." Max 200 parole.`
+  },
+  'studio::memory_coach': {
+    name: '🔁 Memory Coach',
+    role: 'Tecniche di memorizzazione, flashcard intelligenti, ripasso ottimale.',
+    prompt: `Sei un Memory Coach esperto di neuroscienza cognitiva applicata allo studio.
+Strumenti: spaced repetition (Ebbinghaus), active recall, palace della memoria, chunking.
+Quando ti viene chiesto di memorizzare: analizza il materiale → identifica la struttura → proponi il metodo più efficiente.
+Crea schemi mnemonici creativi e personalizzati. Max 220 parole. Includi sempre un esempio concreto.`
+  },
+  'leo::allenatore': {
+    name: '🏋️ Allenatore',
+    role: 'Allenamento, progressione, prevenzione infortuni, gestione carico fisico.',
+    prompt: `Agisci come preparatore atletico specializzato in performance per un ragazzo di 17 anni.
+NON proporre piani eccessivi se il recupero è basso o il sonno <6h dai dati.
+Adatta: se energia <6/10 → sessione leggera o recupero attivo.
+Sii pratico: "Fai X per Y reps perché Z". Priorità: progressione a lungo termine > performance immediata.
+Max 200 parole. Output operativo.`
+  },
+  'leo::nutrizionista': {
+    name: '🥗 Nutrizionista',
+    role: 'Nutrizione, timing pasti, correzioni alimentari, ottimizzazione performance.',
+    prompt: `Sei un nutrizionista specializzato in performance per atleti adolescenti (17 anni).
+Non prescrivere diete rigide. Dai consigli pratici adattabili alla vita di un liceale.
+Considera: performance scolastica + fisica, budget limitato, poco tempo per cucinare.
+Priorità: idratazione, timing pre-post allenamento, qualità calorie.
+Sii specifico: "Mangia X prima di Y perché...". Max 180 parole. Pratico e applicabile oggi.`
+  },
+  'leo::recovery_specialist': {
+    name: '⚡ Recovery Specialist',
+    role: 'Recupero fisico, ottimizzazione sonno, gestione fatica.',
+    prompt: `Sei un Recovery Specialist focalizzato sull'ottimizzazione del recupero per un atleta-studente di 17 anni.
+Se sonno <7h dai dati: il recupero muscolare è compromesso — dillo chiaramente.
+Tecniche pratiche: stretching, respirazione, NSDR, cold exposure, routine serale.
+Non proporre tecniche costose o complesse. Massimo 3 azioni concrete.
+Max 180 parole. Priorità: cosa fa la differenza OGGI.`
+  },
+  'library::reading_mentor': {
+    name: '📚 Reading Mentor',
+    role: 'Suggerisce letture, analizza libri, rielaborazione critica.',
+    prompt: `Sei un Reading Mentor con visione enciclopedica della letteratura mondiale.
+Il tuo obiettivo: trasformare la lettura da consumo passivo ad apprendimento attivo.
+Quando suggerisci un libro: motiva in base al profilo reale dai dati, non genericamente.
+Quando analizzi: identifica il tema centrale, le idee applicabili, le connessioni con altri libri letti.
+Max 220 parole. Non fare riassunti banali — offri prospettiva originale.`
+  },
+  'library::critical_thinking_coach': {
+    name: '🔍 Critical Thinking Coach',
+    role: 'Analisi critica, bias cognitivi, argomentazione, pensiero sistemico.',
+    prompt: `Sei un Critical Thinking Coach specializzato in epistemologia applicata.
+Il tuo metodo: dialogo socratico, non lezione ex cathedra.
+Quando l'utente presenta un'idea: fai domande che la mettano alla prova.
+Identifica: presupposti non dichiarati, bias cognitivi, fallacies logiche.
+Obiettivo: insegnare il processo, non dare la risposta. Max 200 parole.`
+  },
+  'engineer::senior_engineer': {
+    name: '⚙️ Senior Engineer',
+    role: 'Problem solving tecnico, architettura, debugging.',
+    prompt: `Sei un Senior Software Engineer con 10+ anni di esperienza. Non sei un tutorial — sei un collega esperto.
+Capisci prima il problema completo, poi proponi la soluzione. Mai dare soluzioni parziali.
+Standard: codice pulito, principi SOLID, performance, sicurezza.
+Se l'approccio è sbagliato: dillo direttamente. Spiega il PERCHÉ delle scelte architetturali.
+Max 280 parole + codice se necessario.`
+  },
+  'engineer::systems_architect': {
+    name: '🏗️ Systems Architect',
+    role: 'Architettura di sistema, design pattern, scalabilità.',
+    prompt: `Sei un Systems Architect senior. Framework: capire il problema → vincoli → trade-off → architettura → rischi.
+Non proporre over-engineering. Adatta la complessità alla reale scala del problema.
+Usa diagrammi testuali ASCII quando utile. Nomina pattern architetturali specifici con il motivo della scelta.
+Max 300 parole + diagramma se rilevante.`
+  },
+  'business::business_strategist': {
+    name: '📈 Business Strategist',
+    role: 'Strategia business, validazione idee, priorità, monetizzazione.',
+    prompt: `Sei un Business Strategist con mentalità da startup. Target: ragazzo di 17 anni, indipendenza economica digitale.
+Framework: Lean, MVP, validazione prima dell'esecuzione, iterazione rapida.
+Non proporre piani complessi. Individua: qual è la prossima azione minima che genera apprendimento o revenue?
+Sii onesto sui rischi. Max 200 parole. Output: 1 priorità, 1 azione, 1 rischio, 1 metrica.`
+  },
+  'business::sales_coach': {
+    name: '💬 Sales Coach',
+    role: 'Vendita, copywriting, offerte, gestione obiezioni.',
+    prompt: `Sei un Sales Coach specializzato in vendita diretta e copywriting. Vendi risolvendo problemi reali.
+Quando revisioni un messaggio: identifica cosa manca (urgenza, prova sociale, beneficio chiaro, CTA).
+Sii diretto: "questo pitch non funziona perché..." non "ottimo inizio ma...".
+Max 200 parole. Output concreto, modificabile immediatamente.`
+  },
+  'business::offer_architect': {
+    name: '🎯 Offer Architect',
+    role: 'Costruzione offerte, pricing, packaging, posizionamento.',
+    prompt: `Sei un Offer Architect. Framework: The $100M Offer (Hormozi) + Product Positioning (Dunford).
+Quando costruisci un'offerta: identifica il dream outcome → rimuovi ogni attrito → aggiungi valore → posiziona vs alternative.
+Output strutturato: nome offerta, promise, incluso, prezzo, perché funziona.
+Max 250 parole.`
+  },
+  'arte_musica::art_mentor': {
+    name: '🎨 Art Mentor',
+    role: 'Tecnica artistica, composizione, stile, portfolio.',
+    prompt: `Sei un Art Mentor con formazione accademica e visione contemporanea.
+Approccio: tecnica rigorosa + libertà espressiva. Parti sempre dal fondamentale tecnico → poi espressione → poi stile.
+Assegna esercizi SPECIFICI e misurabili. Conosci Loomis, Bridgman, Vilppu, Itten.
+Sii onesto sui progressi: non gonfiare l'ego, non abbattere la motivazione.
+Max 220 parole. Includi sempre 1 esercizio pratico specifico.`
+  },
+  'arte_musica::music_mentor': {
+    name: '🎵 Music Mentor',
+    role: 'Teoria musicale, composizione, ascolto attivo, strumento.',
+    prompt: `Sei un Music Mentor con background in teoria classica, jazz e produzione moderna.
+Approccio: teoria supporta la pratica, non la sostituisce. Collega sempre teoria a brano concreto.
+Esercizi SPECIFICI: "Suona questo pattern ritmico a 80bpm concentrandoti su..."
+Quando analizzi un brano: struttura, armonia, ritmo, timbro — non solo "è bello".
+Max 220 parole. Includi sempre 1 esercizio o ascolto specifico.`
+  },
+  'recovery::recovery_coach': {
+    name: '🔄 Recovery Coach',
+    role: 'Analizza fallimenti, pattern, contromisure, piano di ripartenza.',
+    prompt: `Sei un Recovery Coach specializzato nell'analisi dei fallimenti.
+Framework: Cosa → Perché → Pattern → Contromisura → Piano minimo.
+Non consolare, non minimizzare. Analizza. Se c'è un pattern ricorrente nei dati, nominalo senza filtri.
+Domanda chiave: "Cosa faresti diversamente con le stesse condizioni?"
+Max 200 parole. Output: causa, pattern, 3 azioni, 1 metrica di controllo.`
+  },
+  'weekly_review::review_analyst': {
+    name: '📊 Review Analyst',
+    role: 'Analisi settimana, pattern, decisioni, priorità future.',
+    prompt: `Sei un Review Analyst che trasforma dati settimanali in insight azionabili.
+Non fare complimenti. Non fare critiche vuote. Analizza i numeri reali dai dati.
+Framework: Cosa ha funzionato + Perché → Causa radice fallimenti → Pattern settimana → Priorità prossima.
+Sii specifico. Max 250 parole. Termina con 1 domanda che stimola riflessione.`
+  },
+  'identity::identity_coach': {
+    name: '👑 Identity Coach',
+    role: 'Standard personali, identità, disciplina, coerenza valori-comportamento.',
+    prompt: `Sei un Identity Coach. Filosofia: l'identità non è chi dici di essere — è la somma delle tue azioni nel tempo.
+Confronta sempre standard dichiarati con comportamento reale dai dati.
+Non motivare. Non lodare. Fai domande che costringano a fare i conti con la realtà.
+"Dici di voler essere X, ma negli ultimi 7 giorni hai fatto Y. Cosa spiega il gap?"
+Max 200 parole. Termina sempre con 1 domanda identitaria che richiede risposta onesta.`
+  }
+};
+
+
+function openAICoach() {
+  document.getElementById('ai-coach-overlay').classList.add('open');
+  if(aiHistory.length === 0) {
+    // Auto-briefing on open
+    setTimeout(() => aiQuick('apertura'), 300);
+  }
+}
+
+function closeAICoach() {
+  document.getElementById('ai-coach-overlay').classList.remove('open');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const overlay = document.getElementById('ai-coach-overlay');
+  if(overlay) overlay.addEventListener('click', function(e) { if(e.target === this) closeAICoach(); });
+});
+
+function aiQuick(type) {
+  const msgs = {
+    apertura:     'Dammi un briefing rapido su come sta andando la mia giornata e cosa dovrei fare adesso.',
+    analisi:      'Analizza i miei dati: dove sto andando bene e dove sto scivolando?',
+    oggi:         'Cosa dovrei assolutamente fare oggi per non perdere il ritmo?',
+    priorita:     'Ho solo 30 minuti liberi oggi. Cosa faccio?',
+    motivazione:  'Motivami. Dimmi perché vale la pena continuare anche quando è duro.',
+    settimana:    'Analizza questa settimana: progressi, lacune e cosa cambiare da domani.',
+    consiglio:    'Qual è la singola cosa che mi farebbe crescere di più in questo momento?',
+    correlazioni: 'Guarda i miei dati di sonno, studio e umore: vedi pattern o correlazioni che non sto vedendo io?',
+    agora:        'Guardando dove sono nella mia crescita, con quale figura storica dovrei dialogare su Agora adesso e su cosa?',
+  };
+  const text = msgs[type] || type;
+  sendAIMessage(text);
+}
+
+function addAIMessage(role, text) {
+  const body = document.getElementById('ai-messages');
+  const div = document.createElement('div');
+  div.className = `ai-msg ${role}`;
+  div.innerHTML = `<div class="ai-bubble">${text.replace(/\n/g,'<br>')}</div>`;
+  body.appendChild(div);
+  document.getElementById('ai-coach-body').scrollTop = 9999;
+}
+
+function addThinking() {
+  const body = document.getElementById('ai-messages');
+  const div = document.createElement('div');
+  div.className = 'ai-msg assistant';
+  div.id = 'ai-thinking';
+  div.innerHTML = '<div class="ai-bubble"><div class="ai-thinking"><span></span><span></span><span></span></div></div>';
+  body.appendChild(div);
+  document.getElementById('ai-coach-body').scrollTop = 9999;
+}
+
+async function sendAIMessage(overrideText) {
+  const input = document.getElementById('ai-input');
+  const btn   = document.getElementById('ai-send-btn');
+  const text  = overrideText || input.value.trim();
+  if(!text) return;
+
+  if(!overrideText) input.value = '';
+  btn.disabled = true;
+
+  // Hide quick buttons after first message
+  const qb = document.getElementById('ai-quick-btns');
+  if(qb) qb.style.display = 'none';
+
+  addAIMessage('user', text);
+  aiHistory.push({ role: 'user', content: text });
+
+  addThinking();
+
+  try {
+    const data = await apiFetch('coach', {
+      system: buildSystemPrompt(),
+      messages: aiHistory.slice(-20),
+      max_tokens: 6144,
+    }, 20);
+
+    const reply = data.content?.map(b => b.text || '').join('') || 'Errore nella risposta.';
+
+    document.getElementById('ai-thinking')?.remove();
+    addAIMessage('assistant', reply);
+    aiHistory.push({ role: 'assistant', content: reply });
+
+  } catch(err) {
+    document.getElementById('ai-thinking')?.remove();
+    if(err.message !== 'API key mancante' && err.message !== 'Rate limit raggiunto')
+      addAIMessage('assistant', '⚠️ Errore di connessione. Controlla la API key.');
+  }
+
+  btn.disabled = false;
+}
+
+
+// ══════════════════════════════════════════════
+// ── SYSTEM STREAK BANNER ──────────────────────
+// ══════════════════════════════════════════════
+function updateStreakBanner() {
+  const rpg     = safeGet('leo_rpg_state_v2') || {};
+  const library = safeGet('leo_library_v1')   || {};
+  const leo     = safeGet('leo_checkin')       || [];
+
+  // Studio: has session today?
+  const studioToday = (safeGet('sv4_rec') || []).some(r => r.date === TODAY);
+  // RPG: streak > 0 and missions done today
+  const rpgActive = (rpg.streak || 0) > 0;
+  // Library: read today
+  const libActive = (library.lastDate === TODAY && (library.todayPages||0) > 0);
+  // LEO: checkin today
+  const leoToday = leo.length > 0 && leo[leo.length-1].date === TODAY;
+
+  const apps = [
+    { key: 'STU', active: studioToday },
+    { key: 'LIB', active: libActive   },
+    { key: 'RPG', active: rpgActive   },
+    { key: 'LEO', active: leoToday    },
+  ];
+
+  const activeCount = apps.filter(a => a.active).length;
+  const allActive   = activeCount === 4;
+  const anyMissed   = activeCount < 2;
+
+  // Compute system streak from rpg as baseline
+  const systemStreak = rpg.streak || 0;
+
+  const banner = document.getElementById('system-streak-banner');
+  const emoji  = document.getElementById('streak-banner-emoji');
+  const value  = document.getElementById('streak-banner-value');
+  const dotsEl = document.getElementById('streak-banner-apps');
+
+  if(allActive) {
+    banner.className = 'system-streak-banner on-fire fade-in';
+    emoji.textContent = '🔥';
+  } else if(anyMissed) {
+    banner.className = 'system-streak-banner broken fade-in';
+    emoji.textContent = '⚠️';
+  } else {
+    banner.className = 'system-streak-banner warning fade-in';
+    emoji.textContent = '⚡';
+  }
+
+  value.textContent = systemStreak > 0
+    ? `Giorno ${systemStreak} consecutivo`
+    : activeCount > 0
+      ? `${activeCount}/4 app attive oggi`
+      : 'Nessuna app attiva oggi';
+
+  dotsEl.innerHTML = apps.map(a =>
+    `<div class="streak-app-dot ${a.active ? 'active' : 'missed'}">${a.key}</div>`
+  ).join('');
+}
+
+// ══════════════════════════════════════════════
+// ── ANTI-RICADUTA ─────────────────────────────
+// ══════════════════════════════════════════════
+let emergencyInterval = null;
+let emergencySeconds  = 180;
+
+function openEmergency() {
+  emergencySeconds = 180;
+  document.getElementById('emergency-overlay').classList.add('open');
+  document.getElementById('emergency-timer').textContent = '3:00';
+  document.getElementById('emergency-survived').style.display = 'none';
+  document.getElementById('emergency-log').value = '';
+  clearInterval(emergencyInterval);
+  emergencyInterval = setInterval(() => {
+    emergencySeconds--;
+    const m = Math.floor(emergencySeconds / 60);
+    const s = emergencySeconds % 60;
+    document.getElementById('emergency-timer').textContent =
+      m + ':' + String(s).padStart(2, '0');
+    if(emergencySeconds <= 0) {
+      clearInterval(emergencyInterval);
+      document.getElementById('emergency-timer').textContent = '✓';
+      document.getElementById('emergency-timer').style.color = 'var(--green)';
+    }
+  }, 1000);
+}
+
+function closeEmergency() {
+  clearInterval(emergencyInterval);
+  document.getElementById('emergency-overlay').classList.remove('open');
+  document.getElementById('emergency-timer').style.color = '';
+}
+
+function emergencySurvived() {
+  clearInterval(emergencyInterval);
+  const log = document.getElementById('emergency-log').value.trim();
+  // Save impulse log
+  const logs = safeGet('polymath_impulse_log') || [];
+  logs.push({ date: TODAY, time: new Date().toLocaleTimeString('it-IT', {hour:'2-digit',minute:'2-digit'}), what: log || 'non specificato' });
+  safeSet('polymath_impulse_log', logs);
+  document.getElementById('emergency-survived').style.display = 'block';
+  document.getElementById('emergency-timer').textContent = '✓';
+  document.getElementById('emergency-timer').style.color = 'var(--green)';
+  showToast('// Impulso resistito — loggato ✓', 'green', 3000);
+  setTimeout(closeEmergency, 2000);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const eo = document.getElementById('emergency-overlay');
+  if(eo) eo.addEventListener('click', function(e) { if(e.target === this) closeEmergency(); });
+});
+
+// ══════════════════════════════════════════════
+// ── AI WEEKLY REVIEW ──────────────────────────
+// ══════════════════════════════════════════════
+async function generateWeeklyAIReview() {
+  const el = document.getElementById('ai-review-msg');
+  if(!el) return;
+
+  el.innerHTML = '<div class="ai-review-loading"><span></span><span></span><span></span></div>';
+
+  // Gather week data
+  const studioRec   = safeGet('sv4_rec')    || [];
+  const studioVoti  = safeGet('sv4_voti')   || [];
+  const library     = safeGet('leo_library_v1') || {};
+  const rpg         = safeGet('leo_rpg_state_v2') || {};
+  const leoCheckins = safeGet('leo_checkin') || [];
+  const impulseLogs = safeGet('polymath_impulse_log') || [];
+
+  // Last 7 days
+  const last7 = Array.from({length:7}, (_,i) => {
+    const d = new Date(); d.setDate(d.getDate()-i);
+    return d.toISOString().split('T')[0];
+  });
+
+  const sessPerDay = last7.map(d => ({
+    date: d,
+    sessions: studioRec.filter(r => r.date === d).length,
+    min: studioRec.filter(r => r.date === d).reduce((s,r) => s+(r.min||0), 0)
+  }));
+
+  const totalStudyMin = sessPerDay.reduce((s,d) => s+d.min, 0);
+  const studyDays     = sessPerDay.filter(d => d.sessions > 0).length;
+  const rpgStreak     = rpg.streak || 0;
+  const libStreak     = library.streak || 0;
+  const impulsesThisWeek = impulseLogs.filter(l => last7.includes(l.date)).length;
+  const votiWeek      = studioVoti.filter(v => last7.includes(v.date));
+  const leoWeek       = leoCheckins.filter(c => last7.includes(c.date));
+
+  const prompt = `Fai una review settimanale BRUTALMENTE ONESTA basata su questi dati reali degli ultimi 7 giorni:
+
+STUDIO: ${studyDays}/7 giorni con sessioni | ${totalStudyMin} minuti totali | Voti: ${votiWeek.map(v=>v.subject+' '+v.value).join(', ')||'nessuno'}
+LIFE RPG: streak ${rpgStreak} giorni | missioni completate questa settimana: ${(rpg.weekMissions||0)}
+LIBRARY: streak ${libStreak} giorni | pagine settimana: ${library.todayPages||0}
+LEO: ${leoWeek.length}/7 giorni con check-in
+IMPULSI RESISTITI: ${impulsesThisWeek} (loggati con il bottone emergenza)
+
+Dati sessioni per giorno: ${sessPerDay.map(d=>d.date.slice(5)+':'+d.sessions+'sess').join(' | ')}
+
+Dammi:
+1. Una valutazione secca della settimana (1 frase)
+2. Il pattern che vedi (cosa ha funzionato, cosa no)
+3. UNA sola cosa da fare diversamente la prossima settimana
+4. Un messaggio finale diretto (non motivazionale generico — specifico per lui)
+
+Max 180 parole. Sii un coach vero, non un chatbot.`;
+
+  try {
+    const data = await apiFetch('weeklyreview', {
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2048,
+      system: buildSystemPrompt(),
+      messages: [{ role: 'user', content: prompt }]
+    }, 4);
+    const reply = data.content?.map(b => b.text||'').join('') || 'Errore.';
+    el.innerHTML = reply.replace(/\n/g,'<br>');
+  } catch(err) {
+    el.innerHTML = '<span style="color:var(--red)">⚠️ Errore — server attivo?</span>';
+  }
+}
+
+// ── RESET UNIVERSALE ──
+function confirmResetAll() {
+  if(confirm('⚠️ RESET TOTALE\n\nCancella TUTTI i dati di tutte le app (Studio, Library, RPG, LEO, OS).\n\nQuesta azione è IRREVERSIBILE.\n\nConfermi?')) {
+    if(confirm('Sei sicuro al 100%? Tutti i progressi verranno azzerati.')) {
+      resetAll();
+    }
+  }
+}
+
+function resetAll() {
+  const keys = [
+    'sv4_rec','sv4_notes','sv4_ver','sv4_streak','sv4_compiti','sv4_voti','sv4_ai_chat',
+    'leo_library_v1',
+    'leo_rpg_state_v2','leo_reflect_draft',
+    'leo_checkin','leo_data_version','leo_milestones','leo_notes','leo_pr',
+    'polymath_quick_notes','polymath_weekly_reviews'
+  ];
+  keys.forEach(k => localStorage.removeItem(k));
+  showToast('// Reset completato — tutto a zero ✓', 'green', 3000);
+  setTimeout(() => loadAll(), 500);
+}
+
+// ── Registrazione Service Worker (PWA) ──
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(() => console.log('SW registrato ✓'))
+      .catch(err => console.warn('SW errore:', err));
+  });
+}
+
+// ── Sync in tempo reale con le altre app ──
+// Si attiva automaticamente quando un'altra scheda scrive su localStorage
+window.addEventListener('storage', function(e) {
+  // Intercetta solo le chiavi delle nostre app
+  const appKeys = ['polymathStudio','polymathLibrary','polymathRPG','polymathLEO'];
+  if(appKeys.some(k => e.key && e.key.startsWith(k.replace('polymath','').toLowerCase()) || e.key === k)) {
+    loadAll();
+    showToast('// Dati aggiornati ✓', 'green', 1800);
+  } else if(e.key !== null) {
+    // Qualsiasi chiave localStorage cambiata → ricarica comunque
+    loadAll();
+  }
+});
+
+// Ricarica quando torni su questa tab
+document.addEventListener('visibilitychange', function() {
+  if(document.visibilityState === 'visible') {
+    loadAll();
+  }
+});
+</script>
+
+<!-- AI COACH MODAL -->
+<div class="ai-coach-overlay" id="ai-coach-overlay">
+  <div class="ai-coach-box">
+    <div class="ai-coach-header">
+      <div class="ai-coach-title">🤖 POLYMATH AI COACH</div>
+      <button class="modal-close" onclick="closeAICoach()">✕</button>
+    </div>
+    <div class="ai-coach-body" id="ai-coach-body">
+      <div class="ai-quick-btns" id="ai-quick-btns">
+        <button class="ai-quick-btn" onclick="aiQuick('analisi')">📊 Come sta andando?</button>
+        <button class="ai-quick-btn" onclick="aiQuick('oggi')">🎯 Focus di oggi</button>
+        <button class="ai-quick-btn" onclick="aiQuick('priorita')">⚡ Ho poco tempo</button>
+        <button class="ai-quick-btn" onclick="aiQuick('motivazione')">🔥 Motivami</button>
+        <button class="ai-quick-btn" onclick="aiQuick('settimana')">📈 Analisi settimana</button>
+        <button class="ai-quick-btn" onclick="aiQuick('consiglio')">🧠 Cosa migliorare</button>
+        <button class="ai-quick-btn" onclick="aiQuick('correlazioni')">🔗 Pattern nei dati</button>
+        <button class="ai-quick-btn" onclick="aiQuick('agora')">🏛️ Cosa studiare con Agora</button>
+      </div>
+      <div id="ai-messages"></div>
+    </div>
+    <div class="ai-coach-input-row">
+      <textarea class="ai-coach-input" id="ai-input" placeholder="Scrivi al tuo coach..." rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIMessage()}"></textarea>
+      <button class="ai-send-btn" id="ai-send-btn" onclick="sendAIMessage()">↑</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- EMERGENCY ANTI-RICADUTA -->
+<button class="emergency-btn" onclick="openEmergency()">🆘 STOP IMPULSO</button>
+
+<!-- SECOND BRAIN OVERLAY -->
+<div class="second-brain-overlay" id="second-brain-overlay">
+  <div class="sb-box">
+    <div class="sb-header">
+      <div class="sb-title">🧠 SECOND BRAIN <span id="sb-count" style="color:var(--text3);font-size:9px;margin-left:8px">0 idee</span></div>
+      <button class="modal-close" onclick="closeSecondBrain()">✕</button>
+    </div>
+    <div class="sb-body">
+      <div class="sb-input-row">
+        <textarea class="sb-input" id="sb-input" placeholder="Cattura un'idea, un'intuizione, una connessione..." rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();saveIdea()}"></textarea>
+        <button class="sb-save-btn" onclick="saveIdea()">+</button>
+      </div>
+      <div id="sb-list"></div>
+      <button class="sb-connect-btn" id="sb-connect-btn" onclick="findConnections()">🔗 TROVA CONNESSIONI</button>
+      <div class="sb-section-title">CONNESSIONI TROVATE DALL'AI</div>
+      <div id="sb-connections" style="color:var(--text3);font-size:12px;font-style:italic">Clicca "Trova connessioni" dopo aver aggiunto almeno 2 idee.</div>
+    </div>
+  </div>
+</div>
+
+<!-- DECISION LOG OVERLAY -->
+<div class="decision-overlay" id="decision-overlay">
+  <div class="dec-box">
+    <div class="dec-header">
+      <div class="dec-title">📋 DECISION LOG</div>
+      <button class="modal-close" onclick="closeDecisionLog()">✕</button>
+    </div>
+    <div class="dec-body">
+      <div class="sb-section-title">NUOVA DECISIONE</div>
+      <input class="dec-field" id="dec-decision" placeholder="Decisione: cosa hai deciso?" />
+      <input class="dec-field" id="dec-reason" placeholder="Perché: motivazione principale" />
+      <input class="dec-field" id="dec-expected" placeholder="Risultato atteso tra X settimane" />
+      <button class="dec-save-btn" onclick="saveDecision()">+ LOGGA DECISIONE</button>
+      <div class="sb-section-title">STORICO</div>
+      <div id="dec-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="emergency-overlay" id="emergency-overlay">
+  <div class="emergency-box">
+    <div class="emergency-title">⚠ PROTOCOLLO ANTI-IMPULSO</div>
+    <div class="emergency-subtitle">Stai cedendo a qualcosa. Non decidere nulla per i prossimi 3 minuti.</div>
+    <div class="emergency-steps">
+      <div class="emergency-step">
+        <div class="emergency-step-num">1</div>
+        <div class="emergency-step-text"><strong>Alzati fisicamente</strong> — cambia stanza o posizione adesso.</div>
+      </div>
+      <div class="emergency-step">
+        <div class="emergency-step-num">2</div>
+        <div class="emergency-step-text"><strong>3 minuti di timer</strong> — respira e aspetta che passi.</div>
+      </div>
+      <div class="emergency-step">
+        <div class="emergency-step-num">3</div>
+        <div class="emergency-step-text"><strong>Scrivi cosa stavi per fare</strong> — nominare l'impulso lo depotenzia.</div>
+      </div>
+    </div>
+    <div class="emergency-timer-display" id="emergency-timer">3:00</div>
+    <textarea class="emergency-log-area" id="emergency-log" rows="2" placeholder="Cosa stavi per fare? (scroll, fumo, altro...)"></textarea>
+    <button class="btn-main" style="width:100%;margin:0" onclick="emergencySurvived()">✓ HO RESISTITO</button>
+    <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="closeEmergency()">Chiudi</button>
+    <div class="emergency-survived" id="emergency-survived">// Impulso loggato. +1 vittoria. ✓</div>
+  </div>
+</div>
+
+<!-- POLYFEED OVERLAY -->
+<div class="polyfeed-overlay" id="polyfeed-overlay">
+
+  <!-- Header -->
+  <div class="pf-header">
+    <div class="pf-title">⚡ POLYFEED</div>
+    <div class="pf-xp-counter">
+      <div class="pf-xp-dot"></div>
+      <span id="pf-session-xp">0</span> XP sessione
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="pf-streak-pill" id="pf-streak-display">🔥 0</div>
+      <button class="pf-close" onclick="closePolyFeed()">✕</button>
+    </div>
+  </div>
+
+  <!-- Category tabs -->
+  <div class="pf-cats" id="pf-cats">
+    <button class="pf-cat-btn active" data-cat="all" onclick="pfSetCat('all',this)">TUTTO</button>
+    <button class="pf-cat-btn" data-cat="scienza" onclick="pfSetCat('scienza',this)">🔬 SCIENZA</button>
+    <button class="pf-cat-btn" data-cat="filosofia" onclick="pfSetCat('filosofia',this)">🏛️ FILOSOFIA</button>
+    <button class="pf-cat-btn" data-cat="storia" onclick="pfSetCat('storia',this)">📜 STORIA</button>
+    <button class="pf-cat-btn" data-cat="matematica" onclick="pfSetCat('matematica',this)">∑ MATEMATICA</button>
+    <button class="pf-cat-btn" data-cat="psicologia" onclick="pfSetCat('psicologia',this)">🧠 PSICOLOGIA</button>
+    <button class="pf-cat-btn" data-cat="economia" onclick="pfSetCat('economia',this)">📈 ECONOMIA</button>
+    <button class="pf-cat-btn" data-cat="arte" onclick="pfSetCat('arte',this)">🎨 ARTE & LETT.</button>
+  </div>
+
+  <!-- Feed -->
+  <div class="pf-feed" id="pf-feed"></div>
+
+  <!-- XP float element -->
+  <div class="pf-xp-float" id="pf-xp-float">+15 XP</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  POLYFEED — Feed verticale curiosità polimata
+// ══════════════════════════════════════════════════
+
+const PF_STORAGE_KEY = 'polymath_feed_state';
+const PF_CAT_COLORS = {
+  scienza:    { color: '#00e5ff', icon: '🔬' },
+  filosofia:  { color: '#a78bfa', icon: '🏛️' },
+  storia:     { color: '#fbbf24', icon: '📜' },
+  matematica: { color: '#10b981', icon: '∑'  },
+  psicologia: { color: '#ec4899', icon: '🧠' },
+  economia:   { color: '#f97316', icon: '📈' },
+  arte:       { color: '#8b5cf6', icon: '🎨' },
+};
+const PF_ALL_CATS = Object.keys(PF_CAT_COLORS);
+
+let pfState = {
+  sessionXP: 0,
+  streak: 0,
+  lastDate: '',
+  completed: {},  // cardId → true
+  totalCards: 0,
+};
+let pfCurrentCat = 'all';
+let pfCards = [];       // loaded cards
+let pfLoading = false;
+
+function pfLoadState() {
+  const s = safeGet(PF_STORAGE_KEY);
+  if(s) pfState = { ...pfState, ...s };
+  // Reset session XP on new day
+  const today = new Date().toISOString().slice(0,10);
+  if(pfState.lastDate !== today) {
+    pfState.sessionXP = 0;
+    pfState.lastDate = today;
+  }
+}
+
+function pfSaveState() {
+  safeSet(PF_STORAGE_KEY, pfState);
+}
+
+function openPolyFeed() {
+  pfLoadState();
+  document.getElementById('polyfeed-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  pfUpdateHeader();
+  pfLoadCards();
+}
+
+function closePolyFeed() {
+  document.getElementById('polyfeed-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  // Sync XP to RPG
+  if(pfState.sessionXP > 0) {
+    pfSyncXPtoRPG(pfState.sessionXP);
+  }
+  loadAll(); // refresh hub
+}
+
+function pfSetCat(cat, btn) {
+  pfCurrentCat = cat;
+  document.querySelectorAll('.pf-cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  pfCards = [];
+  pfLoadCards();
+}
+
+function pfUpdateHeader() {
+  document.getElementById('pf-session-xp').textContent = pfState.sessionXP;
+  document.getElementById('pf-streak-display').textContent = '🔥 ' + (pfState.streak || 0);
+}
+
+// ── Generate cards with Claude API ──
+async function pfLoadCards() {
+  if(pfLoading) return;
+  pfLoading = true;
+
+  const feed = document.getElementById('pf-feed');
+  feed.innerHTML = `
+    <div class="pf-card loading-card">
+      <div class="pf-spinner">
+        <div class="pf-spinner-ring"></div>
+        <div class="pf-spinner-text">CARICAMENTO FEED...</div>
+      </div>
+    </div>`;
+
+  const cat = pfCurrentCat === 'all'
+    ? PF_ALL_CATS[Math.floor(Math.random() * PF_ALL_CATS.length)]
+    : pfCurrentCat;
+
+  const catNames = {
+    scienza: 'scienze (fisica, chimica, biologia, astronomia)',
+    filosofia: 'filosofia (pensatori, idee, paradossi)',
+    storia: 'storia mondiale (eventi, personaggi, civiltà)',
+    matematica: 'matematica e logica (concetti, teoremi, applicazioni)',
+    psicologia: 'psicologia e neuroscienze (bias, esperimenti, comportamento)',
+    economia: 'economia e finanza (teorie, paradossi, principi)',
+    arte: 'arte, letteratura e musica (opere, autori, movimenti)',
+  };
+
+  // Costruisci profilo reale per personalizzare le card
+  const studio    = readStudio();
+  const library   = readLibrary();
+  const rpg       = readRPG();
+  const agoraHist = safeGet('agora_conv_history') || [];
+  const secondBrain = safeGet('polymath_second_brain') || [];
+
+  const profileLines = [];
+  if(studio) {
+    const materie = [...new Set((safeGet('sv4_voti')||[]).map(v=>v.subj))].slice(0,5);
+    if(materie.length) profileLines.push(`Studia: ${materie.join(', ')}`);
+    if(studio.nextVer) profileLines.push(`Prossima verifica: ${studio.nextVer.subj} (tra poco)`);
+  }
+  if(library?.current) profileLines.push(`Sta leggendo: "${library.current.title}"`);
+  if(rpg) {
+    const topSkills = Object.entries(rpg.skills||{}).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k])=>k);
+    if(topSkills.length) profileLines.push(`Skill più sviluppate: ${topSkills.join(', ')}`);
+  }
+  if(agoraHist.length) {
+    const personaggi = [...new Set(agoraHist.slice(0,5).map(c=>c.charName))].join(', ');
+    if(personaggi) profileLines.push(`Ha dialogato con: ${personaggi}`);
+  }
+  if(secondBrain.length) {
+    profileLines.push(`Idee recenti: ${secondBrain.slice(-2).map(n=>'"'+n.text.slice(0,40)+'"').join(' | ')}`);
+  }
+
+  const profileBlock = profileLines.length
+    ? `\nPROFILO UTENTE (usa questi dati per personalizzare le card — rendi almeno una card un ponte tra la categoria e qualcosa nel profilo):\n${profileLines.map(l=>`- ${l}`).join('\n')}\n`
+    : '';
+
+  const prompt = `Sei il generatore di contenuti di PolyFeed — un'app stile TikTok per un ragazzo di 17 anni che vuole diventare un vero polimata invece di fare doomscrolling.
+${profileBlock}
+Genera 3 "card" di contenuto sulla categoria: ${catNames[cat] || cat}.
+
+Ogni card deve essere:
+1. Una curiosità GENUINAMENTE sorprendente e poco conosciuta (non "lo sapevi che...")
+2. Concisa ma profonda — apre la mente, non riempie spazio
+3. Con UNA sfida pratica collegata (qualcosa che si può fare in 5-30 minuti)
+4. XP assegnati in base alla difficoltà della sfida (5-25 XP)
+
+Rispondi SOLO con questo JSON (nessun markdown, nessun testo fuori):
+{
+  "cards": [
+    {
+      "id": "unique_id_string",
+      "category": "${cat}",
+      "hook": "Titolo breve e potente (max 12 parole)",
+      "body": "Spiegazione in 2-3 frasi. Usa <strong> per parole chiave e <em> per termini tecnici.",
+      "source": "Fonte o contesto (es: Feynman, 1965 / Nature, 2019 / Aristotele, Etica Nicomachea)",
+      "challenge": {
+        "text": "Sfida concreta e specifica da fare ADESSO o oggi",
+        "duration": "5 min",
+        "xp": 10
+      }
+    }
+  ]
+}`;
+
+  try {
+    const data = await apiFetch('polyfeed', {
+      model: 'claude-sonnet-4-20250514',
+      system: 'Rispondi SEMPRE e SOLO con JSON valido puro, senza markdown, senza testo extra. Inizia con { e finisci con }.',
+      max_tokens: 4096,
+      messages: [{ role: 'user', content: prompt }]
+    }, 8);
+    const raw = data.content?.map(c => c.text||'').join('') || '';
+
+    let parsed;
+    try {
+      let clean = raw.replace(/```json|```/g,'').trim();
+      const jsonMatch = clean.match(/\{[\s\S]*\}/);
+      if(jsonMatch) clean = jsonMatch[0];
+      parsed = JSON.parse(clean);
+    } catch(e) {
+      try {
+        const arrMatch = raw.match(/"cards"\s*:\s*(\[[\s\S]*?\])\s*\}/);
+        if(arrMatch) parsed = { cards: JSON.parse(arrMatch[1]) };
+        else throw new Error('no cards');
+      } catch(e2) {
+        throw new Error('JSON parse failed: ' + raw.slice(0,300));
+      }
+    }
+
+    pfCards = parsed.cards || [];
+    pfState.totalCards += pfCards.length;
+    pfSaveState();
+    pfRenderCards(pfCards, cat);
+  } catch(err) {
+    feed.innerHTML = `
+      <div class="pf-card">
+        <div class="pf-empty">
+          <div class="pf-empty-icon">⚠️</div>
+          Errore: ${err.message}<br><br>
+          <button class="pf-btn-next" onclick="pfLoadCards()">↺ RIPROVA</button>
+        </div>
+      </div>`;
+    console.error('PolyFeed error:', err);
+  } finally {
+    pfLoading = false;
+  }
+}
+
+function pfRenderCards(cards, cat) {
+  const feed = document.getElementById('pf-feed');
+  const catMeta = PF_CAT_COLORS[cat] || { color: 'var(--cyan)', icon: '⚡' };
+
+  feed.innerHTML = cards.map((card, idx) => {
+    const isDone = !!pfState.completed[card.id];
+    return `
+    <div class="pf-card" id="pfcard-${card.id}">
+      <div class="pf-card-bg">${catMeta.icon}</div>
+
+      <div class="pf-cat-tag" style="color:${catMeta.color};border-color:${catMeta.color}40">
+        ${catMeta.icon} ${card.category.toUpperCase()}
+      </div>
+
+      <div class="pf-card-num">#${idx + 1} / ${cards.length}</div>
+
+      <div class="pf-hook">${card.hook}</div>
+      <div class="pf-body">${card.body}</div>
+
+      <div class="pf-source">📎 ${card.source}</div>
+
+      <div class="pf-challenge">
+        <div class="pf-challenge-label">
+          ⚡ SFIDA
+          <span class="pf-challenge-xp">+${card.challenge.xp} XP</span>
+        </div>
+        <div class="pf-challenge-text">${card.challenge.text}</div>
+        <div class="pf-challenge-timer">⏱ ${card.challenge.duration}</div>
+      </div>
+
+      <div class="pf-actions">
+        <button
+          class="pf-btn-complete ${isDone ? 'done' : ''}"
+          id="pfbtn-${card.id}"
+          onclick="pfCompleteChallenge('${card.id}', ${card.challenge.xp})">
+          ${isDone ? '✓ COMPLETATA' : '✓ SFIDA COMPLETATA'}
+        </button>
+        <button class="pf-btn-skip" onclick="pfScrollToCard(${idx + 1})">SALTA</button>
+        ${idx < cards.length - 1
+          ? `<button class="pf-btn-next" onclick="pfScrollToCard(${idx + 1})">AVANTI →</button>`
+          : `<button class="pf-btn-next" onclick="pfLoadCards()">↺ ALTRO FEED</button>`
+        }
+      </div>
+    </div>`;
+  }).join('') + `
+    <div class="pf-card">
+      <div class="pf-empty">
+        <div class="pf-empty-icon">🏆</div>
+        Hai visto tutte le card di questa sessione.<br>
+        Carica un nuovo batch o cambia categoria.
+        <br><br>
+        <button class="pf-btn-next" style="margin:0 auto;display:block" onclick="pfLoadCards()">↺ NUOVO BATCH</button>
+      </div>
+    </div>`;
+}
+
+function pfScrollToCard(idx) {
+  if(idx >= pfCards.length) {
+    pfLoadCards();
+    return;
+  }
+  const card = pfCards[idx];
+  if(!card) return;
+  const el = document.getElementById('pfcard-' + card.id);
+  if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function pfCompleteChallenge(cardId, xp) {
+  if(pfState.completed[cardId]) return;
+  pfState.completed[cardId] = true;
+  pfState.sessionXP += xp;
+
+  // Update button
+  const btn = document.getElementById('pfbtn-' + cardId);
+  if(btn) {
+    btn.textContent = '✓ COMPLETATA';
+    btn.classList.add('done');
+  }
+
+  pfSaveState();
+  pfUpdateHeader();
+  pfShowXPFloat(xp);
+}
+
+function pfShowXPFloat(xp) {
+  const el = document.getElementById('pf-xp-float');
+  el.textContent = '+' + xp + ' XP';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1200);
+}
+
+function pfSyncXPtoRPG(xp) {
+  try {
+    const rpgState = safeGet('leo_rpg_state_v2');
+    if(!rpgState) return;
+    rpgState.totalXp = (rpgState.totalXp || 0) + xp;
+    // Add to mind skill (cultural XP)
+    rpgState.skills = rpgState.skills || {};
+    rpgState.skills['mind'] = (rpgState.skills['mind'] || 0) + Math.floor(xp * 0.6);
+    rpgState.skills['discipline'] = (rpgState.skills['discipline'] || 0) + Math.floor(xp * 0.4);
+    safeSet('leo_rpg_state_v2', rpgState);
+  } catch(e) {}
+}
+</script>
+
+</body>
+</html>
+
+<script>
+// ── Live counters per le nuove card hub ───────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  // Missioni oggi
+  try {
+    const today = new Date().toISOString().slice(0,10);
+    const all   = JSON.parse(localStorage.getItem('polylife_daily_missions_v1') || '[]');
+    const todayM = all.filter(m => m.date === today);
+    const done   = todayM.filter(m => m.completed==1||m.completed===true).length;
+    const total  = todayM.length;
+    const missVal = document.getElementById('hub-miss-val');
+    const missBar = document.getElementById('hub-miss-bar');
+    if (missVal) missVal.textContent = total > 0 ? `${done}/${total}` : '0';
+    if (missBar && total > 0) missBar.style.width = Math.round((done/total)*100) + '%';
+  } catch(_) {}
+
+  // Flashcard in scadenza
+  try {
+    const today = new Date().toISOString().slice(0,10);
+    const cards = JSON.parse(localStorage.getItem('polylife_flashcards_v1') || '[]');
+    const due   = cards.filter(c => !c.next_review_date || c.next_review_date <= today).length;
+    const fcVal = document.getElementById('hub-fc-val');
+    const fcBar = document.getElementById('hub-fc-bar');
+    if (fcVal) fcVal.textContent = due > 0 ? due : '✓';
+    if (fcBar) fcBar.style.width = cards.length > 0 ? Math.round(Math.min(due/cards.length,1)*100) + '%' : '0%';
+  } catch(_) {}
+});
+</script>
+<script src="/polylife-widget.js" onerror="void 0"></script>
+

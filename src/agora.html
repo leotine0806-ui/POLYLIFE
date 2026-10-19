@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGORA — Dialoghi con i Grandi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #08070a;
+  --bg2:     #0d0c12;
+  --bg3:     #131220;
+  --bg4:     #1a1828;
+  --border:  rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.12);
+  --text:    #e8e4d8;
+  --text2:   #9a9484;
+  --text3:   #4a4640;
+  --gold:    #c9a84c;
+  --gold2:   #e8c97a;
+  --marble:  #d4cfc4;
+
+  --char-color: #c9a84c; /* overridden per character */
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── BACKGROUND: marble columns pattern ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 58px,
+      rgba(255,255,255,0.012) 58px,
+      rgba(255,255,255,0.012) 60px
+    ),
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(201,168,76,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 30% at 20% 100%, rgba(100,80,160,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 30% at 80% 100%, rgba(80,120,160,0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* grain overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+.app { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ── HEADER ── */
+.agora-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 32px 20px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.agora-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 32px; right: 32px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0.4;
+}
+.agora-wordmark {
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: var(--gold2);
+  text-shadow: 0 0 30px rgba(201,168,76,0.3);
+}
+.agora-wordmark span {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--text3);
+  font-weight: 400;
+  display: block;
+  margin-top: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+}
+.header-nav {
+  display: flex;
+  gap: 8px;
+}
+.btn-back {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  padding: 7px 14px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text3);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-back:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ── SCREENS ── */
+.screen { display: none; flex: 1; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ═══════════════════════════════
+   SELECTION SCREEN
+   ═══════════════════════════════ */
+#screen-select {
+  padding: 40px 32px 60px;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.select-intro {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.select-intro-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  opacity: 0.7;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.select-intro-title {
+  font-family: 'Cinzel', serif;
+  font-size: 36px;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 14px;
+  letter-spacing: 0.05em;
+}
+.select-intro-title em {
+  color: var(--gold2);
+  font-style: italic;
+}
+.select-intro-sub {
+  font-size: 16px;
+  color: var(--text2);
+  line-height: 1.7;
+  max-width: 480px;
+  margin: 0 auto;
+  font-style: italic;
+}
+
+/* Era filter */
+.era-filter {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 36px;
+}
+.era-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text3);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+.era-btn.active, .era-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(201,168,76,0.06);
+}
+
+/* Character grid */
+.chars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.char-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 22px 20px;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.char-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--char-color, var(--gold));
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.char-card::after {
+  content: '';
+  position: absolute;
+  bottom: -20px; right: -20px;
+  width: 80px; height: 80px;
+  background: radial-gradient(circle, var(--char-color, var(--gold)) 0%, transparent 70%);
+  opacity: 0.04;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.char-card:hover {
+  border-color: var(--border2);
+  background: var(--bg3);
+  transform: translateY(-2px);
+}
+.char-card:hover::before { opacity: 1; }
+.char-card:hover::after { opacity: 0.08; }
+
+.char-era {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  color: var(--char-color, var(--gold));
+  opacity: 0.7;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.char-name {
+  font-family: 'Cinzel', serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: 0.04em;
+}
+.char-role {
+  font-size: 12px;
+  color: var(--text2);
+  font-style: italic;
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+.char-quote {
+  font-size: 12px;
+  color: var(--text3);
+  line-height: 1.55;
+  border-left: 2px solid var(--char-color, var(--gold));
+  padding-left: 10px;
+  opacity: 0.8;
+  font-style: italic;
+}
+.char-tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.char-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  padding: 2px 7px;
+  border: 1px solid var(--border);
+  color: var(--text3);
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════
+   CHAT SCREEN
+   ═══════════════════════════════ */
+#screen-chat {
+  flex-direction: column;
+  height: calc(100vh - 73px);
+}
+
+/* Character header */
+.chat-char-header {
+  padding: 18px 32px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--bg2);
+  position: relative;
+  flex-shrink: 0;
+}
+.chat-char-header::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--char-color, var(--gold));
+}
+.char-avatar {
+  width: 52px;
+  height: 52px;
+  border: 1px solid var(--char-color, var(--gold));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+  position: relative;
+  background: var(--bg3);
+}
+.char-avatar::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border: 1px solid var(--char-color, var(--gold));
+  opacity: 0.2;
+}
+.chat-char-info { flex: 1; }
+.chat-char-name {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.05em;
+}
+.chat-char-role {
+  font-size: 12px;
+  color: var(--text2);
+  font-style: italic;
+  margin-top: 2px;
+}
+.chat-char-era {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  color: var(--char-color, var(--gold));
+  opacity: 0.7;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+.btn-change-char {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  padding: 7px 12px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text3);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-change-char:hover { border-color: var(--gold); color: var(--gold); }
+
+/* Suggested questions */
+.chat-suggestions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 32px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+.chat-suggestions::-webkit-scrollbar { display: none; }
+.suggestion-pill {
+  flex-shrink: 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px;
+  font-style: italic;
+  padding: 6px 14px;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  background: var(--bg3);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.suggestion-pill:hover {
+  border-color: var(--char-color, var(--gold));
+  color: var(--char-color, var(--gold));
+  background: var(--bg4);
+}
+
+/* Messages */
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+
+.msg { display: flex; flex-direction: column; max-width: 82%; animation: msg-in 0.3s ease both; }
+@keyframes msg-in { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+.msg.user { align-self: flex-end; align-items: flex-end; }
+.msg.character { align-self: flex-start; align-items: flex-start; }
+
+.msg-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  opacity: 0.6;
+}
+.msg.user .msg-label { color: var(--text3); }
+.msg.character .msg-label { color: var(--char-color, var(--gold)); }
+
+.msg-bubble {
+  padding: 14px 18px;
+  line-height: 1.75;
+  font-size: 15px;
+  position: relative;
+}
+.msg.user .msg-bubble {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  border-bottom-right-radius: 0;
+}
+.msg.character .msg-bubble {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--char-color, var(--gold));
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-style: italic;
+}
+
+/* Thinking animation */
+.msg-thinking .msg-bubble {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding: 16px 18px;
+  min-width: 70px;
+}
+.think-dot {
+  width: 5px; height: 5px;
+  background: var(--char-color, var(--gold));
+  border-radius: 50%;
+  animation: think-bounce 1.2s infinite;
+  opacity: 0.6;
+}
+.think-dot:nth-child(2) { animation-delay: 0.2s; }
+.think-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes think-bounce {
+  0%,80%,100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-5px); opacity: 1; }
+}
+
+/* Input row */
+.chat-input-wrap {
+  padding: 16px 32px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+  flex-shrink: 0;
+  position: relative;
+}
+.chat-input-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 32px; right: 32px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--char-color, var(--gold)), transparent);
+  opacity: 0.2;
+}
+.chat-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+.chat-input {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  padding: 12px 16px;
+  resize: none;
+  outline: none;
+  min-height: 48px;
+  max-height: 120px;
+  line-height: 1.5;
+  transition: border-color 0.2s;
+}
+.chat-input:focus { border-color: var(--char-color, var(--gold)); }
+.chat-input::placeholder { color: var(--text3); font-style: italic; }
+.btn-send {
+  width: 48px;
+  height: 48px;
+  background: var(--char-color, var(--gold));
+  border: none;
+  color: var(--bg);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  font-family: 'Cinzel', serif;
+}
+.btn-send:hover { opacity: 0.85; transform: scale(1.05); }
+.btn-send:disabled { opacity: 0.3; cursor: default; transform: none; }
+.chat-hint {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  margin-top: 8px;
+  opacity: 0.6;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-left: 2px solid var(--gold);
+  padding: 10px 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text2);
+  transition: transform 0.25s ease;
+  z-index: 999;
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+
+/* ── TRANSITIONS ── */
+.screen { opacity: 0; transform: translateY(12px); transition: opacity 0.4s ease, transform 0.4s ease; }
+.screen.active { opacity: 1; transform: translateY(0); }
+
+/* ── CHAR CARD HOVER GLOW ── */
+.char-card { transition: all 0.3s cubic-bezier(0.2,0,0,1); }
+.char-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px var(--char-color); transform: translateY(-4px); }
+
+/* ── MOOD INDICATOR ── */
+.mood-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 32px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.mood-label { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.15em; color: var(--text3); }
+.mood-dots { display: flex; gap: 4px; }
+.mood-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--border2); transition: background 0.4s;
+}
+.mood-dot.active { background: var(--char-color, var(--gold)); box-shadow: 0 0 6px var(--char-color, var(--gold)); }
+.mood-text { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.12em; color: var(--char-color, var(--gold)); opacity: 0.7; margin-left: 4px; }
+.msg-count { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: var(--text3); margin-left: auto; }
+
+/* ── MEMORY PILLS ── */
+.memory-strip {
+  display: flex; gap: 6px; padding: 8px 32px;
+  overflow-x: auto; scrollbar-width: none;
+  flex-shrink: 0; background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.memory-strip::-webkit-scrollbar { display: none; }
+.memory-strip:empty { display: none; }
+.memory-pill {
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  letter-spacing: 0.1em; padding: 4px 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text3); background: var(--bg2);
+  white-space: nowrap; max-width: 200px;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.memory-pill-label { color: var(--char-color, var(--gold)); margin-right: 4px; opacity: 0.6; }
+
+/* ── TYPEWRITER ── */
+.msg-bubble.typing::after {
+  content: '▋';
+  display: inline-block;
+  animation: blink-cursor 0.7s step-end infinite;
+  color: var(--char-color, var(--gold));
+  margin-left: 2px;
+  font-size: 14px;
+  vertical-align: baseline;
+}
+@keyframes blink-cursor { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ── HISTORY DRAWER ── */
+.history-btn {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  letter-spacing: 0.12em; padding: 7px 12px;
+  background: transparent; border: 1px solid var(--border2);
+  color: var(--text3); cursor: pointer; transition: all 0.2s;
+}
+.history-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+.history-drawer {
+  position: fixed; right: -340px; top: 0; bottom: 0;
+  width: 320px; background: var(--bg2);
+  border-left: 1px solid var(--border2);
+  z-index: 500; transition: right 0.3s cubic-bezier(0.2,0,0,1);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.history-drawer.open { right: 0; }
+.history-drawer-header {
+  padding: 20px; border-bottom: 1px solid var(--border);
+  font-family: 'Cinzel', serif; font-size: 13px;
+  color: var(--gold); letter-spacing: 0.15em;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.history-close { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 16px; }
+.history-close:hover { color: var(--text); }
+.history-list { flex: 1; overflow-y: auto; padding: 12px; scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
+.history-item {
+  padding: 12px 14px; border: 1px solid var(--border);
+  margin-bottom: 8px; cursor: pointer; transition: all 0.2s;
+}
+.history-item:hover { border-color: var(--border2); background: var(--bg3); }
+.history-item-char {
+  font-family: 'Cinzel', serif; font-size: 12px;
+  color: var(--text); margin-bottom: 3px;
+}
+.history-item-preview { font-size: 11px; color: var(--text3); font-style: italic; line-height: 1.4; }
+.history-item-meta { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: var(--text3); margin-top: 6px; letter-spacing: 0.1em; }
+.history-empty { padding: 40px 20px; text-align: center; color: var(--text3); font-size: 12px; font-style: italic; }
+.history-clear { padding: 12px; border-top: 1px solid var(--border); }
+.btn-clear-history {
+  width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  letter-spacing: 0.12em; padding: 8px; background: transparent;
+  border: 1px solid rgba(200,60,60,0.3); color: rgba(200,60,60,0.6);
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-clear-history:hover { border-color: rgba(200,60,60,0.7); color: rgba(200,60,60,1); }
+
+/* ── DRAWER OVERLAY ── */
+.drawer-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 499;
+}
+.drawer-overlay.open { display: block; }
+
+/* ── MSG REACTIONS ── */
+.msg-actions {
+  display: flex; gap: 6px; margin-top: 6px; opacity: 0;
+  transition: opacity 0.2s;
+}
+.msg.character:hover .msg-actions { opacity: 1; }
+.msg-action-btn {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  letter-spacing: 0.1em; padding: 3px 8px;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text3); cursor: pointer; transition: all 0.2s;
+}
+.msg-action-btn:hover { border-color: var(--char-color, var(--gold)); color: var(--char-color, var(--gold)); }
+
+/* ── SEARCH IN SELECT ── */
+.chars-search {
+  display: block; width: 100%; max-width: 400px; margin: 0 auto 24px;
+  background: var(--bg2); border: 1px solid var(--border2);
+  color: var(--text); font-family: 'Cormorant Garamond', serif;
+  font-size: 15px; padding: 10px 16px; outline: none;
+  font-style: italic;
+}
+.chars-search:focus { border-color: var(--gold); }
+.chars-search::placeholder { color: var(--text3); }
+
+/* ── CHAR COUNT BADGE ── */
+.chars-count { text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.15em; color: var(--text3); margin-bottom: 20px; }
+
+/* ── NEW SESSION DIVIDER ── */
+.session-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 16px 0; color: var(--text3);
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  letter-spacing: 0.15em;
+}
+.session-divider::before, .session-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── QUOTE SPLASH on select ── */
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.char-card { animation: card-enter 0.35s ease both; }
+
+
+/* ══ ADMIN PANEL ══ */
+.admin-drawer {
+  position: fixed; left: -420px; top: 0; bottom: 0;
+  width: 400px; background: var(--bg2);
+  border-right: 1px solid var(--border2);
+  z-index: 500; transition: left 0.3s cubic-bezier(0.2,0,0,1);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.admin-drawer.open { left: 0; }
+.admin-header {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.admin-header::after {
+  content: ''; position: absolute;
+  bottom: 0; left: 20px; right: 20px; height: 1px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+  opacity: 0.4;
+}
+.admin-title {
+  font-family: 'Cinzel', serif; font-size: 13px;
+  color: var(--gold); letter-spacing: 0.2em;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.admin-sub {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  letter-spacing: 0.12em; color: var(--text3); margin-top: 4px;
+}
+.admin-body { flex: 1; overflow-y: auto; padding: 20px; scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
+
+.admin-input-wrap { margin-bottom: 14px; }
+.admin-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 6px; display: block;
+}
+.admin-input {
+  width: 100%; background: var(--bg3);
+  border: 1px solid var(--border2); color: var(--text);
+  font-family: 'Cormorant Garamond', serif; font-size: 15px;
+  padding: 10px 14px; outline: none; transition: border-color 0.2s;
+}
+.admin-input:focus { border-color: var(--gold); }
+.admin-input::placeholder { color: var(--text3); font-style: italic; }
+
+.admin-era-select {
+  width: 100%; background: var(--bg3);
+  border: 1px solid var(--border2); color: var(--text2);
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.1em; padding: 10px 14px; outline: none;
+  cursor: pointer; transition: border-color 0.2s;
+  appearance: none;
+}
+.admin-era-select:focus { border-color: var(--gold); }
+
+.btn-generate {
+  width: 100%; font-family: 'Cinzel', serif; font-size: 11px;
+  letter-spacing: 0.2em; padding: 14px;
+  background: transparent; border: 1px solid var(--gold);
+  color: var(--gold); cursor: pointer; transition: all 0.2s;
+  margin-top: 4px;
+}
+.btn-generate:hover { background: rgba(201,168,76,0.08); }
+.btn-generate:disabled { opacity: 0.3; cursor: default; }
+
+/* Preview card */
+.admin-preview {
+  display: none; margin-top: 20px;
+  border: 1px solid var(--border2);
+  border-top: 2px solid var(--gold);
+  padding: 16px; background: var(--bg3);
+  animation: fadeInUp 0.3s ease;
+}
+@keyframes fadeInUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.admin-preview.visible { display: block; }
+.preview-name {
+  font-family: 'Cinzel', serif; font-size: 16px;
+  color: var(--text); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+}
+.preview-role { font-size: 12px; color: var(--text2); font-style: italic; margin-bottom: 10px; }
+.preview-quote {
+  font-size: 13px; color: var(--text3); font-style: italic;
+  border-left: 2px solid var(--gold); padding-left: 10px;
+  margin-bottom: 12px; line-height: 1.5;
+}
+.preview-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 14px; }
+.preview-tag {
+  font-family: 'JetBrains Mono', monospace; font-size: 7px;
+  letter-spacing: 0.1em; padding: 2px 7px;
+  border: 1px solid var(--border); color: var(--text3);
+}
+.preview-prompt {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  color: var(--text3); line-height: 1.6; max-height: 100px;
+  overflow-y: auto; margin-bottom: 14px; padding: 8px;
+  background: var(--bg2); border: 1px solid var(--border);
+  letter-spacing: 0.02em;
+}
+.preview-actions { display: flex; gap: 8px; }
+.btn-save-char {
+  flex: 1; font-family: 'Cinzel', serif; font-size: 10px;
+  letter-spacing: 0.15em; padding: 11px;
+  background: rgba(201,168,76,0.1); border: 1px solid var(--gold);
+  color: var(--gold); cursor: pointer; transition: all 0.2s;
+}
+.btn-save-char:hover { background: rgba(201,168,76,0.2); }
+.btn-discard {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  letter-spacing: 0.1em; padding: 11px 14px;
+  background: transparent; border: 1px solid var(--border2);
+  color: var(--text3); cursor: pointer; transition: all 0.2s;
+}
+.btn-discard:hover { border-color: rgba(200,60,60,0.5); color: rgba(200,60,60,0.8); }
+
+/* Custom chars list */
+.custom-chars-section { margin-top: 24px; }
+.custom-chars-title {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  letter-spacing: 0.18em; color: var(--text3); margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.custom-char-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border: 1px solid var(--border);
+  margin-bottom: 6px; background: var(--bg2);
+}
+.custom-char-avatar { font-size: 18px; flex-shrink: 0; }
+.custom-char-info { flex: 1; }
+.custom-char-name { font-family: 'Cinzel', serif; font-size: 12px; color: var(--text); }
+.custom-char-era { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: var(--text3); margin-top: 2px; }
+.btn-delete-char {
+  background: none; border: 1px solid var(--border);
+  color: var(--text3); font-size: 12px; width: 28px; height: 28px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.15s;
+}
+.btn-delete-char:hover { border-color: rgba(200,60,60,0.5); color: rgba(200,60,60,0.8); }
+
+/* Generating spinner */
+.admin-generating {
+  display: none; align-items: center; gap: 10px; margin-top: 14px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.12em; color: var(--text3);
+}
+.admin-generating.visible { display: flex; }
+.admin-spin {
+  width: 16px; height: 16px;
+  border: 1px solid var(--border2); border-top-color: var(--gold);
+  border-radius: 50%; animation: pf-spin 0.7s linear infinite; flex-shrink: 0;
+}
+
+/* Admin button */
+.btn-admin {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  letter-spacing: 0.12em; padding: 7px 12px;
+  background: transparent; border: 1px solid rgba(201,168,76,0.3);
+  color: rgba(201,168,76,0.6); cursor: pointer; transition: all 0.2s;
+}
+.btn-admin:hover { border-color: var(--gold); color: var(--gold); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); }
+
+/* Responsive */
+@media (max-width: 600px) {
+  #screen-select { padding: 24px 16px 40px; }
+  .chat-char-header, .chat-messages, .chat-input-wrap { padding-left: 16px; padding-right: 16px; }
+  .chat-suggestions { padding-left: 16px; padding-right: 16px; }
+  .agora-header { padding: 16px; }
+  .select-intro-title { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="agora-header">
+    <div class="agora-wordmark">
+      AGORA
+      <span>Dialoghi con i Grandi della Storia</span>
+    </div>
+    <div class="header-nav">
+      <button class="btn-admin" onclick="toggleAdminPanel()">⊕ AGGIUNGI FIGURA</button>
+      <button class="history-btn" onclick="toggleHistoryDrawer()">📜 ARCHIVIO</button>
+      <button class="btn-back" onclick="goToHub()">← HUB</button>
+      <button class="btn-back" id="btn-change-char" style="display:none" onclick="showSelectScreen()">⊞ CAMBIA</button>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL DRAWER -->
+  <div class="drawer-overlay" id="admin-overlay" onclick="toggleAdminPanel()"></div>
+  <div class="admin-drawer" id="admin-drawer">
+    <div class="admin-header">
+      <div class="admin-title">
+        <span>⊕ AGGIUNGI FIGURA</span>
+        <button class="history-close" onclick="toggleAdminPanel()">✕</button>
+      </div>
+      <div class="admin-sub">// Genera un nuovo personaggio con l'AI</div>
+    </div>
+    <div class="admin-body">
+
+      <div class="admin-input-wrap">
+        <label class="admin-label">Nome del personaggio</label>
+        <input class="admin-input" id="admin-name" placeholder="es. Immanuel Kant, Ada Lovelace, Sun Tzu..." />
+      </div>
+
+      <div class="admin-input-wrap">
+        <label class="admin-label">Era / Categoria</label>
+        <select class="admin-era-select" id="admin-era">
+          <option value="antica">Antichità</option>
+          <option value="rinascimento">Rinascimento</option>
+          <option value="illuminismo">Illuminismo</option>
+          <option value="moderna" selected>Era Moderna</option>
+          <option value="scienza">Scienza</option>
+        </select>
+      </div>
+
+      <div class="admin-input-wrap">
+        <label class="admin-label">Note opzionali (focus, aspetti particolari)</label>
+        <input class="admin-input" id="admin-notes" placeholder="es. focus sulla critica della ragione pura..." />
+      </div>
+
+      <button class="btn-generate" id="btn-generate" onclick="generateCharacter()">
+        ✦ GENERA PERSONAGGIO
+      </button>
+
+      <div class="admin-generating" id="admin-generating">
+        <div class="admin-spin"></div>
+        <span id="admin-gen-status">L'AI sta studiando il personaggio...</span>
+      </div>
+
+      <!-- PREVIEW -->
+      <div class="admin-preview" id="admin-preview">
+        <div class="preview-name">
+          <span id="prev-avatar">🏛️</span>
+          <span id="prev-name">—</span>
+        </div>
+        <div class="preview-role" id="prev-role">—</div>
+        <div class="preview-quote" id="prev-quote">—</div>
+        <div class="preview-tags" id="prev-tags"></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--text3);margin-bottom:4px;letter-spacing:0.1em">SYSTEM PROMPT</div>
+        <div class="preview-prompt" id="prev-prompt">—</div>
+        <div class="preview-actions">
+          <button class="btn-save-char" onclick="saveGeneratedChar()">★ AGGIUNGI ALL'AGORA</button>
+          <button class="btn-discard" onclick="discardPreview()">✕ SCARTA</button>
+        </div>
+      </div>
+
+      <!-- CUSTOM CHARS LIST -->
+      <div class="custom-chars-section" id="custom-chars-section">
+        <div class="custom-chars-title">
+          <span>FIGURE AGGIUNTE DA TE</span>
+          <span id="custom-count">0</span>
+        </div>
+        <div id="custom-chars-list"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HISTORY DRAWER -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="toggleHistoryDrawer()"></div>
+  <div class="history-drawer" id="history-drawer">
+    <div class="history-drawer-header">
+      <span>ARCHIVIO CONVERSAZIONI</span>
+      <button class="history-close" onclick="toggleHistoryDrawer()">✕</button>
+    </div>
+    <div class="history-list" id="history-list"></div>
+    <div class="history-clear">
+      <button class="btn-clear-history" onclick="clearAllHistory()">⊘ CANCELLA TUTTO</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: SELECT CHARACTER -->
+  <div class="screen active" id="screen-select">
+    <div class="select-intro">
+      <div class="select-intro-label">// Scegli il tuo interlocutore</div>
+      <div class="select-intro-title">Con chi vuoi <em>dialogare</em>?</div>
+      <div class="select-intro-sub">Ogni mente che hai ammirato è qui. Fai domande reali. Ricevi risposte autentiche.</div>
+    </div>
+
+    <div class="era-filter" id="era-filter">
+      <button class="era-btn active" data-era="all" onclick="filterEra('all',this)">Tutti</button>
+      <button class="era-btn" data-era="antica" onclick="filterEra('antica',this)">Antichità</button>
+      <button class="era-btn" data-era="rinascimento" onclick="filterEra('rinascimento',this)">Rinascimento</button>
+      <button class="era-btn" data-era="illuminismo" onclick="filterEra('illuminismo',this)">Illuminismo</button>
+      <button class="era-btn" data-era="moderna" onclick="filterEra('moderna',this)">Era Moderna</button>
+      <button class="era-btn" data-era="scienza" onclick="filterEra('scienza',this)">Scienza</button>
+    </div>
+
+    <input class="chars-search" id="chars-search" placeholder="Cerca un personaggio..." oninput="searchChars(this.value)">
+    <div class="chars-count" id="chars-count"></div>
+    <div class="chars-grid" id="chars-grid"></div>
+  </div>
+
+  <!-- SCREEN: CHAT -->
+  <div class="screen" id="screen-chat">
+    <div class="chat-char-header" id="chat-char-header">
+      <div class="char-avatar" id="chat-avatar">—</div>
+      <div class="chat-char-info">
+        <div class="chat-char-name" id="chat-char-name">—</div>
+        <div class="chat-char-role" id="chat-char-role">—</div>
+        <div class="chat-char-era" id="chat-char-era">—</div>
+      </div>
+      <button class="btn-change-char" onclick="showSelectScreen()">⊞ CAMBIA FIGURA</button>
+    </div>
+
+    <!-- MOOD BAR -->
+    <div class="mood-bar" id="mood-bar">
+      <div class="mood-label">UMORE</div>
+      <div class="mood-dots" id="mood-dots">
+        <div class="mood-dot active"></div>
+        <div class="mood-dot active"></div>
+        <div class="mood-dot"></div>
+        <div class="mood-dot"></div>
+        <div class="mood-dot"></div>
+      </div>
+      <div class="mood-text" id="mood-text">NEUTRO</div>
+      <div class="msg-count" id="msg-count">0 messaggi</div>
+    </div>
+
+    <!-- MEMORY STRIP -->
+    <div class="memory-strip" id="memory-strip"></div>
+
+    <div class="chat-suggestions" id="chat-suggestions"></div>
+
+    <div class="chat-messages" id="chat-messages"></div>
+
+    <div class="chat-input-wrap">
+      <div class="chat-input-row">
+        <textarea
+          class="chat-input"
+          id="chat-input"
+          placeholder="Scrivi la tua domanda..."
+          rows="1"
+          onkeydown="handleInputKey(event)"
+          oninput="autoResize(this)"
+        ></textarea>
+        <button class="btn-send" id="btn-send" onclick="sendMessage()">↑</button>
+      </div>
+      <div class="chat-hint">ENTER per inviare · SHIFT+ENTER per andare a capo · <button onclick="activateMentorMode()" style="background:none;border:none;color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.1em;cursor:pointer;padding:0;text-decoration:underline">✦ CHIEDI CONSIGLIO SU UN PROBLEMA REALE</button></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  AGORA v2 — DATA + LOGIC
+// ══════════════════════════════════════════════
+
+const AGORA_HISTORY_KEY = 'agora_conv_history';
+const AGORA_MEMORY_KEY  = 'agora_char_memory';
+const AGORA_CUSTOM_KEY  = 'agora_custom_characters';
+
+const CHARACTERS = [
+  {
+    id: 'socrate',
+    name: 'Socrate',
+    era: 'antica',
+    eraLabel: 'Atene · 470–399 a.C.',
+    role: 'Filosofo · Padre della dialettica occidentale',
+    avatar: '🏛️',
+    color: '#b8a060',
+    quote: 'So di non sapere nulla — ed è per questo che cerco sempre.',
+    tags: ['filosofia', 'etica', 'dialogo', 'verità'],
+    suggestions: [
+      'Come faccio a capire cosa è giusto fare?',
+      'Cosa significa conosci te stesso?',
+      'Come si riconosce la vera saggezza?',
+      'Vale la pena lottare per le proprie idee?',
+    ],
+    systemPrompt: `Sei Socrate di Atene (470–399 a.C.). Parli in prima persona con la voce autentica del filosofo ateniese.
+- Usi l'ironia socratica: fingi ignoranza per portare l'interlocutore a scoprire contraddizioni nel suo pensiero
+- Fai domande invece di dare risposte dirette — è il tuo metodo maieutico
+- Citi la tua vita ad Atene, i tuoi amici (Alcibiade, Platone, Critone), il daimon interiore
+- Parli con calore umano ma acutezza intellettuale implacabile
+- Non usi termini moderni — il tuo mondo è l'agorà, il simposio, la polis
+- 3-5 frasi, poi una domanda di ritorno all'interlocutore
+- Se l'interlocutore ha detto cose rilevanti prima, rifaciti a quelle
+Rispondi in italiano, tono classico ma accessibile. Mai elenchi puntati.`,
+  },
+  {
+    id: 'einstein',
+    name: 'Albert Einstein',
+    era: 'scienza',
+    eraLabel: 'Germania / USA · 1879–1955',
+    role: 'Fisico teorico · Relatività, Spazio-Tempo, Luce',
+    avatar: '⚛️',
+    color: '#6ab0d4',
+    quote: "L'immaginazione è più importante della conoscenza.",
+    tags: ['fisica', 'relatività', 'pensiero', 'scienza'],
+    suggestions: [
+      "Come hai avuto l'idea della relatività?",
+      'Come si coltiva una mente scientifica?',
+      'Cosa pensi del rapporto tra scienza e religione?',
+      'Qual è il segreto per imparare davvero?',
+    ],
+    systemPrompt: `Sei Albert Einstein (1879–1955). Parli in prima persona con la voce del fisico tedesco-americano.
+- Pensi per immagini e Gedankenexperiment — spieghi la fisica con metafore visive potenti
+- Sei caldo, umile, a tratti ironico e autoironico
+- Citi esperienze reali: l'infanzia a Ulm, i fallimenti scolastici, l'ufficio brevetti di Berna, Princeton
+- Colleghi fisica, filosofia e musica (violino, Mozart)
+- Parli della guerra e della bomba con dolore genuino
+- 4-6 frasi conversazionali e profonde, con analogie concrete
+- Se l'interlocutore ha condiviso qualcosa di sé, collegalo alla fisica o alla tua esperienza
+Rispondi in italiano, caldo e riflessivo. Mai elenchi puntati.`,
+  },
+  {
+    id: 'leonardo',
+    name: 'Leonardo da Vinci',
+    era: 'rinascimento',
+    eraLabel: 'Firenze / Milano · 1452–1519',
+    role: 'Artista · Ingegnere · Anatomista · Polimata supremo',
+    avatar: '🎨',
+    color: '#c47a3a',
+    quote: 'La pittura è poesia silenziosa, la poesia è pittura cieca.',
+    tags: ['arte', 'scienza', 'ingegneria', 'osservazione'],
+    suggestions: [
+      'Come fai a eccellere in così tante cose?',
+      'Qual è il segreto della creatività?',
+      'Come osservi il mondo per capirlo davvero?',
+      'Cosa significa per te la bellezza?',
+    ],
+    systemPrompt: `Sei Leonardo da Vinci (1452–1519). Parli in prima persona con la voce del genio fiorentino.
+- Pensi in modo connettivo — vedi pattern ovunque, colleghi anatomia a ingegneria a arte
+- Sei mosso dall'ossessione per l'osservazione diretta: "la natura è il miglior maestro"
+- Citi i tuoi quaderni, i disegni anatomici, le macchine volanti, la bottega del Verrocchio
+- Parli con meraviglia autentica e curiosità inesauribile
+- Colleghi sempre la tecnica alla domanda più profonda
+- 4-6 frasi evocative con un'immagine visiva forte
+- Se l'interlocutore descrive una situazione, trovaci la geometria o il pattern nascosto
+Rispondi in italiano, tono rinascimentale poetico. Mai elenchi puntati.`,
+  },
+  {
+    id: 'nietzsche',
+    name: 'Friedrich Nietzsche',
+    era: 'moderna',
+    eraLabel: 'Prussia · 1844–1900',
+    role: 'Filosofo · Critico della morale · Eterno ritorno',
+    avatar: '⚡',
+    color: '#9060b8',
+    quote: 'Diventa ciò che sei.',
+    tags: ['filosofia', 'volontà', 'morale', 'esistenza'],
+    suggestions: [
+      'Come si trova il proprio scopo nella vita?',
+      'Cosa intendi con volontà di potenza?',
+      'Perché la sofferenza può renderci più forti?',
+      'Come si supera la mediocrità?',
+    ],
+    systemPrompt: `Sei Friedrich Nietzsche (1844–1900). Parli in prima persona con la voce del filosofo prussiano.
+- Parli con forza aforistica — frasi brevi, dense, che colpiscono
+- Sei duro, provocatorio, ma non crudele — la tua durezza è cura per chi ha il coraggio di ascoltare
+- Citi Zarathustra, il superuomo, l'eterno ritorno, la morte di Dio come esperienze vissute
+- Parli della tua solitudine, malattia, incomprensione dei contemporanei
+- Ti opponi alla mediocrità consolatoria e alla pietà come debolezza
+- 3-5 frasi dense e potenti, poi una sfida diretta all'interlocutore
+- Se l'interlocutore mostra debolezza, sfidalo; se mostra coraggio, riconoscilo
+Rispondi in italiano, stile aforistico. Mai elenchi puntati.`,
+  },
+  {
+    id: 'marco_aurelio',
+    name: 'Marco Aurelio',
+    era: 'antica',
+    eraLabel: 'Roma · 121–180 d.C.',
+    role: 'Imperatore · Filosofo stoico · Autore dei Pensieri',
+    avatar: '🦅',
+    color: '#8a7050',
+    quote: 'Hai potere sulla tua mente, non sugli eventi esterni.',
+    tags: ['stoicismo', 'disciplina', 'leadership', 'mente'],
+    suggestions: [
+      'Come rimani disciplinato quando non ne hai voglia?',
+      'Come gestisci la pressione e le aspettative?',
+      'Come si affronta la paura del fallimento?',
+      'Cosa significa vivere secondo natura?',
+    ],
+    systemPrompt: `Sei Marco Aurelio (121–180 d.C.), imperatore romano e filosofo stoico.
+- Parli come nei Pensieri: riflessivo, diretto, senza autoindulgenza
+- Usi il "tu" imperativo come modello — la filosofia è disciplina pratica quotidiana
+- Citi Epitteto, il Lógos, il dovere verso la comunità
+- Parli delle campagne militari, morte dei figli, stanchezza del potere
+- Colleghi sempre il pensiero all'azione concreta di oggi
+- 4-6 frasi solide e memorabili, con un'azione pratica suggerita
+- Se l'interlocutore lotta con qualcosa, dai esercizi stoici concreti
+Rispondi in italiano, tono diretto e meditativo. Mai elenchi puntati.`,
+  },
+  {
+    id: 'marie_curie',
+    name: 'Marie Curie',
+    era: 'scienza',
+    eraLabel: 'Varsavia / Parigi · 1867–1934',
+    role: "Fisica e chimica · Due Premi Nobel · Scopritrice del radio",
+    avatar: '🔬',
+    color: '#60b890',
+    quote: "Non si può temere nulla nella vita, bisogna soltanto capirlo.",
+    tags: ['scienza', 'determinazione', 'fisica', 'chimica'],
+    suggestions: [
+      'Come hai superato gli ostacoli essendo donna in scienza?',
+      'Come si mantiene la passione di fronte alle difficoltà?',
+      'Cosa ti ha spinto a non mollare?',
+      'Come si sviluppa una vera mentalità scientifica?',
+    ],
+    systemPrompt: `Sei Marie Curie (1867–1934), fisica e chimica polacca-francese.
+- Parli con precisione e rigore, con passione sottostante che traspare
+- Citi l'infanzia a Varsavia, la difficoltà come donna, Parigi, Pierre
+- Sei pragmatica: la scienza si fa con lavoro ostinato, non con talento magico
+- Parli dei tuoi esperimenti reali: isolamento del radio, notti in laboratorio
+- Non ti piangi addosso — le difficoltà sono fatti, non drammi
+- 4-5 frasi concrete e sincere, con un principio applicabile subito
+- Se l'interlocutore si lamenta di ostacoli, mostragli come li hai superati concretamente
+Rispondi in italiano, tono diretto e appassionato. Mai elenchi puntati.`,
+  },
+  {
+    id: 'darwin',
+    name: 'Charles Darwin',
+    era: 'scienza',
+    eraLabel: 'Inghilterra · 1809–1882',
+    role: "Naturalista · Teoria dell'evoluzione per selezione naturale",
+    avatar: '🦋',
+    color: '#7ab050',
+    quote: "Non è il più forte a sopravvivere, ma chi sa adattarsi al cambiamento.",
+    tags: ['evoluzione', 'natura', 'osservazione', 'biologia'],
+    suggestions: [
+      'Come hai avuto il coraggio di sfidare il pensiero del tuo tempo?',
+      'Cosa hai imparato dal viaggio sul Beagle?',
+      'Come si allena la capacità di osservare?',
+      'Come hai gestito il conflitto tra scienza e fede?',
+    ],
+    systemPrompt: `Sei Charles Darwin (1809–1882), naturalista inglese.
+- Parli con la meraviglia di chi ha visto il mondo con occhi nuovi
+- Sei metodico, paziente, umile davanti alla complessità della natura
+- Citi il Beagle, Emma, Down House, le tue note precise
+- Parli con onestà del conflitto interiore tra teoria e implicazioni religiose
+- Trovi analogie ovunque — l'evoluzione delle idee, culture, linguaggi
+- 4-5 frasi calde e riflessive, con un'osservazione dalla natura
+Rispondi in italiano, tono curioso e riflessivo. Mai elenchi puntati.`,
+  },
+  {
+    id: 'platone',
+    name: 'Platone',
+    era: 'antica',
+    eraLabel: 'Atene · 428–348 a.C.',
+    role: "Filosofo · Fondatore dell'Accademia · Allievo di Socrate",
+    avatar: '📐',
+    color: '#7088c8',
+    quote: "La necessità è la madre dell'invenzione.",
+    tags: ['filosofia', 'idee', 'politica', 'anima'],
+    suggestions: [
+      'Cosa è la realtà vera secondo te?',
+      'Come si governa bene uno stato?',
+      'Perché la bellezza e la verità sono legate?',
+      'Cosa ti ha insegnato la morte di Socrate?',
+    ],
+    systemPrompt: `Sei Platone di Atene (428–348 a.C.), filosofo e fondatore dell'Accademia.
+- Parli con la profondità di chi ha elaborato il dolore della morte di Socrate
+- Usi le allegorie come strumento: la caverna, il mito di Er, il carro alato dell'anima
+- Distingui il mondo delle idee (eterno) dal mondo sensibile (transitorio)
+- Citi i dialoghi, l'Accademia, i viaggi in Sicilia
+- Hai un lato mistico e matematico: la geometria è la lingua della realtà
+- 4-6 frasi profonde con almeno un'immagine allegorica
+Rispondi in italiano, tono elevato e simbolico. Mai elenchi puntati.`,
+  },
+  {
+    id: 'seneca',
+    name: 'Seneca',
+    era: 'antica',
+    eraLabel: 'Roma · 4 a.C. – 65 d.C.',
+    role: 'Filosofo stoico · Drammaturgo · Consigliere di Nerone',
+    avatar: '📜',
+    color: '#c09050',
+    quote: 'Dum differtur vita transcurrit — mentre rimandi, la vita passa.',
+    tags: ['stoicismo', 'tempo', 'morte', 'virtù'],
+    suggestions: [
+      'Come si usa bene il tempo che abbiamo?',
+      'Come si fa a non rimandare sempre?',
+      'Come affrontare la paura della morte?',
+      'Cosa significa davvero essere liberi?',
+    ],
+    systemPrompt: `Sei Lucio Anneo Seneca (4 a.C. – 65 d.C.), filosofo stoico romano.
+- Parli come nelle Lettere a Lucilio: diretto, urgente, come se ogni lettera fosse l'ultima
+- Il tempo è la tua ossessione — la vita è breve solo per chi la spreca
+- Citi l'esilio in Corsica, la ricchezza e la contraddizione interiore, Nerone
+- Sei lucido sulla tua imperfezione: filosofi in cammino insieme
+- Hai urgenza pratica — la filosofia deve cambiare il comportamento oggi
+- 4-5 frasi dense e urgenti con almeno una massima memorabile
+- Concludi SEMPRE con una frase breve e potente come una sentenza
+Rispondi in italiano, tono urgente e personale. Mai elenchi puntati.`,
+  },
+  {
+    id: 'tesla',
+    name: 'Nikola Tesla',
+    era: 'scienza',
+    eraLabel: 'Serbia / USA · 1856–1943',
+    role: 'Inventore · Ingegnere elettrico · Visionario',
+    avatar: '⚡',
+    color: '#60a8d4',
+    quote: "Il presente è loro. Il futuro, per cui ho lavorato, è mio.",
+    tags: ['inventore', 'elettricità', 'visione', 'futuro'],
+    suggestions: [
+      'Come hai avuto le tue visioni per le invenzioni?',
+      'Cosa ti ha dato la forza di andare avanti contro Edison?',
+      'Come alleni la mente per pensare in modo creativo?',
+      "Cosa vedi nel futuro dell'umanità?",
+    ],
+    systemPrompt: `Sei Nikola Tesla (1856–1943), inventore serbo-americano.
+- Hai una mente visiva: vedi le invenzioni complete nella mente prima di costruirle
+- Sei intenso, solitario, con un orgoglio ferito — Edison ti ha derubato
+- Citi la corrente alternata, la torre di Wardenclyffe, il Colorado
+- Hai una visione quasi mistica della natura — l'elettricità come linguaggio dell'universo
+- Parli della povertà degli ultimi anni con dignità
+- 4-6 frasi visionarie e precise, con un'immagine del futuro
+Rispondi in italiano, tono intenso e visionario. Mai elenchi puntati.`,
+  },
+  {
+    id: 'dostoevskij',
+    name: 'Fëdor Dostoevskij',
+    era: 'moderna',
+    eraLabel: 'Russia · 1821–1881',
+    role: "Scrittore · Psicologo dell'anima umana",
+    avatar: '📖',
+    color: '#a05848',
+    quote: 'La bellezza salverà il mondo.',
+    tags: ['letteratura', 'anima', 'sofferenza', 'fede'],
+    suggestions: [
+      'Perché la sofferenza ha senso?',
+      'Come hai scritto di personaggi così oscuri restando integro?',
+      'Cosa significa amare davvero il prossimo?',
+      'Come hai trovato la fede dopo il plotone di esecuzione?',
+    ],
+    systemPrompt: `Sei Fëdor Dostoevskij (1821–1881), scrittore russo.
+- Parli dall'abisso e dalla luce insieme — conosci entrambi profondamente
+- Citi la finta esecuzione, gli anni in Siberia, l'epilessia, il gioco d'azzardo
+- Sei affascinato dal conflitto interiore — il bene e il male sono intrecciati
+- La fede non è consolatoria: è conquistata attraverso il dubbio
+- Citi i tuoi personaggi come reali — Raskol'nikov, Myškin, i Karamazov
+- 5-7 frasi intense con la complessità emotiva dei tuoi romanzi
+- Se l'interlocutore soffre, non consolarlo — aiutalo a trovare senso nella sofferenza
+Rispondi in italiano, tono profondo e tormentato. Mai elenchi puntati.`,
+  },
+  {
+    id: 'galileo',
+    name: 'Galileo Galilei',
+    era: 'rinascimento',
+    eraLabel: 'Pisa / Firenze · 1564–1642',
+    role: 'Fisico · Astronomo · Padre del metodo scientifico',
+    avatar: '🔭',
+    color: '#d4a030',
+    quote: 'Il libro della natura è scritto in linguaggio matematico.',
+    tags: ['scienza', 'astronomia', 'metodo', 'coraggio'],
+    suggestions: [
+      'Come hai avuto il coraggio di sfidare la Chiesa?',
+      'Cosa hai visto davvero guardando nel cannocchiale?',
+      'Come si distingue la superstizione dalla conoscenza?',
+      'Cosa significa osservare senza pregiudizi?',
+    ],
+    systemPrompt: `Sei Galileo Galilei (1564–1642), fisico e astronomo italiano.
+- Sei diretto, toscano, con umorismo pungente — odi i filosofi aristotelici che ragionano senza guardare
+- Citi il cannocchiale, le lune di Giove, la Torre di Pisa, il processo dell'Inquisizione
+- Il tuo metodo è semplice: osserva, misura, sperimenta
+- Hai combattuto con la lingua e la penna — il Dialogo, la Lettera a Cristina
+- Parli della cecità degli ultimi anni con amarezza e orgoglio
+- 4-6 frasi vivaci e concrete, con un esperimento mentale pratico
+Rispondi in italiano, tono diretto e toscano. Mai elenchi puntati.`,
+  },
+];
+
+// ══ State ══
+let currentChar   = null;
+let allCharacters = [];
+let chatHistory   = [];
+let isThinking    = false;
+let msgCount      = 0;
+let sessionMemory = [];  // key facts extracted per session
+
+// ══ Storage helpers ══
+function safeGet(key) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch(e) { return null; }
+}
+function safeSet(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+}
+
+// ══ Conversation archive ══
+function loadConvArchive() { return safeGet(AGORA_HISTORY_KEY) || []; }
+function saveConvToArchive(charId, messages) {
+  if(messages.length < 2) return;
+  const archive = loadConvArchive();
+  archive.unshift({
+    id: Date.now(),
+    charId,
+    charName: CHARACTERS.find(c=>c.id===charId)?.name || charId,
+    date: new Date().toLocaleDateString('it-IT'),
+    messages,
+    preview: messages.find(m=>m.role==='assistant')?.content?.slice(0,80) || ''
+  });
+  // Keep last 30 conversations
+  safeSet(AGORA_HISTORY_KEY, archive.slice(0, 30));
+}
+
+function renderHistoryDrawer() {
+  const list = document.getElementById('history-list');
+  const archive = loadConvArchive();
+  if(!archive.length) {
+    list.innerHTML = '<div class="history-empty">Nessuna conversazione ancora.<br>Inizia a dialogare con i Grandi.</div>';
+    return;
+  }
+  list.innerHTML = archive.map(c => {
+    const char = CHARACTERS.find(ch=>ch.id===c.charId);
+    return `<div class="history-item" onclick="loadConversation(${c.id})">
+      <div class="history-item-char">${char?.avatar||''} ${c.charName}</div>
+      <div class="history-item-preview">${c.preview}...</div>
+      <div class="history-item-meta">${c.date} · ${Math.floor(c.messages.length/2)} scambi</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleHistoryDrawer() {
+  const d = document.getElementById('history-drawer');
+  const o = document.getElementById('drawer-overlay');
+  const open = d.classList.toggle('open');
+  o.classList.toggle('open', open);
+  if(open) renderHistoryDrawer();
+}
+
+function loadConversation(id) {
+  const archive = loadConvArchive();
+  const conv = archive.find(c=>c.id===id);
+  if(!conv) return;
+  const char = CHARACTERS.find(c=>c.id===conv.charId);
+  if(!char) return;
+  toggleHistoryDrawer();
+  currentChar = char;
+  chatHistory = conv.messages;
+  msgCount = conv.messages.length;
+  showChatScreen(true);
+  // Replay messages
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML = '<div class="session-divider">CONVERSAZIONE PRECEDENTE</div>';
+  conv.messages.forEach(m => {
+    if(m.role==='user') addUserMessage(m.content);
+    else addCharMessage(m.content, false);
+  });
+  msgs.innerHTML += '<div class="session-divider">FINE ARCHIVIO — continua qui sotto</div>';
+  scrollToBottom();
+}
+
+function clearAllHistory() {
+  if(!confirm("Cancellare tutto l'archivio?")) return;
+  safeSet(AGORA_HISTORY_KEY, []);
+  renderHistoryDrawer();
+}
+
+// ══ Char memory ══
+function loadCharMemory(charId) {
+  const mem = safeGet(AGORA_MEMORY_KEY) || {};
+  return mem[charId] || [];
+}
+function saveCharMemory(charId, facts) {
+  const mem = safeGet(AGORA_MEMORY_KEY) || {};
+  mem[charId] = facts.slice(-12); // teniamo più fatti ora che sono di qualità
+  safeSet(AGORA_MEMORY_KEY, mem);
+}
+
+// Estrazione memoria via AI — asincrona, non blocca la risposta
+async function extractMemoryAI(charId, userMsg, charReply) {
+  // Limite: max 1 estrazione ogni 3 scambi per non sprecare chiamate
+  const mem = loadCharMemory(charId);
+  const prompt = `Analizza questo scambio in una conversazione tra un utente e un personaggio storico.
+
+MESSAGGIO UTENTE: "${userMsg}"
+RISPOSTA PERSONAGGIO: "${charReply.slice(0, 300)}"
+
+Estrai UN SOLO fatto personale rilevante che emerge dal messaggio dell'utente — qualcosa che vale la pena ricordare per conversazioni future (un obiettivo, un problema, un'opinione, un'informazione su di lui, una passione, un timore, una situazione reale).
+
+Regole:
+- Se non c'è nessun fatto personale rilevante, rispondi esattamente: null
+- Se c'è, rispondi con UNA frase concisa (max 12 parole) che descrive il fatto in terza persona (es: "Vuole diventare imprenditore digitale entro i 25 anni")
+- NON estrarre domande generiche, curiosità intellettuali, o messaggi di saluto
+- Rispondi SOLO con la frase o con null, nient'altro`;
+
+  try {
+    const data = await geminiCall(
+      'Sei un estrattore di informazioni personali. Rispondi SOLO con la frase estratta o con la parola null.',
+      [{ role: 'user', content: prompt }],
+      128
+    );
+    const raw = data.content?.map(b => b.text||'').join('').trim() || 'null';
+    if (raw === 'null' || raw.length < 5) return;
+    // Dedup: non salvare se già presente qualcosa di molto simile
+    const lower = raw.toLowerCase();
+    const isDup = mem.some(f => {
+      const fLower = f.toLowerCase();
+      // Jaccard-like: se condividono 3+ parole chiave, è un duplicato
+      const words = lower.split(/\s+/).filter(w => w.length > 4);
+      return words.filter(w => fLower.includes(w)).length >= 3;
+    });
+    if (!isDup) {
+      mem.push(raw);
+      saveCharMemory(charId, mem);
+      renderMemoryStrip();
+    }
+  } catch(e) {
+    // silenzioso — la memoria non è critica
+  }
+}
+function renderMemoryStrip() {
+  if(!currentChar) return;
+  const mem = loadCharMemory(currentChar.id);
+  const strip = document.getElementById('memory-strip');
+  if(!mem.length) { strip.innerHTML=''; return; }
+  strip.innerHTML = mem.slice(-4).map(f =>
+    `<div class="memory-pill"><span class="memory-pill-label">↩</span>${f}</div>`
+  ).join('');
+}
+
+// ══ Mood system ══
+const MOODS = [
+  { level: 1, label: 'APPENA INIZIATO', dots: 1 },
+  { level: 2, label: 'IN DIALOGO',      dots: 2 },
+  { level: 3, label: 'COINVOLTO',       dots: 3 },
+  { level: 4, label: 'PROFONDO',        dots: 4 },
+  { level: 5, label: 'IN FLOW',         dots: 5 },
+];
+function updateMood() {
+  const level = Math.min(5, Math.ceil(msgCount / 3) + 1);
+  const mood = MOODS[level-1] || MOODS[0];
+  const dots = document.querySelectorAll('.mood-dot');
+  dots.forEach((d,i) => d.classList.toggle('active', i < mood.dots));
+  document.getElementById('mood-text').textContent = mood.label;
+  document.getElementById('msg-count').textContent = `${Math.floor(msgCount/2)} scambi`;
+  // Apply color
+  document.getElementById('mood-bar').style.setProperty('--char-color', currentChar?.color||'var(--gold)');
+}
+
+// ══ Init ══
+function getMergedCharacters() {
+  return [...CHARACTERS, ...(safeGet(AGORA_CUSTOM_KEY) || [])];
+}
+allCharacters = getMergedCharacters();
+renderGrid(allCharacters);
+updateCharsCount(allCharacters.length);
+
+function filterEra(era, btn) {
+  document.querySelectorAll('.era-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = era === 'all' ? allCharacters : allCharacters.filter(c => c.era === era);
+  renderGrid(filtered);
+  updateCharsCount(filtered.length);
+  document.getElementById('chars-search').value = '';
+}
+
+function searchChars(query) {
+  const q = query.toLowerCase().trim();
+  const filtered = q
+    ? allCharacters.filter(c =>
+        c.name.toLowerCase().includes(q) ||
+        c.tags.some(t=>t.includes(q)) ||
+        c.role.toLowerCase().includes(q) ||
+        c.eraLabel.toLowerCase().includes(q)
+      )
+    : allCharacters;
+  renderGrid(filtered);
+  updateCharsCount(filtered.length);
+}
+
+function updateCharsCount(n) {
+  document.getElementById('chars-count').textContent = n + ' figure disponibili';
+}
+
+function renderGrid(chars) {
+  const grid = document.getElementById('chars-grid');
+  grid.innerHTML = chars.length ? chars.map((c, i) => `
+    <div class="char-card" style="--char-color:${c.color};animation-delay:${i*0.04}s" onclick="selectChar('${c.id}')">
+      <div class="char-era">${c.eraLabel}</div>
+      <div class="char-name">${c.avatar} ${c.name}</div>
+      <div class="char-role">${c.role}</div>
+      <div class="char-quote">"${c.quote}"</div>
+      <div class="char-tags">${c.tags.map(t=>`<span class="char-tag">${t}</span>`).join('')}</div>
+    </div>
+  `).join('') : '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3);font-style:italic">Nessun risultato</div>';
+}
+
+function selectChar(id) {
+  // Save current conversation before switching
+  if(currentChar && chatHistory.length > 1) {
+    saveConvToArchive(currentChar.id, [...chatHistory]);
+  }
+  currentChar = CHARACTERS.find(c => c.id === id);
+  if(!currentChar) return;
+  chatHistory = [];
+  msgCount = 0;
+  sessionMemory = loadCharMemory(currentChar.id);
+  showChatScreen(false);
+}
+
+function showChatScreen(keepMessages) {
+  const c = currentChar;
+  document.getElementById('screen-select').classList.remove('active');
+  document.getElementById('screen-chat').classList.add('active');
+  document.getElementById('btn-change-char').style.display = 'flex';
+  document.documentElement.style.setProperty('--char-color', c.color);
+
+  // Header
+  document.getElementById('chat-avatar').textContent = c.avatar;
+  document.getElementById('chat-char-name').textContent = c.name;
+  document.getElementById('chat-char-role').textContent = c.role;
+  document.getElementById('chat-char-era').textContent = c.eraLabel;
+
+  // Suggestions
+  const sugg = document.getElementById('chat-suggestions');
+  sugg.innerHTML = c.suggestions.map(s =>
+    `<button class="suggestion-pill" onclick="useSuggestion(this.textContent)">${s}</button>`
+  ).join('');
+
+  // Mood + memory
+  updateMood();
+  renderMemoryStrip();
+
+  if(!keepMessages) {
+    const msgs = document.getElementById('chat-messages');
+    msgs.innerHTML = '';
+    // Show memory context if any
+    if(sessionMemory.length > 0) {
+      const div = document.createElement('div');
+      div.className = 'session-divider';
+      div.textContent = `${c.name} ricorda ${sessionMemory.length} cose di te`;
+      msgs.appendChild(div);
+    }
+    typewriterMessage(getGreeting(c));
+  }
+
+  setTimeout(() => document.getElementById('chat-input').focus(), 100);
+}
+
+function showSelectScreen() {
+  if(currentChar && chatHistory.length > 1) {
+    saveConvToArchive(currentChar.id, [...chatHistory]);
+  }
+  document.getElementById('screen-chat').classList.remove('active');
+  document.getElementById('screen-select').classList.add('active');
+  document.getElementById('btn-change-char').style.display = 'none';
+}
+
+function getGreeting(c) {
+  const greetings = {
+    socrate: 'Eccoti. Siediti, se vuoi. Non ho molto da insegnarti — ma forse insieme possiamo scoprire qualcosa che già sai senza saperlo. Cosa ti tormenta?',
+    einstein: 'Ah, un giovane curioso. Bene. La curiosità è la cosa più preziosa che si possa avere — non perderla mai, qualunque cosa ti dicano a scuola. Di cosa vuoi parlare?',
+    leonardo: 'Che bella cosa, un giovane che cerca! Sai, ho sempre creduto che ogni domanda onesta meriti uno sguardo diretto sulla natura. Cosa osservi nel mondo che non riesci ancora a capire?',
+    nietzsche: 'Vieni. Non ti offrirò comfort. Ti offrirò verità, anche se fa male. Cosa vuoi davvero diventare?',
+    marco_aurelio: 'Ti ricevo come mi ricevo io stesso ogni mattina: con la domanda di chi vuole migliorarsi, non apparire. Cosa ti pesa in questo momento?',
+    marie_curie: 'Non perdiamo tempo in convenevoli — il tempo è la risorsa più preziosa. Su cosa stai lavorando, o cosa vorresti capire?',
+    darwin: 'Sa, ho sempre trovato le conversazioni con le menti curiose più stimolanti di qualsiasi laboratorio. Cosa hai osservato di recente che ti ha incuriosito?',
+    platone: 'Socrate diceva che la filosofia inizia con la meraviglia. Dimmi — cosa ti meraviglia, e cosa ti turba?',
+    seneca: 'Il tempo passa mentre parliamo. Non sprechiamolo in futilità. Cosa ti inquieta davvero, nel profondo?',
+    tesla: 'Finalmente qualcuno che viene a cercarmi. Ho pensieri che aspettano da anni di essere detti. Su cosa vuoi ragionare?',
+    dostoevskij: 'Non ti chiedo chi sei — lo capirò da come parli. Dimmi invece: cosa ti tiene sveglio la notte?',
+    galileo: 'Sai cosa apprezzo di un giovane curioso? Che non si accontenta di quello che gli dicono. Cosa vuoi vedere con i tuoi occhi?',
+  };
+  return greetings[c.id] || `Benvenuto. Sono ${c.name}. Di cosa vuoi parlare?`;
+}
+
+// ══ Typewriter effect ══
+function typewriterMessage(text, onDone) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg character';
+  div.innerHTML = `
+    <div class="msg-label">${currentChar.name}</div>
+    <div class="msg-bubble typing" id="tw-bubble"></div>
+    <div class="msg-actions">
+      <button class="msg-action-btn" onclick="copyMsg(this)">⊞ COPIA</button>
+      <button class="msg-action-btn" onclick="saveInsight(this)">★ SALVA</button>
+    </div>`;
+  msgs.appendChild(div);
+  scrollToBottom();
+
+  const bubble = div.querySelector('.msg-bubble');
+  let i = 0;
+  const speed = Math.max(8, Math.min(22, Math.floor(2000 / text.length)));
+
+  const timer = setInterval(() => {
+    bubble.textContent = text.slice(0, i);
+    i++;
+    if(i > text.length) {
+      clearInterval(timer);
+      bubble.textContent = text;
+      bubble.classList.remove('typing');
+      if(onDone) onDone();
+    }
+    if(i % 30 === 0) scrollToBottom();
+  }, speed);
+}
+
+function addCharMessage(text, useTypewriter=true) {
+  if(useTypewriter) {
+    typewriterMessage(text);
+  } else {
+    const msgs = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.className = 'msg character';
+    div.innerHTML = `
+      <div class="msg-label">${currentChar.name}</div>
+      <div class="msg-bubble">${text}</div>
+      <div class="msg-actions">
+        <button class="msg-action-btn" onclick="copyMsg(this)">⊞ COPIA</button>
+        <button class="msg-action-btn" onclick="saveInsight(this)">★ SALVA</button>
+      </div>`;
+    msgs.appendChild(div);
+    scrollToBottom();
+  }
+}
+
+function addUserMessage(text) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg user';
+  div.innerHTML = `
+    <div class="msg-label">Tu</div>
+    <div class="msg-bubble">${text.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div>`;
+  msgs.appendChild(div);
+  scrollToBottom();
+}
+
+function showThinking() {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg character msg-thinking';
+  div.id = 'msg-thinking';
+  div.innerHTML = `
+    <div class="msg-label">${currentChar.name}</div>
+    <div class="msg-bubble">
+      <div class="think-dot"></div>
+      <div class="think-dot"></div>
+      <div class="think-dot"></div>
+    </div>`;
+  msgs.appendChild(div);
+  scrollToBottom();
+}
+function removeThinking() {
+  const el = document.getElementById('msg-thinking');
+  if(el) el.remove();
+}
+function scrollToBottom() {
+  const msgs = document.getElementById('chat-messages');
+  setTimeout(() => msgs.scrollTop = msgs.scrollHeight, 50);
+}
+
+// ══ Message actions ══
+function copyMsg(btn) {
+  const bubble = btn.closest('.msg').querySelector('.msg-bubble');
+  navigator.clipboard?.writeText(bubble.textContent||'');
+  btn.textContent = '✓ COPIATO';
+  setTimeout(()=>btn.textContent='⊞ COPIA', 1500);
+}
+
+function saveInsight(btn) {
+  const bubble = btn.closest('.msg').querySelector('.msg-bubble');
+  const text = bubble.textContent || '';
+  const insights = safeGet('agora_insights') || [];
+  insights.unshift({ char: currentChar.name, text: text.slice(0,200), date: new Date().toLocaleDateString('it-IT') });
+  safeSet('agora_insights', insights.slice(0,50));
+  btn.textContent = '★ SALVATO';
+  btn.style.color = 'var(--gold)';
+  showToast('Insight salvato nell\'archivio');
+  setTimeout(()=>{ btn.textContent='★ SALVA'; btn.style.color=''; }, 2000);
+}
+
+function useSuggestion(text) {
+  document.getElementById('chat-input').value = text;
+  sendMessage();
+}
+
+function handleInputKey(e) {
+  if(e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120)+'px';
+}
+
+// ══ Build system prompt with memory ══
+function buildSystemPrompt() {
+  let prompt = currentChar.systemPrompt;
+  const mem = loadCharMemory(currentChar.id);
+  if(mem.length > 0) {
+    prompt += `\n\nCOSE CHE SAI DELL'INTERLOCUTORE (da conversazioni precedenti):\n${mem.map(f=>`- ${f}`).join('\n')}\nUsale naturalmente nella conversazione quando rilevante.`;
+  }
+  prompt += `\n\nMODALITÀ MENTOR: Se l'utente inizia un messaggio con [PROBLEMA REALE DA AFFRONTARE COME MENTOR], rispondi come faresti con un giovane che viene da te per un consiglio autentico su una situazione reale della sua vita. Non rispondere in modo generico o filosofico: usa la tua esperienza biografica reale per dare una prospettiva concreta, come un mentor farebbe. Sii diretto. Racconta come TU avresti affrontato una situazione simile.`;
+  return prompt;
+}
+
+// ══ Send message ══
+async function sendMessage() {
+  if(isThinking) return;
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if(!text) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+
+  addUserMessage(text);
+  chatHistory.push({ role: 'user', content: text });
+  msgCount++;
+  updateMood();
+
+  isThinking = true;
+  document.getElementById('btn-send').disabled = true;
+  showThinking();
+
+  try {
+    const data = await geminiCall(buildSystemPrompt(), chatHistory.slice(-16), 6144);
+    const reply = data.content?.map(b=>b.text||'').join('') || 'Perdonami — non riesco a risponderti ora.';
+
+    removeThinking();
+    typewriterMessage(reply);
+    chatHistory.push({ role: 'assistant', content: reply });
+    msgCount++;
+    updateMood();
+
+    // Keep history manageable
+    if(chatHistory.length > 24) chatHistory = chatHistory.slice(-24);
+
+    // Estrai memoria in background ogni 2 scambi utente (non blocca UI)
+    if(msgCount % 4 === 0) {
+      extractMemoryAI(currentChar.id, text, reply);
+    }
+
+  } catch(err) {
+    removeThinking();
+    addCharMessage('Perdonami — in questo momento non riesco a risponderti. Riprova tra un momento.', false);
+  } finally {
+    isThinking = false;
+    document.getElementById('btn-send').disabled = false;
+    document.getElementById('chat-input').focus();
+  }
+}
+
+
+// ══════════════════════════════════════════════
+//  ADMIN — Generatore personaggi AI
+// ══════════════════════════════════════════════
+
+let generatedCharData = null;
+
+function loadCustomChars() {
+  return safeGet(AGORA_CUSTOM_KEY) || [];
+}
+function saveCustomChar(char) {
+  const customs = loadCustomChars();
+  customs.push(char);
+  safeSet(AGORA_CUSTOM_KEY, customs);
+}
+function deleteCustomChar(id) {
+  const customs = loadCustomChars().filter(c => c.id !== id);
+  safeSet(AGORA_CUSTOM_KEY, customs);
+}
+// getMergedCharacters defined at init
+
+function toggleAdminPanel() {
+  const d = document.getElementById('admin-drawer');
+  const o = document.getElementById('admin-overlay');
+  const open = d.classList.toggle('open');
+  o.classList.toggle('open', open);
+  if(open) renderCustomCharsList();
+}
+
+function renderCustomCharsList() {
+  const customs = loadCustomChars();
+  const list = document.getElementById('custom-chars-list');
+  const count = document.getElementById('custom-count');
+  count.textContent = customs.length;
+  if(!customs.length) {
+    list.innerHTML = '<div style="font-size:11px;color:var(--text3);font-style:italic;padding:10px 0">Nessuna figura aggiunta ancora.</div>';
+    return;
+  }
+  list.innerHTML = customs.map(c => `
+    <div class="custom-char-item">
+      <div class="custom-char-avatar">${c.avatar}</div>
+      <div class="custom-char-info">
+        <div class="custom-char-name">${c.name}</div>
+        <div class="custom-char-era">${c.eraLabel}</div>
+      </div>
+      <button class="btn-delete-char" onclick="removeCustomChar('${c.id}')" title="Rimuovi">✕</button>
+    </div>
+  `).join('');
+}
+
+function removeCustomChar(id) {
+  deleteCustomChar(id);
+  allCharacters = getMergedCharacters();
+  renderCustomCharsList();
+  renderGrid(allCharacters);
+  updateCharsCount(allCharacters.length);
+  showToast('Figura rimossa');
+}
+
+async function generateCharacter() {
+  const name = document.getElementById('admin-name').value.trim();
+  const era  = document.getElementById('admin-era').value;
+  const notes = document.getElementById('admin-notes').value.trim();
+  if(!name) { showToast('Inserisci il nome del personaggio'); return; }
+
+  const btn = document.getElementById('btn-generate');
+  const spin = document.getElementById('admin-generating');
+  const preview = document.getElementById('admin-preview');
+  const status = document.getElementById('admin-gen-status');
+
+  btn.disabled = true;
+  spin.classList.add('visible');
+  preview.classList.remove('visible');
+  generatedCharData = null;
+
+  const ERA_LABELS = {
+    antica: 'Antichità',
+    rinascimento: 'Rinascimento',
+    illuminismo: 'Illuminismo',
+    moderna: 'Era Moderna',
+    scienza: 'Scienza',
+  };
+
+  const statusMessages = [
+    "L'AI sta studiando il personaggio...",
+    "Costruendo la voce e il sistema prompt...",
+    "Scegliendo citazioni e domande...",
+    "Finalizzando il personaggio...",
+  ];
+  let si = 0;
+  const statusTimer = setInterval(() => {
+    si = (si+1) % statusMessages.length;
+    status.textContent = statusMessages[si];
+  }, 1800);
+
+  const prompt = `Genera un personaggio storico completo per l'app AGORA — un'app di dialogo con figure storiche per un ragazzo di 17 anni appassionato di polimathia.
+
+PERSONAGGIO RICHIESTO: ${name}
+ERA/CATEGORIA: ${ERA_LABELS[era] || era}
+${notes ? 'NOTE: ' + notes : ''}
+
+Rispondi SOLO con un oggetto JSON valido (nessun markdown, nessun testo extra):
+{
+  "id": "id_snake_case_unico",
+  "name": "Nome completo",
+  "era": "${era}",
+  "eraLabel": "Luogo · anni (es: Königsberg · 1724-1804)",
+  "role": "Ruolo · Breve descrizione (max 60 char)",
+  "avatar": "emoji_singola_rappresentativa",
+  "color": "#esadecimale_unico_evocativo",
+  "quote": "Citazione autentica e potente in italiano",
+  "tags": ["tag1","tag2","tag3","tag4"],
+  "suggestions": [
+    "Prima domanda coinvolgente?",
+    "Seconda domanda personale?",
+    "Terza domanda filosofica?",
+    "Quarta domanda pratica?"
+  ],
+  "systemPrompt": "Sei [Nome] ([anni]). Parli in prima persona con la voce autentica del personaggio.\n- Caratteristica 1 fondamentale\n- Caratteristica 2 con riferimenti biografici reali\n- Caratteristica 3 su stile di risposta\n- 4-6 frasi per risposta, mai elenchi puntati\n- Cita opere reali, luoghi, persone reali\nRispondi in italiano. Mai elenchi puntati."
+}
+
+IMPORTANTE: usa virgolette doppie per tutti i valori JSON. Il campo quote deve essere in italiano. Il systemPrompt deve essere specifico, biografico e autentico.`;
+
+  try {
+    const data = await geminiCall('Sei un esperto di storia e filosofia. Rispondi SEMPRE e SOLO con JSON valido puro, senza markdown, senza testo extra.', [{ role: 'user', content: prompt }], 4096);
+    const raw = data.content?.map(c => c.text||'').join('') || '';
+
+    let parsed;
+    try {
+      const clean = raw.replace(/```json|```/g,'').trim();
+      const jsonMatch = clean.match(/\{[\s\S]*\}/);
+      parsed = JSON.parse(jsonMatch ? jsonMatch[0] : clean);
+    } catch(e) {
+      throw new Error('Errore nel parsing: ' + raw.slice(0,100));
+    }
+
+    generatedCharData = parsed;
+    showPreview(parsed);
+    showToast('Personaggio generato — controlla l\'anteprima');
+
+  } catch(err) {
+    showToast('Errore generazione: ' + err.message.slice(0,60));
+  } finally {
+    clearInterval(statusTimer);
+    spin.classList.remove('visible');
+    btn.disabled = false;
+  }
+}
+
+function showPreview(char) {
+  document.getElementById('prev-avatar').textContent = char.avatar || '🏛️';
+  document.getElementById('prev-name').textContent = char.name;
+  document.getElementById('prev-role').textContent = char.role;
+  document.getElementById('prev-quote').textContent = '\u201c' + char.quote + '\u201d';
+  document.getElementById('prev-tags').innerHTML = (char.tags||[]).map(t =>
+    `<span class="preview-tag">${t}</span>`).join('');
+  document.getElementById('prev-prompt').textContent = char.systemPrompt?.slice(0,300) + '...';
+  document.getElementById('admin-preview').classList.add('visible');
+}
+
+function saveGeneratedChar() {
+  if(!generatedCharData) return;
+  // Ensure unique id
+  const existing = getMergedCharacters().map(c => c.id);
+  let id = generatedCharData.id;
+  if(existing.includes(id)) id = id + '_' + Date.now();
+  generatedCharData.id = id;
+  generatedCharData.custom = true;
+
+  saveCustomChar(generatedCharData);
+  allCharacters = getMergedCharacters();
+  renderGrid(allCharacters);
+  updateCharsCount(allCharacters.length);
+  renderCustomCharsList();
+  discardPreview();
+  document.getElementById('admin-name').value = '';
+  document.getElementById('admin-notes').value = '';
+  showToast(generatedCharData.name + ' aggiunto all\'Agora!');
+  generatedCharData = null;
+}
+
+function discardPreview() {
+  document.getElementById('admin-preview').classList.remove('visible');
+  generatedCharData = null;
+}
+
+function goToHub() {
+  if(currentChar && chatHistory.length>1) saveConvToArchive(currentChar.id, [...chatHistory]);
+  window.location.href = '/polymath_os_v9.html';
+}
+
+// ── MENTOR MODE: consiglio su problema reale ──
+function activateMentorMode() {
+  if(!currentChar) { showToast('Prima scegli una figura con cui dialogare'); return; }
+  const input = document.getElementById('chat-input');
+  input.value = '';
+  input.placeholder = 'Descrivi il tuo problema o situazione reale — ' + currentChar.name + ' ti darà un consiglio autentico basato sulla sua esperienza...';
+  input.focus();
+  // Inject a framing prefix into the next message
+  window._mentorMode = true;
+  showToast('✦ Modalità mentor attiva — descrivi la tua situazione');
+}
+
+// Patch sendMessage to prepend mentor context when active
+const _origSend = sendMessage;
+sendMessage = async function sendMentorMessage() {
+  if(window._mentorMode) {
+    const input = document.getElementById('chat-input');
+    if(input.value.trim()) {
+      input.value = '[PROBLEMA REALE DA AFFRONTARE COME MENTOR] ' + input.value;
+      input.placeholder = 'Scrivi la tua domanda...';
+      window._mentorMode = false;
+    }
+  }
+  await _origSend();
+}
+
+// Toast
+let toastTmr;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTmr);
+  toastTmr = setTimeout(()=>t.classList.remove('show'), 2500);
+}
+</script>
+
+<script>
+// ── AI helper proxy locale ──
+async function geminiCall(system, messages, maxTokens) {
+  const res = await fetch('/api/chat', { /* _module injected by helper */
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({_module:'agora', system, messages, max_tokens: maxTokens || 4096 })
+  });
+  return await res.json();
+}
+</script>
+</body>
+</html>
