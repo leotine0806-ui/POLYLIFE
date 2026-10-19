@@ -1,0 +1,24 @@
+{
+  "name": "Polymath OS",
+  "short_name": "Polymath",
+  "description": "Il tuo sistema operativo personale per crescita mentale e fisica",
+  "start_url": "/polymath_os_v9.html",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POLYMATH OS — Command Center</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#00e5ff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #060a0e;
+  --bg2:      #0a1018;
+  --bg3:      #0f1820;
+  --bg4:      #162030;
+  --border:   #1a2a38;
+  --border2:  #203040;
+  --text:     #e8eef5;
+  --text2:    #8da0b3;
+  --text3:    #3d5568;
+  --cyan:     #00e5ff;
+  --blue:     #4f8cff;
+  --purple:   #a78bfa;
+  --pink:     #ec4899;
+  --gold:     #fbbf24;
+  --green:    #10b981;
+  --red:      #ef4444;
+  --orange:   #f97316;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { background: var(--bg); color: var(--text); font-family: 'Space Mono', monospace; font-size: 14px; }
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 100% 60% at 15% -10%, rgba(0,229,255,0.05) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 85% 110%, rgba(167,139,250,0.05) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 30% at 50% 50%, rgba(79,140,255,0.02) 0%, transparent 60%);
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,229,255,0.008) 2px, rgba(0,229,255,0.008) 3px),
+    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,229,255,0.004) 40px, rgba(0,229,255,0.004) 41px);
+  pointer-events: none; z-index: 0;
+}
+
+.container {
+  position: relative; z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+/* ── HEADER ── */
+.header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 36px 0 28px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px; gap: 20px;
+}
+.header-left {}
+.header-eyebrow {
+  font-family: 'Orbitron', monospace; font-size: 8px;
+  letter-spacing: 0.3em; color: var(--cyan); opacity: 0.7;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.header-title {
+  font-family: 'Orbitron', monospace; font-size: 26px; font-weight: 900;
+  color: var(--text); letter-spacing: 0.1em; line-height: 1;
+}
+.header-title span { color: var(--cyan); text-shadow: 0 0 20px rgba(0,229,255,0.4); }
+.header-sub { font-size: 10px; color: var(--text3); margin-top: 8px; letter-spacing: 0.05em; }
+
+.header-right { text-align: right; flex-shrink: 0; }
+.clock-display {
+  font-family: 'Orbitron', monospace; font-size: 24px; font-weight: 700;
+  color: var(--text); letter-spacing: 0.08em; line-height: 1;
+}
+.clock-seconds { font-size: 14px; color: var(--text3); }
+.date-display {
+  font-family: 'Orbitron', monospace; font-size: 10px;
+  color: var(--text2); letter-spacing: 0.12em; margin-top: 5px;
+}
+.header-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
+.btn-ghost {
+  font-family: 'Orbitron', monospace; font-size: 8px; letter-spacing: 0.12em;
+  padding: 6px 12px; background: transparent; border: 1px solid var(--border2);
+  color: var(--text3); cursor: pointer; transition: all 0.15s;
+}
+.btn-ghost:hover { border-color: var(--cyan); color: var(--cyan); }
+
+/* ── DAY STATUS BAR ── */
+.status-bar {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-top: 2px solid var(--cyan);
+  padding: 14px 20px; margin-bottom: 20px;
+  display: flex; align-items: center; gap: 20px;
+}
+.status-item { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.status-val {
+  font-family: 'Orbitron', monospace; font-size: 18px; font-weight: 700;
+  color: var(--cyan); line-height: 1;
+}
+.status-val.green { color: var(--green); }
+.status-val.gold  { color: var(--gold); }
+.status-val.red   { color: var(--red); }
+.status-lbl { font-size: 8px; color: var(--text3); letter-spacing: 0.1em; white-space: nowrap; }
+.status-sep { width: 1px; height: 36px; background: var(--border2); flex-shrink: 0; }
+.status-progress-wrap { flex: 1; }
+.status-progress-label { font-size: 8px; color: var(--text3); letter-spacing: 0.1em; margin-bottom: 5px; }
+.status-bar-bg { height: 6px; background: var(--bg3); border: 1px solid var(--border2); }
+.status-bar-fill { height: 100%; background: var(--cyan); transition: width 0.5s ease; position: relative; }
+.status-bar-fill::after {
+  content: ''; position: absolute; right: -1px; top: -2px; bottom: -2px; width: 2px;
+  background: #fff; box-shadow: 0 0 6px var(--cyan);
+}
+
+/* ── SECTION TITLE ── */
+.section-title {
+  font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.25em; color: var(--text3); text-transform: uppercase;
+  margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+}
+.section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── MISSION CARD (top) ── */
+.mission-main {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan);
+  padding: 20px 24px; margin-bottom: 20px;
+  position: relative; overflow: hidden;
+}
+.mission-main::before {
+  content: '';
+  position: absolute; top: 0; right: 0; width: 200px; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0,229,255,0.02));
+  pointer-events: none;
+}
+.mission-label {
+  font-family: 'Orbitron', monospace; font-size: 8px; font-weight: 700;
+  letter-spacing: 0.3em; color: var(--cyan); opacity: 0.8;
+  text-transform: uppercase; margin-bottom: 10px;
+}
+.mission-text {
+  font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 600;
+  color: var(--text); line-height: 1.4;
+  border: none; background: transparent; width: 100%; resize: none;
+  outline: none; caret-color: var(--cyan);
+}
+.mission-text::placeholder { color: var(--text3); font-style: italic; }
+.mission-meta {
+  display: flex; align-items: center; gap: 12px; margin-top: 12px;
+}
+.mission-impact {
+  font-size: 9px; color: var(--text3); letter-spacing: 0.1em;
+  display: flex; align-items: center; gap: 6px;
+}
+.impact-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); }
+.mission-auto-badge {
+  font-family: 'Orbitron', monospace; font-size: 7px; letter-spacing: 0.15em;
+  color: var(--purple); border: 1px solid rgba(167,139,250,0.3);
+  padding: 2px 8px; opacity: 0.8;
+}
+
+/* ── TOP 3 GRID ── */
+.top3-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  margin-bottom: 20px;
+}
+.top3-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  padding: 16px; position: relative; transition: border-color 0.2s;
+}
+.top3-card:hover { border-color: var(--border2); }
+.top3-card.done { opacity: 0.55; }
+.top3-card.done .top3-task { text-decoration: line-through; color: var(--text3); }
+.top3-num {
+  font-family: 'Orbitron', monospace; font-size: 22px; font-weight: 900;
+  line-height: 1; margin-bottom: 8px;
+}
+.top3-num.s1 { color: var(--blue); text-shadow: 0 0 20px rgba(79,140,255,0.4); }
+.top3-num.s2 { color: var(--red); text-shadow: 0 0 20px rgba(239,68,68,0.4); }
+.top3-num.s3 { color: var(--purple); text-shadow: 0 0 20px rgba(167,139,250,0.4); }
+.top3-category {
+  font-family: 'Orbitron', monospace; font-size: 7px; letter-spacing: 0.2em;
+  margin-bottom: 8px; text-transform: uppercase;
+}
+.top3-category.studio  { color: var(--blue); }
+.top3-category.corpo   { color: var(--red); }
+.top3-category.progetto{ color: var(--purple); }
+.top3-task {
+  font-size: 12px; color: var(--text); line-height: 1.5;
+  border: none; background: transparent; width: 100%; resize: none;
+  outline: none; caret-color: var(--cyan); min-height: 48px;
+}
+.top3-task::placeholder { color: var(--text3); font-style: italic; font-family: 'Space Mono', monospace; font-size: 11px; }
+.top3-check {
+  position: absolute; top: 12px; right: 12px;
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1px solid var(--border2); background: transparent;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; color: transparent; font-size: 10px;
+}
+.top3-check:hover { border-color: var(--green); color: var(--green); }
+.top3-card.done .top3-check {
+  background: var(--green); border-color: var(--green); color: #fff;
+}
+.top3-from-missions {
+  font-size: 9px; color: var(--text3); margin-top: 6px; font-style: italic;
+}
+
+/* ── TWO COL ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+
+/* ── CONSTRAINT CARD ── */
+.info-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  padding: 18px;
+}
+.info-card-label {
+  font-family: 'Orbitron', monospace; font-size: 8px; font-weight: 700;
+  letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.info-card-label.constraint { color: var(--orange); }
+.info-card-label.minimum    { color: var(--green); }
+.info-card-icon { font-size: 12px; }
+.info-card-input {
+  font-size: 12px; color: var(--text); line-height: 1.6;
+  border: none; background: transparent; width: 100%; resize: none;
+  outline: none; caret-color: var(--cyan); min-height: 60px;
+}
+.info-card-input::placeholder { color: var(--text3); font-style: italic; font-family: 'Space Mono', monospace; }
+.info-card-hint { font-size: 9px; color: var(--text3); margin-top: 8px; letter-spacing: 0.05em; }
+
+/* ── EVENING CHECK ── */
+.evening-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-left: 3px solid var(--purple);
+  padding: 20px 24px; margin-bottom: 20px;
+}
+.evening-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.evening-label {
+  font-family: 'Orbitron', monospace; font-size: 8px; font-weight: 700;
+  letter-spacing: 0.3em; color: var(--purple); text-transform: uppercase;
+}
+.evening-time { font-size: 9px; color: var(--text3); letter-spacing: 0.08em; }
+.evening-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.evening-score {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 10px 8px; border: 1px solid var(--border2); background: var(--bg3);
+}
+.evening-score-label { font-size: 8px; color: var(--text3); letter-spacing: 0.1em; text-align: center; }
+.evening-score-stars { display: flex; gap: 3px; }
+.star-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 14px; color: var(--text3); transition: all 0.1s; padding: 0;
+}
+.star-btn.active { color: var(--gold); text-shadow: 0 0 8px rgba(251,191,36,0.5); }
+.star-btn:hover  { color: var(--gold); transform: scale(1.15); }
+.evening-note {
+  font-size: 11px; color: var(--text); line-height: 1.5;
+  border: none; background: var(--bg3); border: 1px solid var(--border2);
+  width: 100%; resize: none; outline: none; caret-color: var(--cyan);
+  padding: 10px 12px; min-height: 56px;
+}
+.evening-note::placeholder { color: var(--text3); font-style: italic; }
+
+/* ── AI PANEL ── */
+.ai-panel {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-top: 2px solid var(--purple);
+  padding: 18px 20px; margin-bottom: 20px;
+}
+.ai-output {
+  font-size: 11px; color: var(--text2); line-height: 1.7; min-height: 60px;
+  white-space: pre-wrap;
+}
+.ai-output.loading { color: var(--text3); font-style: italic; }
+.ai-output .ai-section { color: var(--cyan); font-weight: 700; margin-top: 8px; }
+.ai-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.btn-ai {
+  font-family: 'Orbitron', monospace; font-size: 8px; letter-spacing: 0.12em;
+  padding: 8px 14px; background: transparent; border: 1px solid var(--border2);
+  color: var(--text3); cursor: pointer; transition: all 0.15s;
+}
+.btn-ai:hover { border-color: var(--purple); color: var(--purple); }
+.btn-ai.primary {
+  border-color: rgba(0,229,255,0.4); color: var(--cyan);
+  background: rgba(0,229,255,0.05);
+}
+.btn-ai.primary:hover { background: rgba(0,229,255,0.1); border-color: var(--cyan); }
+
+/* ── HISTORY STRIP ── */
+.history-strip {
+  background: var(--bg2); border: 1px solid var(--border);
+  padding: 14px 18px; margin-bottom: 20px;
+}
+.history-days { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+.history-day {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  min-width: 42px; cursor: pointer; padding: 8px 6px;
+  border: 1px solid var(--border); background: var(--bg3);
+  transition: all 0.15s; flex-shrink: 0;
+}
+.history-day:hover { border-color: var(--cyan); }
+.history-day.selected { border-color: var(--cyan); background: rgba(0,229,255,0.05); }
+.history-day.today { border-color: rgba(0,229,255,0.4); }
+.h-day-name  { font-family: 'Orbitron', monospace; font-size: 7px; color: var(--text3); }
+.h-day-num   { font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700; color: var(--text); }
+.h-day-score { font-size: 9px; }
+
+/* ── QUICK NAV ── */
+.quick-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.quick-nav-btn {
+  font-family: 'Orbitron', monospace; font-size: 8px; letter-spacing: 0.1em;
+  padding: 7px 14px; background: transparent;
+  border: 1px solid var(--border); color: var(--text2);
+  cursor: pointer; transition: all 0.15s; text-decoration: none;
+  display: flex; align-items: center; gap: 6px;
+}
+.quick-nav-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.quick-nav-btn.highlight { border-color: rgba(0,229,255,0.3); color: var(--cyan); }
+
+/* ── SAVE BAR ── */
+.save-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: var(--bg); border-top: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.save-status { font-size: 10px; color: var(--text3); letter-spacing: 0.08em; }
+.save-status.saved { color: var(--green); }
+.save-btn {
+  font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 0.15em;
+  padding: 10px 24px; background: rgba(0,229,255,0.08);
+  border: 1px solid rgba(0,229,255,0.4); color: var(--cyan);
+  cursor: pointer; transition: all 0.2s;
+}
+.save-btn:hover { background: rgba(0,229,255,0.15); border-color: var(--cyan); }
+.save-actions { display: flex; gap: 8px; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 70px; right: 24px; z-index: 200;
+  font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 0.1em;
+  padding: 10px 18px; background: var(--bg2); border: 1px solid var(--border2);
+  color: var(--text2); opacity: 0; transition: opacity 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+.toast.green { border-color: rgba(16,185,129,0.4); color: var(--green); }
+.toast.cyan  { border-color: rgba(0,229,255,0.4); color: var(--cyan); }
+
+/* ── FADE IN ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeInUp 0.4s ease both; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .top3-grid { grid-template-columns: 1fr; }
+  .two-col   { grid-template-columns: 1fr; }
+  .evening-grid { grid-template-columns: 1fr; }
+  .header-title { font-size: 18px; }
+  .container { padding: 0 14px 80px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="header-eyebrow">POLYMATH OS · DAILY COMMAND CENTER</div>
+      <div class="header-title">COMMAND <span>CENTER</span></div>
+      <div class="header-sub" id="header-date-sub">Caricamento...</div>
+    </div>
+    <div class="header-right">
+      <div class="clock-display"><span id="clock-h">--</span>:<span id="clock-m">--</span><span class="clock-seconds">:<span id="clock-s">--</span></span></div>
+      <div class="date-display" id="header-date"></div>
+      <div class="header-actions">
+        <button class="btn-ghost" onclick="goHome()">← HUB</button>
+        <button class="btn-ghost" onclick="copyCommand()" style="border-color:rgba(0,229,255,0.2);color:var(--cyan)">📋 COPIA</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY STRIP -->
+  <div class="history-strip fade-in" style="animation-delay:0.05s">
+    <div class="section-title">ULTIMI 7 GIORNI</div>
+    <div class="history-days" id="history-days"></div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar fade-in" style="animation-delay:0.1s">
+    <div class="status-item">
+      <div class="status-val" id="sb-missions-done">—</div>
+      <div class="status-lbl">MISSIONI OGGI</div>
+    </div>
+    <div class="status-sep"></div>
+    <div class="status-item">
+      <div class="status-val green" id="sb-top3-done">—</div>
+      <div class="status-lbl">TOP 3 FATTE</div>
+    </div>
+    <div class="status-sep"></div>
+    <div class="status-item">
+      <div class="status-val gold" id="sb-score">—</div>
+      <div class="status-lbl">SCORE SERALE</div>
+    </div>
+    <div class="status-sep"></div>
+    <div class="status-progress-wrap">
+      <div class="status-progress-label">PROGRESSO GIORNO</div>
+      <div class="status-bar-bg"><div class="status-bar-fill" id="day-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- MISSIONE DEL GIORNO -->
+  <div class="fade-in" style="animation-delay:0.12s">
+    <div class="section-title">⚡ MISSIONE DEL GIORNO</div>
+    <div class="mission-main">
+      <div class="mission-label">OBIETTIVO PRINCIPALE AD ALTO IMPATTO</div>
+      <textarea class="mission-text" id="mission-text" rows="2"
+        placeholder="Qual è l'azione più importante di oggi? Quella che, se completata, renderebbe la giornata un successo..."></textarea>
+      <div class="mission-meta">
+        <div class="mission-impact"><div class="impact-dot"></div> MAX IMPACT</div>
+        <div class="mission-auto-badge" id="mission-source-badge" style="display:none">AUTO DA MISSIONI</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP 3 PRIORITÀ -->
+  <div class="fade-in" style="animation-delay:0.16s">
+    <div class="section-title">🎯 TOP 3 PRIORITÀ</div>
+    <div class="top3-grid">
+
+      <div class="top3-card" id="card-1">
+        <div class="top3-num s1">01</div>
+        <div class="top3-category studio">📘 STUDIO</div>
+        <textarea class="top3-task" id="task-1" rows="3" placeholder="Cosa devi studiare oggi?"></textarea>
+        <div class="top3-from-missions" id="from-1"></div>
+        <button class="top3-check" id="check-1" onclick="toggleCheck(1)" title="Completato">✓</button>
+      </div>
+
+      <div class="top3-card" id="card-2">
+        <div class="top3-num s2">02</div>
+        <div class="top3-category corpo">💪 CORPO</div>
+        <textarea class="top3-task" id="task-2" rows="3" placeholder="Allenamento / salute di oggi?"></textarea>
+        <div class="top3-from-missions" id="from-2"></div>
+        <button class="top3-check" id="check-2" onclick="toggleCheck(2)" title="Completato">✓</button>
+      </div>
+
+      <div class="top3-card" id="card-3">
+        <div class="top3-num s3">03</div>
+        <div class="top3-category progetto">🚀 PROGETTO</div>
+        <textarea class="top3-task" id="task-3" rows="3" placeholder="Il passo avanti nel tuo progetto / business?"></textarea>
+        <div class="top3-from-missions" id="from-3"></div>
+        <button class="top3-check" id="check-3" onclick="toggleCheck(3)" title="Completato">✓</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CONSTRAINT + MINIMUM -->
+  <div class="two-col fade-in" style="animation-delay:0.2s">
+
+    <div class="info-card">
+      <div class="info-card-label constraint">
+        <span class="info-card-icon">⛔</span> CONSTRAINT DEL GIORNO
+      </div>
+      <textarea class="info-card-input" id="constraint-text" rows="3"
+        placeholder="Qual è il principale collo di bottiglia oggi? (es. sonno scarso, telefono, stress, poco tempo...)"></textarea>
+      <div class="info-card-hint">Il limite che devi gestire, non eliminare.</div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-label minimum">
+        <span class="info-card-icon">✅</span> MINIMO NON NEGOZIABILE
+      </div>
+      <textarea class="info-card-input" id="minimum-text" rows="3"
+        placeholder="La versione minima garantita se tutto va storto. (es. 25 min studio + 20 min allenamento)"></textarea>
+      <div class="info-card-hint">Sotto questo livello la giornata non è accettabile.</div>
+    </div>
+
+  </div>
+
+  <!-- AI COMMAND CENTER -->
+  <div class="ai-panel fade-in" style="animation-delay:0.24s">
+    <div class="section-title" style="color:var(--purple);margin-bottom:12px">🤖 AI BRIEFING</div>
+    <div class="ai-output" id="ai-output">Premi <strong style="color:var(--cyan)">GENERA BRIEFING</strong> per ricevere l'analisi AI della tua giornata basata su tutti i dati PolyLife.</div>
+    <div class="ai-actions">
+      <button class="btn-ai primary" onclick="generateBriefing()">⚡ GENERA BRIEFING</button>
+      <button class="btn-ai" onclick="generateConstraintAdvice()">🧠 GESTISCI CONSTRAINT</button>
+      <button class="btn-ai" onclick="generateEveningPlan()">🌙 PREPARA SERALE</button>
+    </div>
+  </div>
+
+  <!-- CHECK SERALE -->
+  <div class="evening-card fade-in" style="animation-delay:0.28s">
+    <div class="evening-header">
+      <div class="evening-label">🌙 CHECK SERALE</div>
+      <div class="evening-time" id="evening-time">Da compilare dopo le 20:00</div>
+    </div>
+    <div class="evening-grid">
+      <div class="evening-score">
+        <div class="evening-score-label">PRODUTTIVITÀ</div>
+        <div class="evening-score-stars" id="stars-prod">
+          <button class="star-btn" onclick="setStar('prod',1)">★</button>
+          <button class="star-btn" onclick="setStar('prod',2)">★</button>
+          <button class="star-btn" onclick="setStar('prod',3)">★</button>
+          <button class="star-btn" onclick="setStar('prod',4)">★</button>
+          <button class="star-btn" onclick="setStar('prod',5)">★</button>
+        </div>
+      </div>
+      <div class="evening-score">
+        <div class="evening-score-label">ENERGIA FISICA</div>
+        <div class="evening-score-stars" id="stars-energy">
+          <button class="star-btn" onclick="setStar('energy',1)">★</button>
+          <button class="star-btn" onclick="setStar('energy',2)">★</button>
+          <button class="star-btn" onclick="setStar('energy',3)">★</button>
+          <button class="star-btn" onclick="setStar('energy',4)">★</button>
+          <button class="star-btn" onclick="setStar('energy',5)">★</button>
+        </div>
+      </div>
+      <div class="evening-score">
+        <div class="evening-score-label">FOCUS MENTALE</div>
+        <div class="evening-score-stars" id="stars-focus">
+          <button class="star-btn" onclick="setStar('focus',1)">★</button>
+          <button class="star-btn" onclick="setStar('focus',2)">★</button>
+          <button class="star-btn" onclick="setStar('focus',3)">★</button>
+          <button class="star-btn" onclick="setStar('focus',4)">★</button>
+          <button class="star-btn" onclick="setStar('focus',5)">★</button>
+        </div>
+      </div>
+    </div>
+    <textarea class="evening-note" id="evening-note" rows="2"
+      placeholder="Nota serale: cosa ha funzionato? Cosa cambieresti? Insight del giorno..."></textarea>
+  </div>
+
+  <!-- QUICK NAV -->
+  <div class="fade-in" style="animation-delay:0.32s">
+    <div class="section-title">APRI APP</div>
+    <div class="quick-nav">
+      <button class="quick-nav-btn" onclick="goTo('studio')">🎓 STUDIO</button>
+      <button class="quick-nav-btn" onclick="goTo('leo')">🏋️ LEO PROTOCOL</button>
+      <button class="quick-nav-btn" onclick="goTo('missions')">⚔ MISSIONI</button>
+      <button class="quick-nav-btn" onclick="goTo('rpg')">⚔️ LIFE RPG</button>
+      <button class="quick-nav-btn" onclick="goTo('hub')">📅 CALENDARIO</button>
+      <button class="quick-nav-btn" onclick="goTo('agora')">🏛️ AGORA</button>
+      <button class="quick-nav-btn highlight" onclick="goHome()">← HUB PRINCIPALE</button>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- SAVE BAR -->
+<div class="save-bar">
+  <div class="save-status" id="save-status">Non salvato</div>
+  <div class="save-actions">
+    <button class="btn-ghost" onclick="loadYesterday()">← IERI</button>
+    <button class="save-btn" onclick="saveAll()">💾 SALVA GIORNATA</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STORAGE KEY ──────────────────────────────────────────────────
+const STORAGE_KEY = 'polylife_daily_command_v1';
+const today = new Date();
+
+// ── DATE HELPERS ─────────────────────────────────────────────────
+function dateKey(d) {
+  return d.toISOString().split('T')[0];
+}
+function todayKey() { return dateKey(today); }
+
+const DAYS_IT  = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+const MONTHS_IT = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
+                   'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+
+// ── STATE ────────────────────────────────────────────────────────
+let currentKey = todayKey();
+let state = {}; // { [dateKey]: dayData }
+let scores = { prod: 0, energy: 0, focus: 0 };
+let checks = { 1: false, 2: false, 3: false };
+
+// ── CLOCK ────────────────────────────────────────────────────────
+function updateClock() {
+  const n = new Date();
+  document.getElementById('clock-h').textContent = String(n.getHours()).padStart(2,'0');
+  document.getElementById('clock-m').textContent = String(n.getMinutes()).padStart(2,'0');
+  document.getElementById('clock-s').textContent = String(n.getSeconds()).padStart(2,'0');
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+async function loadCommandState() {
+  if (window.db?.commandCenter?.getState) {
+    try {
+      const s = await window.db.commandCenter.getState();
+      if (s && Object.keys(s).length) return s;
+    } catch (_) {}
+  }
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+}
+
+async function persistCommandState() {
+  if (window.db?.commandCenter?.saveState) {
+    try { await window.db.commandCenter.saveState(state); } catch (_) {}
+  }
+  persistCommandState();
+}
+
+// ── INIT ─────────────────────────────────────────────────────────
+async function init() {
+  const dayNames  = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
+  const dayName   = dayNames[today.getDay()];
+  const dateStr   = `${dayName}, ${today.getDate()} ${MONTHS_IT[today.getMonth()]} ${today.getFullYear()}`;
+  document.getElementById('header-date').textContent = dateStr.toUpperCase();
+  document.getElementById('header-date-sub').textContent = `${dayName} · Sistema operativo giornaliero`;
+
+  state = await loadCommandState();
+
+  renderHistoryStrip();
+  loadDay(currentKey);
+  autoImportFromMissions();
+}
+
+// ── LOAD DAY ─────────────────────────────────────────────────────
+function loadDay(key) {
+  currentKey = key;
+  const d = state[key] || {};
+
+  document.getElementById('mission-text').value   = d.mission   || '';
+  document.getElementById('task-1').value         = d.task1     || '';
+  document.getElementById('task-2').value         = d.task2     || '';
+  document.getElementById('task-3').value         = d.task3     || '';
+  document.getElementById('constraint-text').value= d.constraint|| '';
+  document.getElementById('minimum-text').value   = d.minimum   || '';
+  document.getElementById('evening-note').value   = d.eveningNote || '';
+
+  checks = d.checks || { 1: false, 2: false, 3: false };
+  scores = d.scores || { prod: 0, energy: 0, focus: 0 };
+
+  renderChecks();
+  renderStars();
+  updateStatusBar();
+  highlightHistoryDay(key);
+
+  // Evening time
+  const isToday = key === todayKey();
+  const h = new Date().getHours();
+  document.getElementById('evening-time').textContent =
+    isToday && h >= 20 ? `Buonasera · ${String(h).padStart(2,'0')}:${String(new Date().getMinutes()).padStart(2,'0')}`
+    : isToday ? 'Da compilare dopo le 20:00'
+    : `Riepilogo · ${formatKeyToItalian(key)}`;
+
+  document.getElementById('save-status').textContent = isToday ? 'Non salvato' : `Archivio · ${key}`;
+  document.getElementById('save-status').className   = 'save-status';
+}
+
+function formatKeyToItalian(key) {
+  const [y,m,d] = key.split('-').map(Number);
+  return `${d} ${MONTHS_IT[m-1]} ${y}`;
+}
+
+// ── AUTO-IMPORT FROM MISSIONS ─────────────────────────────────────
+function autoImportFromMissions() {
+  const d = state[currentKey] || {};
+  if (d.task1 || d.task2 || d.task3) return; // already filled
+
+  try {
+    const missions = JSON.parse(localStorage.getItem('polylife_daily_missions_v1') || '[]');
+    const todayMissions = missions.filter(m => m.date === todayKey() && !m.completed);
+
+    const studio  = todayMissions.filter(m => m.category === 'studio').slice(0,1)[0];
+    const fitness = todayMissions.filter(m => m.category === 'fitness').slice(0,1)[0];
+    const other   = todayMissions.filter(m => !['studio','fitness'].includes(m.category)).slice(0,1)[0];
+
+    let imported = false;
+    if (studio)  { document.getElementById('task-1').value = studio.title;  document.getElementById('from-1').textContent = '↑ da Missioni Giornaliere'; imported = true; }
+    if (fitness) { document.getElementById('task-2').value = fitness.title; document.getElementById('from-2').textContent = '↑ da Missioni Giornaliere'; imported = true; }
+    if (other)   { document.getElementById('task-3').value = other.title;   document.getElementById('from-3').textContent = '↑ da Missioni Giornaliere'; imported = true; }
+
+    if (imported) {
+      document.getElementById('mission-source-badge').style.display = 'block';
+      showToast('// Top 3 auto-importata da Missioni', 'cyan');
+    }
+  } catch(e) {}
+
+  // Auto-import constraint from LEO check-in (sleep/energy)
+  try {
+    const leoCheckin = JSON.parse(localStorage.getItem('leo_checkin') || '[]');
+    if (leoCheckin.length > 0) {
+      const last = leoCheckin[leoCheckin.length - 1];
+      if (last.sleep && last.sleep <= 5 && !document.getElementById('constraint-text').value) {
+        document.getElementById('constraint-text').value = `Sonno basso (${last.sleep}/10) — gestire energia`;
+      }
+    }
+  } catch(e) {}
+}
+
+// ── CHECKS ───────────────────────────────────────────────────────
+function toggleCheck(n) {
+  checks[n] = !checks[n];
+  renderChecks();
+  updateStatusBar();
+  autoSave();
+}
+
+function renderChecks() {
+  for (let i = 1; i <= 3; i++) {
+    const card  = document.getElementById(`card-${i}`);
+    const check = document.getElementById(`check-${i}`);
+    if (checks[i]) {
+      card.classList.add('done');
+      check.style.background = 'var(--green)';
+      check.style.borderColor = 'var(--green)';
+      check.style.color = '#fff';
+    } else {
+      card.classList.remove('done');
+      check.style.background = '';
+      check.style.borderColor = '';
+      check.style.color = 'transparent';
+    }
+  }
+}
+
+// ── STARS ────────────────────────────────────────────────────────
+function setStar(type, val) {
+  scores[type] = val;
+  renderStars();
+  updateStatusBar();
+  autoSave();
+}
+
+function renderStars() {
+  ['prod','energy','focus'].forEach(type => {
+    const container = document.getElementById(`stars-${type}`);
+    const btns = container.querySelectorAll('.star-btn');
+    btns.forEach((btn, i) => {
+      btn.classList.toggle('active', i < scores[type]);
+    });
+  });
+}
+
+// ── STATUS BAR ───────────────────────────────────────────────────
+function updateStatusBar() {
+  // Missions from daily-missions
+  let mDone = 0, mTotal = 0;
+  try {
+    const missions = JSON.parse(localStorage.getItem('polylife_daily_missions_v1') || '[]');
+    const todayM = missions.filter(m => m.date === todayKey());
+    mDone  = todayM.filter(m => m.completed).length;
+    mTotal = todayM.length;
+  } catch {}
+
+  const top3Done  = Object.values(checks).filter(Boolean).length;
+  const avgScore  = scores.prod + scores.energy + scores.focus;
+  const scoreStr  = avgScore > 0 ? `${Math.round(avgScore/3*10)/10}/5` : '—';
+
+  document.getElementById('sb-missions-done').textContent = mTotal > 0 ? `${mDone}/${mTotal}` : '—';
+  document.getElementById('sb-top3-done').textContent     = `${top3Done}/3`;
+  document.getElementById('sb-score').textContent         = scoreStr;
+
+  // Progress bar: blend missions + top3 + score
+  let pct = 0;
+  if (mTotal > 0) pct += (mDone / mTotal) * 40;
+  pct += (top3Done / 3) * 40;
+  if (avgScore > 0) pct += (avgScore / 15) * 20;
+  document.getElementById('day-bar').style.width = Math.min(100, pct) + '%';
+}
+
+// ── HISTORY STRIP ─────────────────────────────────────────────────
+function renderHistoryStrip() {
+  const container = document.getElementById('history-days');
+  container.innerHTML = '';
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const key  = dateKey(d);
+    const data = state[key] || {};
+
+    const avgScore = data.scores ? (data.scores.prod + data.scores.energy + data.scores.focus) / 3 : 0;
+    const emoji    = avgScore >= 4 ? '⭐' : avgScore >= 2.5 ? '🟡' : avgScore > 0 ? '🔴' : '—';
+
+    const div = document.createElement('div');
+    div.className = `history-day${i === 0 ? ' today' : ''}${key === currentKey ? ' selected' : ''}`;
+    div.innerHTML = `
+      <div class="h-day-name">${DAYS_IT[d.getDay()]}</div>
+      <div class="h-day-num">${d.getDate()}</div>
+      <div class="h-day-score">${emoji}</div>
+    `;
+    div.onclick = () => {
+      if (currentKey !== todayKey()) autoSave();
+      loadDay(key);
+    };
+    div.id = `hday-${key}`;
+    container.appendChild(div);
+  }
+}
+
+function highlightHistoryDay(key) {
+  document.querySelectorAll('.history-day').forEach(el => el.classList.remove('selected'));
+  const el = document.getElementById(`hday-${key}`);
+  if (el) el.classList.add('selected');
+}
+
+// ── SAVE ─────────────────────────────────────────────────────────
+function collectDay() {
+  return {
+    mission:     document.getElementById('mission-text').value.trim(),
+    task1:       document.getElementById('task-1').value.trim(),
+    task2:       document.getElementById('task-2').value.trim(),
+    task3:       document.getElementById('task-3').value.trim(),
+    constraint:  document.getElementById('constraint-text').value.trim(),
+    minimum:     document.getElementById('minimum-text').value.trim(),
+    eveningNote: document.getElementById('evening-note').value.trim(),
+    checks, scores,
+    savedAt: new Date().toISOString()
+  };
+}
+
+function saveAll() {
+  state[currentKey] = collectDay();
+  persistCommandState();
+  renderHistoryStrip();
+
+  const el = document.getElementById('save-status');
+  el.textContent = `// Salvato alle ${String(new Date().getHours()).padStart(2,'0')}:${String(new Date().getMinutes()).padStart(2,'0')}`;
+  el.className = 'save-status saved';
+  showToast('// Giornata salvata ✓', 'green');
+}
+
+let autoSaveTimer = null;
+function autoSave() {
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(() => {
+    state[currentKey] = collectDay();
+    persistCommandState();
+    const el = document.getElementById('save-status');
+    el.textContent = `// Auto-salvato ${String(new Date().getHours()).padStart(2,'0')}:${String(new Date().getMinutes()).padStart(2,'0')}`;
+    el.className = 'save-status saved';
+  }, 1200);
+}
+
+// Auto-save on any input change
+['mission-text','task-1','task-2','task-3','constraint-text','minimum-text','evening-note'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', () => { updateStatusBar(); autoSave(); });
+});
+
+// ── LOAD YESTERDAY ───────────────────────────────────────────────
+function loadYesterday() {
+  const y = new Date(today);
+  y.setDate(y.getDate() - 1);
+  loadDay(dateKey(y));
+  showToast('// Caricato: ieri', 'cyan');
+}
+
+// ── AI BRIEFING ──────────────────────────────────────────────────
+async function generateBriefing() {
+  const mission    = document.getElementById('mission-text').value.trim();
+  const task1      = document.getElementById('task-1').value.trim();
+  const task2      = document.getElementById('task-2').value.trim();
+  const task3      = document.getElementById('task-3').value.trim();
+  const constraint = document.getElementById('constraint-text').value.trim();
+  const minimum    = document.getElementById('minimum-text').value.trim();
+
+  let missionStats = '';
+  try {
+    const missions = JSON.parse(localStorage.getItem('polylife_daily_missions_v1') || '[]');
+    const todayM = missions.filter(m => m.date === todayKey());
+    missionStats = `Missioni oggi: ${todayM.filter(m=>m.completed).length}/${todayM.length} completate.`;
+  } catch {}
+
+  let leoData = '';
+  try {
+    const checkin = JSON.parse(localStorage.getItem('leo_checkin') || '[]');
+    if (checkin.length > 0) {
+      const l = checkin[checkin.length-1];
+      leoData = `Ultimo check-in LEO: Sonno ${l.sleep}/10, Energia ${l.energy}/10, Motivazione ${l.motivation}/10.`;
+    }
+  } catch {}
+
+  const prompt = `Sei il sistema di comando giornaliero di PolyLife, un OS per polimatici ad alte prestazioni.
+
+DATI GIORNATA:
+Missione del giorno: "${mission || 'Non definita'}"
+Top 3 priorità:
+1. [STUDIO] ${task1 || 'Non definita'}
+2. [CORPO] ${task2 || 'Non definita'}
+3. [PROGETTO] ${task3 || 'Non definita'}
+Constraint: ${constraint || 'Non definito'}
+Minimo non negoziabile: ${minimum || 'Non definito'}
+${missionStats}
+${leoData}
+
+Genera un briefing operativo ultra-conciso (max 200 parole) con:
+- 1 frase di analisi della missione
+- 1 consiglio tattico per gestire il constraint
+- 1 sequenza di attacco per le prime 2 ore
+- 1 reminder sul minimo non negoziabile
+
+Stile: diretto, tecnico, militare ma motivante. Usa → per i punti elenco.`;
+
+  const output = document.getElementById('ai-output');
+  output.className = 'ai-output loading';
+  output.textContent = '// Generazione briefing in corso...';
+
+  try {
+    const res = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, max_tokens: 400 })
+    });
+
+    if (!res.ok) throw new Error('Server error');
+    const data = await res.json();
+    const text = data.content || data.text || data.response || '';
+    output.className = 'ai-output';
+    output.textContent = text;
+  } catch(e) {
+    // Fallback: generate locally based on data
+    output.className = 'ai-output';
+    output.textContent = generateLocalBriefing(mission, task1, task2, task3, constraint, minimum);
+  }
+}
+
+function generateLocalBriefing(mission, task1, task2, task3, constraint, minimum) {
+  const lines = [];
+  if (mission) {
+    lines.push(`⚡ MISSIONE: "${mission}" — questa è l'unica cosa che conta oggi.`);
+  }
+  if (constraint) {
+    lines.push(`\n⛔ CONSTRAINT → "${constraint}": non combatterlo, lavora intorno ad esso. Blocca distrazioni prima di iniziare.`);
+  }
+  if (task1 || task2) {
+    lines.push(`\n🎯 ATTACCO PRIME 2H:`);
+    if (task1) lines.push(`→ Inizia da [STUDIO]: ${task1}`);
+    if (task2) lines.push(`→ Poi [CORPO]: ${task2}`);
+    if (task3) lines.push(`→ Serata: ${task3}`);
+  }
+  if (minimum) {
+    lines.push(`\n✅ FLOOR: "${minimum}" — sotto questo livello non si va. Mai.`);
+  }
+  if (!mission && !task1) {
+    lines.push('// Completa la Missione del Giorno e il Top 3 per ricevere il briefing personalizzato.');
+  }
+  return lines.join('\n') || '// Inserisci la tua giornata per ricevere il briefing.';
+}
+
+async function generateConstraintAdvice() {
+  const constraint = document.getElementById('constraint-text').value.trim();
+  if (!constraint) { showToast('// Inserisci prima il constraint', ''); return; }
+
+  const output = document.getElementById('ai-output');
+  output.className = 'ai-output loading';
+  output.textContent = '// Analisi constraint...';
+
+  try {
+    const res = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: `Sei un coach ad alte prestazioni. Il mio constraint di oggi è: "${constraint}". Dammi 3 tattiche concrete per lavorare INTORNO a questo limite (non eliminarlo) e massimizzare ugualmente la produttività. Max 150 parole. Usa → per i punti.`,
+        max_tokens: 300
+      })
+    });
+    const data = await res.json();
+    output.className = 'ai-output';
+    output.textContent = data.content || data.text || `→ Riconosci il constraint senza resistenza.\n→ Ridimensiona il piano al 70% della capacità.\n→ Mantieni il minimo non negoziabile come ancora.`;
+  } catch {
+    output.className = 'ai-output';
+    output.textContent = `→ Constraint: "${constraint}"\n→ Accettalo senza resistenza — consuma energia.\n→ Scala al 70% del piano originale.\n→ Proteggi il minimo non negoziabile a tutti i costi.\n→ Recupera domani, non oggi.`;
+  }
+}
+
+async function generateEveningPlan() {
+  const checks3 = Object.values(checks).filter(Boolean).length;
+  const avgScr  = ((scores.prod + scores.energy + scores.focus) / 3).toFixed(1);
+
+  const output = document.getElementById('ai-output');
+  output.className = 'ai-output loading';
+  output.textContent = '// Preparazione piano serale...';
+
+  try {
+    const res = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: `Sei un sistema di revisione serale. Oggi: ${checks3}/3 priorità completate, score medio ${avgScr}/5. Genera: 1) valutazione onesta (2 righe), 2) cosa portare a domani, 3) routine di shut-down (3 step). Max 120 parole. Usa → per i punti.`,
+        max_tokens: 250
+      })
+    });
+    const data = await res.json();
+    output.className = 'ai-output';
+    output.textContent = data.content || data.text || generateLocalEvening(checks3, avgScr);
+  } catch {
+    output.className = 'ai-output';
+    output.textContent = generateLocalEvening(checks3, avgScr);
+  }
+}
+
+function generateLocalEvening(done, score) {
+  const verdict = done >= 2 ? 'Giornata solida.' : done === 1 ? 'Giornata parziale — è successo qualcosa.' : 'Giornata sotto standard — analizza il perché.';
+  return `📊 ${verdict} Score: ${score}/5.\n\n→ DOMANI: rivedi il constraint di oggi e adatta il piano.\n\n🌙 SHUT-DOWN:\n→ Chiudi tab e notifiche.\n→ Scrivi 1 insight della giornata.\n→ Imposta la sveglia e disconnetti.`;
+}
+
+// ── COPY COMMAND ─────────────────────────────────────────────────
+function copyCommand() {
+  const d = collectDay();
+  const text = `COMMAND CENTER — ${currentKey}
+
+MISSIONE: ${d.mission || '—'}
+
+TOP 3:
+1. [STUDIO] ${d.task1 || '—'}
+2. [CORPO] ${d.task2 || '—'}
+3. [PROGETTO] ${d.task3 || '—'}
+
+CONSTRAINT: ${d.constraint || '—'}
+MINIMO NON NEGOZIABILE: ${d.minimum || '—'}
+
+CHECK SERALE:
+Produttività: ${'★'.repeat(d.scores.prod)}${'☆'.repeat(5-d.scores.prod)} (${d.scores.prod}/5)
+Energia: ${'★'.repeat(d.scores.energy)}${'☆'.repeat(5-d.scores.energy)} (${d.scores.energy}/5)
+Focus: ${'★'.repeat(d.scores.focus)}${'☆'.repeat(5-d.scores.focus)} (${d.scores.focus}/5)
+Nota: ${d.eveningNote || '—'}`;
+
+  navigator.clipboard.writeText(text).then(() => showToast('// Copiato negli appunti ✓', 'green'));
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────────
+const APP_PATHS = {
+  studio: '/studio_polymath_v4.html',
+  leo:    '/leo_protocol_v8.html',
+  missions: '/daily-missions.html',
+  rpg:    '/life_rpg_v2.html',
+  hub:    '/hub-calendar.html',
+  agora:  '/agora.html',
+  planner:'/studio-planner.html',
+  home:   '/polymath_os_v9.html'
+};
+function goTo(key) { if (APP_PATHS[key]) window.location.href = APP_PATHS[key]; }
+function goHome()  { window.location.href = APP_PATHS.home; }
+
+// ── TOAST ────────────────────────────────────────────────────────
+function showToast(msg, type='', ms=2400) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'toast show' + (type ? ' '+type : '');
+  setTimeout(() => t.classList.remove('show'), ms);
+}
+
+// ── BOOT ────────────────────────────────────────────────────────
+init();
+updateStatusBar();
+setInterval(updateStatusBar, 30000);
+</script>
+</body>
+</html>

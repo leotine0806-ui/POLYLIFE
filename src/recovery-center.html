@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>RECOVERY CENTER // POLYLIFE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #060a0e;
+  --bg2:     #0a1018;
+  --bg3:     #0f1820;
+  --bg4:     #162030;
+  --border:  #1a2a38;
+  --border2: #203040;
+  --text:    #e8eef5;
+  --text2:   #8da0b3;
+  --text3:   #3d5568;
+  --cyan:    #00e5ff;
+  --blue:    #4f8cff;
+  --purple:  #a78bfa;
+  --gold:    #fbbf24;
+  --green:   #10b981;
+  --red:     #ef4444;
+  --orange:  #f97316;
+  --rec-c:   #f97316;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;font-size:13px;-webkit-font-smoothing:antialiased;}
+
+body{
+  background-image:
+    radial-gradient(ellipse 100% 60% at 15% -10%, rgba(249,115,22,0.04) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 85% 110%, rgba(239,68,68,0.03) 0%, transparent 55%);
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(249,115,22,0.005) 2px,rgba(249,115,22,0.005) 3px),
+    repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(249,115,22,0.002) 40px,rgba(249,115,22,0.002) 41px);
+  pointer-events:none;z-index:0;
+}
+
+.app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1;}
+.content{flex:1;padding-bottom:2rem;}
+.ph{padding:0 1rem;}
+
+/* ── HEADER ── */
+.page-header{
+  background:var(--bg2);border-bottom:2px solid var(--rec-c);
+  padding:1.25rem 1rem 0.9rem;position:relative;overflow:hidden;
+}
+.page-header::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--orange),var(--red),transparent);
+}
+.page-header::after{
+  content:'';position:absolute;bottom:0;right:0;
+  width:140px;height:140px;
+  background:radial-gradient(circle,rgba(249,115,22,0.07),transparent 70%);
+  pointer-events:none;
+}
+
+/* ── BACK NAV ── */
+.back-nav{
+  display:flex;align-items:center;gap:8px;margin-bottom:10px;
+  font-family:'Orbitron',monospace;font-size:8px;letter-spacing:0.2em;
+  color:var(--text3);text-transform:uppercase;cursor:pointer;
+  transition:color 0.15s;
+}
+.back-nav:hover{color:var(--orange);}
+
+/* ── SCORE WIDGET ── */
+.score-widget{
+  display:flex;align-items:center;justify-content:space-between;margin-top:2px;
+}
+.page-title{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;}
+.page-title span{color:var(--orange);text-shadow:0 0 20px rgba(249,115,22,0.5);}
+.page-sub{font-size:8px;color:var(--text3);letter-spacing:0.15em;text-transform:uppercase;margin-top:3px;}
+.score-box{
+  text-align:center;background:var(--bg3);border:1px solid var(--border2);
+  padding:8px 14px;min-width:76px;flex-shrink:0;
+}
+.score-num{font-family:'Orbitron',monospace;font-size:24px;font-weight:900;line-height:1;}
+.score-num sup{font-size:11px;}
+.score-lbl{font-size:7px;color:var(--text3);letter-spacing:0.15em;font-family:'Orbitron',monospace;margin-top:2px;}
+
+/* ── MODULES STRIP ── */
+.modules-strip{
+  display:flex;gap:4px;overflow-x:auto;padding:0.75rem 1rem;
+  border-bottom:1px solid var(--border);
+  scrollbar-width:none;
+}
+.modules-strip::-webkit-scrollbar{display:none;}
+.mod-chip{
+  flex-shrink:0;padding:5px 10px;
+  font-family:'Orbitron',monospace;font-size:7px;letter-spacing:0.1em;text-transform:uppercase;
+  border:1px solid var(--border2);background:var(--bg2);color:var(--text3);cursor:pointer;
+  transition:all 0.15s;white-space:nowrap;
+}
+.mod-chip.active{color:var(--orange);border-color:var(--orange);background:rgba(249,115,22,0.08);}
+.mod-chip:hover{border-color:var(--text3);}
+
+/* ── TABS ── */
+.tab-bar{display:flex;gap:4px;padding:0.85rem 1rem 0;}
+.tab-btn{
+  flex:1;padding:7px 4px;
+  font-family:'Orbitron',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;
+  border:1px solid var(--border2);background:var(--bg2);color:var(--text3);cursor:pointer;transition:all 0.15s;
+}
+.tab-btn.active{color:var(--orange);border-color:var(--orange);background:rgba(249,115,22,0.08);}
+
+/* ── CARDS ── */
+.sec-label{
+  font-family:'Orbitron',monospace;font-size:8px;font-weight:700;color:var(--text3);
+  letter-spacing:0.25em;text-transform:uppercase;margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;
+}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.rec-card{
+  background:var(--bg2);border:1px solid var(--border2);
+  border-left:3px solid var(--orange);padding:0.85rem 1rem;margin-bottom:7px;
+  position:relative;overflow:hidden;
+}
+.rec-card.resolved{border-left-color:var(--green);opacity:0.6;}
+.rec-card.urgent{border-left-color:var(--red);background:rgba(239,68,68,0.04);}
+
+.card-mod-badge{
+  display:inline-block;padding:2px 7px;
+  font-size:7px;font-family:'Orbitron',monospace;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;border:1px solid;margin-bottom:6px;
+}
+.card-task{font-size:12px;color:var(--text);line-height:1.3;margin-bottom:4px;}
+.card-meta{font-size:9px;color:var(--text3);}
+.card-cause{
+  display:inline-flex;align-items:center;gap:4px;margin-top:6px;
+  font-size:9px;color:var(--text2);
+}
+.card-cm{
+  margin-top:7px;padding:6px 9px;background:var(--bg3);
+  border:1px solid var(--border);font-size:9px;color:var(--text2);line-height:1.4;
+}
+.card-cm-label{font-size:7px;color:var(--text3);font-family:'Orbitron',monospace;letter-spacing:0.12em;margin-bottom:3px;}
+.card-actions{display:flex;gap:5px;margin-top:8px;}
+.btn-xs{
+  padding:5px 9px;font-family:'Orbitron',monospace;font-size:8px;letter-spacing:0.06em;
+  border:1px solid;cursor:pointer;text-transform:uppercase;transition:all 0.15s;background:transparent;
+}
+.btn-ok{color:var(--green);border-color:rgba(16,185,129,0.35);background:rgba(16,185,129,0.07);}
+.btn-ok:hover{background:rgba(16,185,129,0.15);}
+.btn-del{color:var(--red);border-color:rgba(239,68,68,0.25);background:rgba(239,68,68,0.05);}
+.btn-del:hover{background:rgba(239,68,68,0.12);}
+.btn-edit{color:var(--orange);border-color:rgba(249,115,22,0.35);background:rgba(249,115,22,0.07);}
+.btn-edit:hover{background:rgba(249,115,22,0.14);}
+
+/* ── PATTERNS ── */
+.pattern-bar{
+  background:var(--bg2);border:1px solid var(--border2);padding:0.85rem 1rem;margin-bottom:7px;
+}
+.pattern-bar.top{border-left:3px solid var(--red);}
+.pbar-track{height:5px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:7px;}
+.pbar-fill{height:100%;border-radius:2px;transition:width 0.6s ease;}
+
+/* ── EMPTY STATE ── */
+.empty{
+  background:var(--bg2);border:1px solid var(--border);
+  padding:2.5rem 1rem;text-align:center;margin-bottom:1rem;
+}
+.empty-icon{font-size:28px;margin-bottom:8px;}
+.empty-title{font-size:11px;font-family:'Orbitron',monospace;letter-spacing:0.1em;color:var(--text2);margin-bottom:4px;}
+.empty-sub{font-size:10px;color:var(--text3);}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.75);
+  display:flex;align-items:flex-end;justify-content:center;z-index:1000;
+}
+.modal-sheet{
+  width:100%;max-width:480px;background:var(--bg2);
+  border-top:2px solid var(--orange);
+  padding:1.25rem 1rem 2rem;max-height:92vh;overflow-y:auto;
+}
+.modal-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--orange);margin-bottom:1rem;letter-spacing:0.06em;}
+.modal-label{font-size:8px;color:var(--text3);font-family:'Orbitron',monospace;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:6px;margin-top:12px;}
+.modal-label:first-of-type{margin-top:0;}
+.cause-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:4px;}
+.cause-btn{
+  padding:9px 8px;background:var(--bg3);border:1px solid var(--border2);
+  color:var(--text2);font-size:8px;font-family:'Orbitron',monospace;
+  cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.15s;
+  text-align:left;
+}
+.cause-btn.sel{border-color:var(--orange);background:rgba(249,115,22,0.1);color:var(--orange);}
+.modal-input,.modal-textarea,.modal-select{
+  width:100%;background:var(--bg3);border:1px solid var(--border2);
+  color:var(--text);padding:9px 10px;font-size:11px;
+  font-family:'Space Mono',monospace;margin-bottom:4px;
+}
+.modal-textarea{resize:none;height:58px;}
+.min-grid{display:flex;gap:5px;margin-bottom:4px;}
+.min-btn{
+  flex:1;padding:7px;background:var(--bg3);border:1px solid var(--border2);
+  color:var(--text2);font-size:9px;font-family:'Orbitron',monospace;cursor:pointer;transition:all 0.15s;
+}
+.min-btn.sel{border-color:var(--orange);background:rgba(249,115,22,0.1);color:var(--orange);}
+.impact-grid{display:flex;gap:5px;margin-bottom:4px;}
+.impact-btn{
+  flex:1;padding:7px;background:var(--bg3);border:1px solid var(--border2);
+  color:var(--text2);font-size:8px;font-family:'Orbitron',monospace;cursor:pointer;transition:all 0.15s;
+  text-align:center;
+}
+.impact-btn.sel-low{border-color:var(--green);background:rgba(16,185,129,0.08);color:var(--green);}
+.impact-btn.sel-mid{border-color:var(--gold);background:rgba(251,191,36,0.08);color:var(--gold);}
+.impact-btn.sel-hi{border-color:var(--red);background:rgba(239,68,68,0.08);color:var(--red);}
+.modal-btns{display:flex;gap:8px;margin-top:1rem;}
+.btn-main{
+  flex:1;padding:10px;background:rgba(249,115,22,0.12);
+  border:1px solid var(--orange);color:var(--orange);
+  font-family:'Orbitron',monospace;font-size:9px;letter-spacing:0.1em;cursor:pointer;
+}
+.btn-sec{
+  flex:1;padding:10px;background:var(--bg3);
+  border:1px solid var(--border2);color:var(--text2);
+  font-family:'Orbitron',monospace;font-size:9px;letter-spacing:0.1em;cursor:pointer;
+}
+
+/* ── AI INSIGHT ── */
+.ai-insight{
+  background:rgba(79,140,255,0.05);border:1px solid rgba(79,140,255,0.2);
+  border-left:3px solid var(--blue);padding:0.9rem 1rem;margin-bottom:1rem;
+}
+.ai-insight-label{font-size:7px;color:var(--blue);font-family:'Orbitron',monospace;letter-spacing:0.15em;margin-bottom:6px;}
+.ai-insight-text{font-size:10px;color:var(--text2);line-height:1.55;}
+
+/* ── SCORE RING ── */
+.score-ring-wrap{display:flex;justify-content:center;margin:1.25rem 0 1rem;}
+svg.score-ring{transform:rotate(-90deg);}
+.score-center-text{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;pointer-events:none;
+}
+
+/* ── PRINCIPLE ── */
+.principle{
+  background:var(--bg2);border:1px solid var(--border);
+  border-left:3px solid var(--blue);padding:0.85rem 1rem;margin:1rem 0;
+}
+.principle-label{font-size:7px;color:var(--blue);font-family:'Orbitron',monospace;letter-spacing:0.15em;margin-bottom:5px;}
+.principle-text{font-size:10px;color:var(--text2);line-height:1.55;font-style:italic;}
+
+/* ── ADD BTN ── */
+.add-btn{
+  width:100%;padding:11px;margin-top:0.5rem;
+  background:rgba(249,115,22,0.06);border:1px dashed rgba(249,115,22,0.35);
+  color:var(--orange);font-family:'Orbitron',monospace;font-size:9px;
+  letter-spacing:0.12em;cursor:pointer;transition:all 0.15s;
+}
+.add-btn:hover{background:rgba(249,115,22,0.12);}
+
+/* ── FOOTER NAV ── */
+.footer-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.75rem 1rem;border-top:1px solid var(--border);
+  background:var(--bg2);position:sticky;bottom:0;z-index:50;
+  font-size:9px;color:var(--text3);
+}
+.footer-nav a{color:var(--blue);text-decoration:none;font-family:'Orbitron',monospace;font-size:8px;letter-spacing:0.08em;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="content">
+
+    <!-- HEADER -->
+    <div class="page-header">
+      <div class="back-nav" onclick="goBack()">← POLYLIFE HUB</div>
+      <div class="score-widget">
+        <div>
+          <div class="page-title">⚡ RECOVERY <span>CENTER</span></div>
+          <div class="page-sub">SISTEMA AUTO-CORRETTIVO GLOBALE</div>
+        </div>
+        <div class="score-box" id="score-box">
+          <div class="score-num" id="score-num" style="color:var(--text3)">—</div>
+          <div class="score-lbl">RECOVERY<br>SCORE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE FILTER -->
+    <div class="modules-strip" id="modules-strip"></div>
+
+    <!-- TAB BAR -->
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-queue" onclick="setTab('queue')">⚡ CODA</button>
+      <button class="tab-btn" id="tab-log" onclick="setTab('log')">📋 LOG</button>
+      <button class="tab-btn" id="tab-pattern" onclick="setTab('pattern')">📊 PATTERN</button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="ph" style="padding-top:1rem" id="main-content"></div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer-nav">
+    <span style="font-family:'Orbitron',monospace;font-size:7px;letter-spacing:0.1em;color:var(--text3)">POLYLIFE OS</span>
+    <a onclick="goBack()">← HUB</a>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-container"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+// RECOVERY CENTER — MODULO GLOBALE POLYLIFE
+// ══════════════════════════════════════════════════
+
+// ── COSTANTI ──────────────────────────────────────
+
+const MODULES = [
+  {id:'all',    label:'Tutti',      icon:'◈', color:'var(--orange)'},
+  {id:'studio', label:'Studio',     icon:'🎓', color:'var(--blue)'},
+  {id:'leo',    label:'Training',   icon:'🏋️', color:'var(--green)'},
+  {id:'rpg',    label:'Life RPG',   icon:'⚔️', color:'var(--red)'},
+  {id:'library',label:'Lettura',    icon:'📚', color:'var(--purple)'},
+  {id:'engineer',label:'Coding',   icon:'⚙️', color:'#34d399'},
+  {id:'habits', label:'Abitudini',  icon:'🔁', color:'var(--gold)'},
+  {id:'business',label:'Business',  icon:'💼', color:'var(--cyan)'},
+  {id:'routine',label:'Routine',    icon:'📆', color:'var(--pink)'},
+  {id:'other',  label:'Altro',      icon:'⚙', color:'var(--text2)'}
+];
+
+const MODULE_COLORS = {};
+MODULES.forEach(m => MODULE_COLORS[m.id] = m.color);
+
+const CAUSES = [
+  {id:'dist',  label:'Distrazioni',       icon:'📱', color:'var(--orange)'},
+  {id:'tired', label:'Stanchezza',         icon:'😴', color:'var(--purple)'},
+  {id:'over',  label:'Sovraccarico',       icon:'🔥', color:'var(--red)'},
+  {id:'uncl',  label:'Mancanza chiarezza', icon:'❓', color:'var(--gold)'},
+  {id:'proc',  label:'Procrastinazione',   icon:'⏳', color:'var(--blue)'},
+  {id:'motiv', label:'Mancanza motivazione',icon:'💤',color:'var(--text2)'},
+  {id:'ext',   label:'Cause esterne',      icon:'🌧', color:'#8da0b3'},
+  {id:'other', label:'Altro',              icon:'⚙️', color:'var(--text3)'}
+];
+
+const COUNTERMEASURES = {
+  dist:  ['Telefono fuori dalla stanza per 90 min','Attiva Focus Mode — notifiche off','Cambia ambiente di lavoro','Usa la regola 5-4-3-2-1 per iniziare'],
+  tired: ['Pausa 20 min prima di ricominciare','Dividi il task in chunk da 15 min','Sposta a domani mattina — priorità #1','5 min di movimento poi ricomincia'],
+  over:  ['Taglia il task al 50% — solo il core','Scegli 1 solo obiettivo per oggi','Rivedi la pianificazione settimanale','Deleghiamo tutto il resto — 1 priorità'],
+  uncl:  ['Rileggi le istruzioni passo per passo','Cerca 1 esempio pratico concreto','Scomponi il task in micro-passi','Chiedi chiarimenti prima di iniziare'],
+  proc:  ['Regola 2 min: inizia solo per 2 min','Timer Pomodoro da 25 min','Identifica perché stai evitando','1 micro-ricompensa dopo il completamento'],
+  motiv: ['Collega il task al tuo obiettivo di lungo periodo','Ripassa il tuo Why — perché lo stai facendo','Trova qualcosa di interessante nel task','Completalo per il tuo futuro-self'],
+  ext:   ['Registra la causa esterna e riprogramma','Adatta il piano alle circostanze reali','Comunicare il ritardo se necessario','Identifica il prima alternativo'],
+  other: ['Analizza la causa precisa prima di riprogrammare','Scrivi un piano d\'azione dettagliato','Parla con qualcuno del problema','Torna con mente fresca']
+};
+
+const IMPACTS = [
+  {id:'low',  label:'BASSO',  color:'var(--green)'},
+  {id:'mid',  label:'MEDIO',  color:'var(--gold)'},
+  {id:'high', label:'ALTO',   color:'var(--red)'}
+];
+
+// ── STORAGE ────────────────────────────────────────
+
+function safeGet(k) {
+  try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; }
+}
+function safeSet(k, v) {
+  try { localStorage.setItem(k, JSON.stringify(v)); } catch {}
+}
+
+const RC_KEY  = 'polylife_recovery_v1';
+const SV4_KEY = 'sv4_rec';
+
+async function loadLog() {
+  if (window.db?.recovery?.getAll) {
+    try {
+      const data = await window.db.recovery.getAll();
+      if (data && data.length) return data;
+    } catch (_) {}
+  }
+  const legacy = safeGet(RC_KEY) || [];
+  if (legacy.length && window.db?.recovery?.saveAll) {
+    try { await window.db.recovery.saveAll(legacy); } catch (_) {}
+  }
+  return legacy;
+}
+
+async function saveLog(log) {
+  if (window.db?.recovery) {
+    try {
+      const existing = await window.db.recovery.getAll();
+      const ids = new Set(log.map(e => e.id));
+      for (const e of existing) {
+        if (!ids.has(e.id)) await window.db.recovery.delete(e.id);
+      }
+      for (const e of log) await window.db.recovery.upsert(e);
+    } catch (_) {}
+  }
+  safeSet(RC_KEY, log);
+}
+
+async function loadSv4() {
+  if (window.db?.study?.getBlob) {
+    try {
+      const d = await window.db.study.getBlob('rec');
+      if (d != null) return d;
+    } catch (_) {}
+  }
+  return safeGet(SV4_KEY) || [];
+}
+
+async function saveSv4(arr) {
+  if (window.db?.study?.setBlob) {
+    try { await window.db.study.setBlob('rec', arr); } catch (_) {}
+  }
+  safeSet(SV4_KEY, arr);
+}
+
+/**
+ * Returns ONLY sv4_rec items that have NOT yet been analysed/logged
+ * (i.e. no entry in polylife_recovery_v1 with matching sourceId).
+ * This prevents duplicates in the queue.
+ */
+let _sv4Rec = [];
+let _logData = [];
+
+async function refreshStorage() {
+  _logData = await loadLog();
+  _sv4Rec = await loadSv4();
+}
+
+function getStudioQueue() {
+  const rec = _sv4Rec;
+  const log = state.log;
+  // Build set of sv4 sourceIds already in the log (any status)
+  const logged = new Set(
+    log.filter(e => e.sourceId).map(e => String(e.sourceId))
+  );
+  return rec
+    .filter(r => !logged.has(String(r.id)))
+    .map(r => ({
+      id:        'sv4_' + r.id,
+      sourceId:  String(r.id),
+      module:    'studio',
+      task:      r.a || r.task || 'Task studio',
+      subj:      r.subj || '',
+      days:      r.days || 1,
+      movedDate: r.movedDate || '',
+      urgent:    (r.days || 1) >= 2
+    }));
+}
+
+/**
+ * Remove a sourceId from sv4_rec (after analysis or direct resolve).
+ * Safe to call multiple times.
+ */
+async function removeFromSv4(sourceId) {
+  _sv4Rec = _sv4Rec.filter(r => String(r.id) !== String(sourceId));
+  await saveSv4(_sv4Rec);
+}
+
+/**
+ * When a log entry is resolved, also remove from sv4_rec so Studio
+ * badge clears correctly.
+ */
+async function syncResolveToSv4(logEntry) {
+  if (logEntry.sourceId) await removeFromSv4(logEntry.sourceId);
+}
+
+async function syncDeleteToSv4(logEntry) {
+  if (logEntry.sourceId) await removeFromSv4(logEntry.sourceId);
+}
+
+// ── STATE ─────────────────────────────────────────
+
+let state = {
+  tab: 'queue',
+  modFilter: 'all',
+  log: [],
+  modal: null,
+  editCause: null,
+  editMin: 45,
+  editImpact: 'mid'
+};
+
+async function persistLog() {
+  await saveLog(state.log);
+  _logData = state.log;
+}
+
+// ── HELPERS ───────────────────────────────────────
+
+function uid() { return Date.now() + '' + Math.floor(Math.random() * 99999); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtDate(iso) {
+  const d = new Date(iso);
+  const months = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+  return d.getDate()+' '+months[d.getMonth()]+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+function fmtDateShort(iso) {
+  const d = new Date(iso);
+  const months = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+  return d.getDate()+' '+months[d.getMonth()];
+}
+function isToday(iso) {
+  return new Date(iso).toDateString() === new Date().toDateString();
+}
+
+function getCause(id) { return CAUSES.find(c=>c.id===id) || {icon:'⚠',label:id,color:'var(--text3)'}; }
+function getModule(id) { return MODULES.find(m=>m.id===id) || {icon:'⚙',label:id,color:'var(--text3)'}; }
+function getImpact(id) { return IMPACTS.find(i=>i.id===id) || IMPACTS[1]; }
+
+function recScore() {
+  const log = state.log;
+  const last14 = log.filter(e => (Date.now() - new Date(e.date)) < 14*864e5);
+  if (!last14.length) return { score: null, label: 'NESSUN DATO', color: 'var(--text3)' };
+  const resolved = last14.filter(e => e.resolved).length;
+  const pct = Math.round(resolved / last14.length * 100);
+  const label = pct>=80?'ECCELLENTE':pct>=60?'BUONO':pct>=40?'SUFFICIENTE':'CRITICO';
+  const color = pct>=80?'var(--green)':pct>=60?'var(--gold)':pct>=40?'var(--orange)':'var(--red)';
+  return { score: pct, label, color };
+}
+
+function patternData() {
+  const log = state.log;
+  if (!log.length) return [];
+  const counts = {};
+  log.forEach(e => { counts[e.cause] = (counts[e.cause]||0)+1; });
+  const total = log.length;
+  return Object.entries(counts)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([id,n]) => ({ ...getCause(id), count: n, pct: Math.round(n/total*100) }));
+}
+
+function filteredLog() {
+  if (state.modFilter === 'all') return state.log;
+  return state.log.filter(e => e.module === state.modFilter);
+}
+
+function randomCM(causeId) {
+  const cm = COUNTERMEASURES[causeId] || COUNTERMEASURES.other;
+  return cm[Math.floor(Math.random() * cm.length)];
+}
+
+// ── RENDER ────────────────────────────────────────
+
+function render() {
+  renderScore();
+  renderModules();
+  renderTabs();
+  renderMain();
+}
+
+function renderScore() {
+  const sc = recScore();
+  const box = document.getElementById('score-box');
+  const num = document.getElementById('score-num');
+  if (!box || !num) return;
+  if (sc.score === null) {
+    num.style.color = sc.color;
+    num.textContent = '—';
+  } else {
+    num.style.color = sc.color;
+    num.innerHTML = sc.score + '<sup>%</sup>';
+  }
+  box.title = sc.label;
+}
+
+function renderModules() {
+  const el = document.getElementById('modules-strip');
+  if (!el) return;
+  el.innerHTML = MODULES.map(m => `
+    <button class="mod-chip ${state.modFilter===m.id?'active':''}"
+      onclick="setMod('${m.id}')"
+      style="${state.modFilter===m.id?'--rec-c:'+m.color+';color:'+m.color+';border-color:'+m.color+';background:'+m.color.replace(')',',0.08)').replace('var(','rgba('):''}"
+    >${m.icon} ${m.label}</button>`).join('');
+}
+
+function renderTabs() {
+  ['queue','log','pattern'].forEach(t => {
+    const el = document.getElementById('tab-'+t);
+    if (el) {
+      el.className = 'tab-btn' + (state.tab===t?' active':'');
+    }
+  });
+}
+
+function renderMain() {
+  const el = document.getElementById('main-content');
+  if (!el) return;
+  if (state.tab==='queue')   el.innerHTML = renderQueue();
+  if (state.tab==='log')     el.innerHTML = renderLog();
+  if (state.tab==='pattern') el.innerHTML = renderPattern();
+}
+
+// ── QUEUE TAB ─────────────────────────────────────
+
+function renderQueue() {
+  const studioQueue = getStudioQueue();
+  const modF = state.modFilter;
+  const visibleQueue = modF==='all' || modF==='studio' ? studioQueue : [];
+  const todayLog = state.log.filter(e => isToday(e.date));
+  const unresolvedLog = state.log.filter(e => !e.resolved).slice(0,8);
+
+  let html = '';
+
+  // Studio queue
+  if (visibleQueue.length > 0) {
+    html += `<div class="sec-label">TASK SALTATI — IN ATTESA (${visibleQueue.length})</div>`;
+    html += visibleQueue.map(r => {
+      const mod = getModule('studio');
+      return `
+      <div class="rec-card ${r.urgent?'urgent':''}">
+        <span class="card-mod-badge" style="color:${mod.color};border-color:${mod.color};background:${mod.color.replace(')',',0.08)').replace('var(','rgba(')}">${mod.icon} ${mod.label}</span>
+        ${r.urgent?'<span style="font-size:8px;color:var(--red);font-family:\'Orbitron\',monospace;margin-left:6px;letter-spacing:0.1em">⚠ URGENTE</span>':''}
+        <div class="card-task">${esc(r.task)}</div>
+        <div class="card-meta">${r.subj?esc(r.subj)+' · ':''}Saltato ${r.days} volta${r.days>1?'':''}${r.movedDate?' · '+r.movedDate:''}</div>
+        <div class="card-actions">
+          <button class="btn-xs btn-edit" onclick="openAnalysis('${r.id}','studio','${esc(r.task)}','${esc(r.subj)}')">ANALIZZA</button>
+          <button class="btn-xs btn-ok" onclick="resolveStudioItem('${r.sourceId}')">✓ FATTO</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Unresolved log entries (from all modules)
+  const visibleUnresolved = modF==='all' ? unresolvedLog : unresolvedLog.filter(e=>e.module===modF);
+  if (visibleUnresolved.length > 0) {
+    html += `<div class="sec-label" style="margin-top:${visibleQueue.length?'1rem':'0'}">ANALISI APERTE (${visibleUnresolved.length})</div>`;
+    html += visibleUnresolved.map(e => logEntryCard(e, true)).join('');
+  }
+
+  if (!visibleQueue.length && !visibleUnresolved.length) {
+    html += `
+    <div class="empty">
+      <div class="empty-icon">✅</div>
+      <div class="empty-title">CODA VUOTA</div>
+      <div class="empty-sub">Nessun task in attesa di recupero.<br>Ottimo lavoro.</div>
+    </div>`;
+  }
+
+  html += `
+  <button class="add-btn" onclick="openAddManual()">+ REGISTRA FALLIMENTO MANUALE</button>
+
+  <div class="principle" style="margin-top:1.25rem">
+    <div class="principle-label">PRINCIPIO STRATEGICO</div>
+    <div class="principle-text">"La continuità non nasce dall'assenza di errori,<br>ma dalla capacità di correggersi rapidamente."</div>
+  </div>`;
+
+  return html;
+}
+
+// ── LOG TAB ───────────────────────────────────────
+
+function renderLog() {
+  const log = filteredLog();
+  const unresolved = log.filter(e=>!e.resolved);
+  const resolved   = log.filter(e=>e.resolved);
+  let html = '';
+
+  html += `<div class="sec-label">DA RISOLVERE (${unresolved.length})</div>`;
+  if (!unresolved.length) {
+    html += `<div style="font-size:10px;color:var(--text3);padding:0.5rem 0 1rem">Nessun evento aperto.</div>`;
+  } else {
+    html += unresolved.map(e=>logEntryCard(e,true)).join('');
+  }
+
+  html += `<div class="sec-label" style="margin-top:0.75rem">RISOLTI (${resolved.length})</div>`;
+  if (!resolved.length) {
+    html += `<div style="font-size:10px;color:var(--text3);padding:0.5rem 0">Inizia a risolvere i task aperti!</div>`;
+  } else {
+    html += resolved.map(e=>logEntryCard(e,false)).join('');
+  }
+
+  html += `<button class="add-btn" style="margin-top:1rem" onclick="openAddManual()">+ REGISTRA MANUALE</button>`;
+  return html;
+}
+
+function logEntryCard(e, showResolve) {
+  const cause  = getCause(e.cause);
+  const mod    = getModule(e.module);
+  const impact = getImpact(e.impact);
+  return `
+  <div class="rec-card ${e.resolved?'resolved':''}">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:5px">
+          <span class="card-mod-badge" style="color:${mod.color};border-color:${mod.color};background:${mod.color.replace(')',',0.08)').replace('var(','rgba(')}">${mod.icon} ${mod.label}</span>
+          <span style="font-size:8px;color:${impact.color};font-family:'Orbitron',monospace;letter-spacing:0.08em">● ${impact.label}</span>
+          ${e.resolved?'<span style="font-size:8px;color:var(--green);font-family:\'Orbitron\',monospace">✓ RISOLTO</span>':''}
+        </div>
+        <div class="card-task">${esc(e.task)}</div>
+        ${e.subj?`<div class="card-meta" style="margin-bottom:3px">${esc(e.subj)}</div>`:''}
+        <div class="card-cause"><span>${cause.icon}</span><span style="color:${cause.color}">${cause.label}</span><span style="color:var(--text3)"> · ${fmtDate(e.date)}</span></div>
+        ${e.note?`<div style="font-size:9px;color:var(--text2);margin-top:5px;font-style:italic;border-top:1px solid var(--border);padding-top:5px">"${esc(e.note)}"</div>`:''}
+        <div class="card-cm">
+          <div class="card-cm-label">CONTROMISURA</div>
+          ${esc(e.countermeasure)}
+        </div>
+        ${e.reschedMin?`<div style="font-size:9px;color:var(--text3);margin-top:5px">⏱ Riprogrammato: ${e.reschedMin} min${e.newDate?' · '+fmtDateShort(e.newDate):''}</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;margin-left:8px;flex-shrink:0">
+        ${showResolve&&!e.resolved?`<button class="btn-xs btn-ok" onclick="resolveEntry('${e.id}')">✓</button>`:''}
+        <button class="btn-xs btn-del" onclick="deleteEntry('${e.id}')">✕</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── PATTERN TAB ───────────────────────────────────
+
+function renderPattern() {
+  const log = filteredLog();
+  const patterns = patternData();
+  const sc = recScore();
+  const last14 = log.filter(e=>(Date.now()-new Date(e.date))<14*864e5);
+  const resolved14 = last14.filter(e=>e.resolved).length;
+  const total14 = last14.length;
+
+  let html = '';
+
+  // Score ring
+  html += `
+  <div style="display:flex;align-items:center;gap:1rem;background:var(--bg2);border:1px solid var(--border2);padding:1rem;margin-bottom:1rem">
+    <div style="position:relative;width:80px;height:80px;flex-shrink:0">
+      <svg width="80" height="80" style="transform:rotate(-90deg)">
+        <circle cx="40" cy="40" r="32" fill="none" stroke="var(--border2)" stroke-width="6"/>
+        <circle cx="40" cy="40" r="32" fill="none" stroke="${sc.color}" stroke-width="6"
+          stroke-dasharray="${2*Math.PI*32}"
+          stroke-dashoffset="${2*Math.PI*32*(1-(sc.score||0)/100)}"
+          stroke-linecap="round" style="transition:stroke-dashoffset 0.8s ease"/>
+      </svg>
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
+        <div style="font-family:'Orbitron',monospace;font-size:16px;font-weight:900;color:${sc.color};line-height:1">${sc.score!==null?sc.score+'%':'—'}</div>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'Orbitron',monospace;font-size:11px;font-weight:700;color:${sc.color};margin-bottom:4px">${sc.label}</div>
+      <div style="font-size:9px;color:var(--text2);line-height:1.5">
+        ${total14>0?`${resolved14} di ${total14} eventi risolti negli ultimi 14 giorni.`:'Nessun dato negli ultimi 14 giorni.'}
+      </div>
+      <div style="font-size:8px;color:var(--text3);margin-top:3px">Log totale: ${log.length} eventi</div>
+    </div>
+  </div>`;
+
+  // Module breakdown
+  const modCounts = {};
+  log.forEach(e => { modCounts[e.module]=(modCounts[e.module]||0)+1; });
+  const topMods = Object.entries(modCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if (topMods.length > 1) {
+    html += `<div class="sec-label">PER MODULO</div>`;
+    const maxMod = topMods[0][1];
+    html += topMods.map(([mid,n])=>{
+      const m = getModule(mid);
+      return `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+        <span style="font-size:13px;width:20px;text-align:center">${m.icon}</span>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+            <span style="font-size:9px;color:var(--text2);font-family:'Orbitron',monospace">${m.label}</span>
+            <span style="font-size:9px;color:${m.color};font-family:'Orbitron',monospace">${n}</span>
+          </div>
+          <div class="pbar-track">
+            <div class="pbar-fill" style="width:${Math.round(n/maxMod*100)}%;background:${m.color}"></div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Cause patterns
+  if (!patterns.length) {
+    html += `
+    <div class="empty">
+      <div class="empty-icon">📊</div>
+      <div class="empty-title">NESSUN PATTERN</div>
+      <div class="empty-sub">Registra almeno un fallimento<br>per vedere i pattern.</div>
+    </div>`;
+    return html;
+  }
+
+  html += `<div class="sec-label" style="margin-top:1rem">CAUSE PRINCIPALI (${log.length} eventi)</div>`;
+  html += patterns.map((p,i) => `
+  <div class="pattern-bar ${i===0?'top':''}">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:16px">${p.icon}</span>
+        <div>
+          <div style="font-size:11px;color:var(--text);font-family:'Orbitron',monospace;font-weight:700">${p.label}</div>
+          <div style="font-size:9px;color:var(--text3)">${p.count} eventi${i===0?' <span style="color:var(--red)">← #1</span>':''}</div>
+        </div>
+      </div>
+      <div style="font-family:'Orbitron',monospace;font-size:20px;font-weight:900;color:${p.color}">${p.pct}%</div>
+    </div>
+    <div class="pbar-track" style="margin-top:8px">
+      <div class="pbar-fill" style="width:${p.pct}%;background:${p.color}"></div>
+    </div>
+    ${i===0?`
+    <div style="margin-top:9px;padding-top:9px;border-top:1px solid var(--border)">
+      <div style="font-size:7px;color:var(--text3);font-family:'Orbitron',monospace;letter-spacing:0.12em;margin-bottom:4px">CONTROMISURA PRIORITARIA</div>
+      <div style="font-size:10px;color:var(--text2)">${COUNTERMEASURES[p.id]?COUNTERMEASURES[p.id][0]:'Analizza il pattern e crea un sistema specifico.'}</div>
+    </div>`:''}
+  </div>`).join('');
+
+  // AI Insight
+  if (patterns.length >= 1 && log.length >= 3) {
+    const top = patterns[0];
+    const mod = topMods[0] ? getModule(topMods[0][0]) : null;
+    html += `
+    <div class="ai-insight" style="margin-top:1rem">
+      <div class="ai-insight-label">💡 INSIGHT SISTEMA</div>
+      <div class="ai-insight-text">
+        La tua causa principale è <strong>${top.label}</strong> (${top.pct}% dei casi).
+        ${mod && topMods.length>1 ? `Il modulo più colpito è <strong>${mod.label}</strong>.` : ''}
+        Progetta un sistema specifico per questa causa — non la forza di volontà, ma la struttura ambientale.
+        <br><br>
+        Prossimo step: applica la contromisura "<em>${COUNTERMEASURES[top.id]?COUNTERMEASURES[top.id][0]:''}</em>" per 7 giorni consecutivi.
+      </div>
+    </div>`;
+  }
+
+  return html;
+}
+
+// ── ACTIONS ───────────────────────────────────────
+
+function setTab(t) {
+  state.tab = t;
+  render();
+}
+
+function setMod(m) {
+  state.modFilter = m;
+  render();
+}
+
+async function resolveEntry(id) {
+  const e = state.log.find(x => x.id === id);
+  if (e) {
+    e.resolved = true;
+    e.resolvedDate = new Date().toISOString();
+    if (window.db?.recovery?.resolve) {
+      try { await window.db.recovery.resolve(id); } catch (_) {}
+    }
+    await syncResolveToSv4(e);
+  }
+  await persistLog();
+  render();
+}
+
+async function deleteEntry(id) {
+  if (!confirm('Eliminare questa voce dal log?')) return;
+  const e = state.log.find(x => x.id === id);
+  if (e) await syncDeleteToSv4(e);
+  state.log = state.log.filter(x => x.id !== id);
+  if (window.db?.recovery?.delete) {
+    try { await window.db.recovery.delete(id); } catch (_) {}
+  }
+  await persistLog();
+  render();
+}
+
+async function resolveStudioItem(sourceId) {
+  const sv4 = _sv4Rec;
+  const item = sv4.find(r => String(r.id) === String(sourceId));
+
+  // Create a resolved log entry so history is preserved
+  const entry = {
+    id:             uid(),
+    date:           new Date().toISOString(),
+    module:         'studio',
+    task:           item ? (item.a || item.task || 'Task studio') : 'Task studio',
+    subj:           item ? (item.subj || '') : '',
+    sourceId:       String(sourceId),
+    cause:          'other',
+    impact:         'mid',
+    note:           'Completato direttamente dalla coda.',
+    countermeasure: '—',
+    reschedMin:     0,
+    newDate:        null,
+    resolved:       true,
+    resolvedDate:   new Date().toISOString()
+  };
+  state.log.unshift(entry);
+  if (window.db?.recovery?.upsert) {
+    try { await window.db.recovery.upsert(entry); } catch (_) {}
+  }
+  await persistLog();
+  await removeFromSv4(sourceId);
+  render();
+}
+
+// ── MODALS ────────────────────────────────────────
+
+function closeModal() {
+  document.getElementById('modal-container').innerHTML = '';
+}
+
+function openAnalysis(queueId, moduleId, taskName, subj) {
+  state.editCause = null;
+  state.editMin   = 45;
+  state.editImpact= 'mid';
+  const mc = document.getElementById('modal-container');
+  mc.innerHTML = `
+  <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+    <div class="modal-sheet">
+      <div class="modal-title">⚡ ANALISI FALLIMENTO</div>
+      <div style="font-size:10px;color:var(--text2);margin-bottom:1rem">${esc(taskName)}${subj?' · '+esc(subj):''}</div>
+
+      <div class="modal-label">CAUSA PRINCIPALE</div>
+      <div class="cause-grid" id="cause-grid">
+        ${CAUSES.map(c=>`
+          <button class="cause-btn" id="cause_${c.id}" onclick="selCause('${c.id}')">
+            <span>${c.icon}</span>
+            <span style="font-family:'Orbitron',monospace;font-size:8px;letter-spacing:0.06em">${c.label}</span>
+          </button>`).join('')}
+      </div>
+
+      <div class="modal-label">IMPATTO</div>
+      <div class="impact-grid">
+        ${IMPACTS.map(imp=>`
+          <button class="impact-btn" id="imp_${imp.id}" onclick="selImpact('${imp.id}')" style="color:${imp.color};border-color:${imp.color.replace(')',',0.2)').replace('var(','rgba(')}">${imp.label}</button>`).join('')}
+      </div>
+
+      <div class="modal-label">NOTE (opzionale)</div>
+      <textarea class="modal-textarea" id="modal-note" placeholder="Cosa è successo esattamente?"></textarea>
+
+      <div class="modal-label">RIPROGRAMMA (minuti)</div>
+      <div class="min-grid">
+        ${[15,25,45,60,90].map(m=>`<button class="min-btn ${m===45?'sel':''}" id="min_${m}" onclick="selMin(${m})">${m}</button>`).join('')}
+      </div>
+
+      <div class="modal-btns">
+        <button class="btn-sec" onclick="closeModal()">ANNULLA</button>
+        <button class="btn-main" onclick="confirmAnalysis('${queueId}','${moduleId}','${esc(taskName)}','${subj?esc(subj):''}')">SALVA ANALISI</button>
+      </div>
+    </div>
+  </div>`;
+  selImpact('mid');
+}
+
+function openAddManual() {
+  state.editCause = null;
+  state.editMin   = 45;
+  state.editImpact= 'mid';
+  const mc = document.getElementById('modal-container');
+  mc.innerHTML = `
+  <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+    <div class="modal-sheet">
+      <div class="modal-title">+ REGISTRA FALLIMENTO</div>
+
+      <div class="modal-label">MODULO</div>
+      <select class="modal-select" id="manual-mod">
+        ${MODULES.filter(m=>m.id!=='all').map(m=>`<option value="${m.id}">${m.icon} ${m.label}</option>`).join('')}
+      </select>
+
+      <div class="modal-label">TASK / OBIETTIVO</div>
+      <input class="modal-input" id="manual-task" placeholder="Es: 2 ore di fisica quantistica">
+
+      <div class="modal-label">DETTAGLIO (opzionale)</div>
+      <input class="modal-input" id="manual-subj" placeholder="Es: Capitolo 7, settimana 3...">
+
+      <div class="modal-label">CAUSA PRINCIPALE</div>
+      <div class="cause-grid" id="cause-grid">
+        ${CAUSES.map(c=>`
+          <button class="cause-btn" id="cause_${c.id}" onclick="selCause('${c.id}')">
+            <span>${c.icon}</span>
+            <span style="font-family:'Orbitron',monospace;font-size:8px;letter-spacing:0.06em">${c.label}</span>
+          </button>`).join('')}
+      </div>
+
+      <div class="modal-label">IMPATTO</div>
+      <div class="impact-grid">
+        ${IMPACTS.map(imp=>`
+          <button class="impact-btn" id="imp_${imp.id}" onclick="selImpact('${imp.id}')" style="color:${imp.color};border-color:${imp.color.replace(')',',0.2)').replace('var(','rgba(')}">${imp.label}</button>`).join('')}
+      </div>
+
+      <div class="modal-label">NOTE (opzionale)</div>
+      <textarea class="modal-textarea" id="modal-note" placeholder="Descrizione libera del fallimento..."></textarea>
+
+      <div class="modal-label">RIPROGRAMMA (minuti)</div>
+      <div class="min-grid">
+        ${[15,25,45,60,90].map(m=>`<button class="min-btn ${m===45?'sel':''}" id="min_${m}" onclick="selMin(${m})">${m}</button>`).join('')}
+      </div>
+
+      <div class="modal-btns">
+        <button class="btn-sec" onclick="closeModal()">ANNULLA</button>
+        <button class="btn-main" onclick="confirmManual()">REGISTRA</button>
+      </div>
+    </div>
+  </div>`;
+  selImpact('mid');
+}
+
+function handleOverlayClick(e) {
+  if (e.target.id === 'modal-overlay') closeModal();
+}
+
+function selCause(id) {
+  state.editCause = id;
+  CAUSES.forEach(c => {
+    const b = document.getElementById('cause_'+c.id);
+    if (b) b.className = 'cause-btn' + (c.id===id?' sel':'');
+  });
+}
+
+function selImpact(id) {
+  state.editImpact = id;
+  IMPACTS.forEach(imp => {
+    const b = document.getElementById('imp_'+imp.id);
+    if (!b) return;
+    b.className = 'impact-btn' + (imp.id===id?' sel-'+imp.id:'');
+    if (imp.id===id) {
+      b.style.borderColor=imp.color;
+      b.style.background=imp.color.replace(')',',0.12)').replace('var(','rgba(');
+      b.style.color=imp.color;
+    } else {
+      b.style.borderColor=imp.color.replace(')',',0.2)').replace('var(','rgba(');
+      b.style.background='var(--bg3)';
+      b.style.color=imp.color;
+    }
+  });
+}
+
+function selMin(m) {
+  state.editMin = m;
+  [15,25,45,60,90].forEach(x => {
+    const b = document.getElementById('min_'+x);
+    if (b) b.className = 'min-btn' + (x===m?' sel':'');
+  });
+}
+
+async function confirmAnalysis(queueId, moduleId, taskName, subj) {
+  if (!state.editCause) { alert('Seleziona una causa.'); return; }
+  const note = (document.getElementById('modal-note')||{}).value||'';
+
+  // queueId is 'sv4_' + sourceId for Studio items, or raw id for others
+  const sourceId = queueId.startsWith('sv4_') ? queueId.slice(4) : null;
+
+  const entry = {
+    id:             uid(),
+    date:           new Date().toISOString(),
+    module:         moduleId,
+    task:           taskName,
+    subj:           subj || '',
+    sourceId:       sourceId,   // ← link back to sv4_rec item
+    cause:          state.editCause,
+    impact:         state.editImpact,
+    note,
+    countermeasure: randomCM(state.editCause),
+    reschedMin:     state.editMin,
+    newDate:        null,
+    resolved:       false,
+    resolvedDate:   null
+  };
+  state.log.unshift(entry);
+  if (window.db?.recovery?.upsert) {
+    try { await window.db.recovery.upsert(entry); } catch (_) {}
+  }
+  await persistLog();
+  if (sourceId) await removeFromSv4(sourceId);
+
+  closeModal();
+  render();
+  setTimeout(() => {
+    const cause = getCause(state.editCause);
+    alert(`✓ Analisi salvata\n\nCausa: ${cause.label}\nContromisura:\n${entry.countermeasure}\n\nRiprogrammato: ${state.editMin} min`);
+  }, 80);
+}
+
+async function confirmManual() {
+  const task = (document.getElementById('manual-task')||{}).value||'';
+  const subj = (document.getElementById('manual-subj')||{}).value||'';
+  const mod  = (document.getElementById('manual-mod')||{}).value||'other';
+  if (!task.trim()) { alert('Inserisci la descrizione del task.'); return; }
+  if (!state.editCause) { alert('Seleziona una causa.'); return; }
+  const note = (document.getElementById('modal-note')||{}).value||'';
+  const entry = {
+    id: uid(),
+    date: new Date().toISOString(),
+    module: mod,
+    task: task.trim(),
+    subj: subj.trim(),
+    cause: state.editCause,
+    impact: state.editImpact,
+    note,
+    countermeasure: randomCM(state.editCause),
+    reschedMin: state.editMin,
+    newDate: null,
+    resolved: false,
+    resolvedDate: null
+  };
+  state.log.unshift(entry);
+  if (window.db?.recovery?.upsert) {
+    try { await window.db.recovery.upsert(entry); } catch (_) {}
+  }
+  await persistLog();
+  closeModal();
+  render();
+  setTimeout(()=>{
+    alert(`✓ Registrato\n\nContromisura:\n${entry.countermeasure}`);
+  }, 80);
+}
+
+// ── NAVIGATION ────────────────────────────────────
+
+function goBack() {
+  window.location.href = '/polymath_os_v9.html';
+}
+
+// ── INIT ──────────────────────────────────────────
+(async () => {
+  await refreshStorage();
+  state.log = _logData;
+  render();
+})();
+</script>
+</body>
+</html>
