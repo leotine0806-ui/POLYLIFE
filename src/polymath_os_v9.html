@@ -6,7 +6,7 @@
 <title>POLYMATH OS v2</title>
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" href="icon-512.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="P·OS">
@@ -1780,7 +1780,7 @@ body::before {
 }
 
 </style>
-<script src="polylife-sqlite.js"></script>
+
 <script src="polylife-gamification.js"></script>
 </head>
 <body>
@@ -3072,10 +3072,7 @@ document.getElementById('weekly-modal').addEventListener('click', function(e) {
 
 // ── Main render ──
 async function loadAll() {
-  if (window.PolySQLite?.runAutoMigrations) {
-    try { await window.PolySQLite.runAutoMigrations(); } catch (_) {}
-  }
-  updateStreakBanner();
+updateStreakBanner();
   const [studio, library, rpg, leo, arteMusica, recovery, orchestrator] = await Promise.all([
     readStudio(),
     readLibrary(),
@@ -3449,7 +3446,6 @@ const APP_PATHS = {
   settings:     '/settings.html',
   recovery:     '/recovery-center.html',
   arte_musica:  '/arte-musica.html',
-  recovery:         '/recovery-center.html',
   operating_profile:'/operating-profile.html',
   daily_command:'/daily-command-center.html',
   dungeon:      '/dungeon.html'
@@ -3768,7 +3764,6 @@ Identifica il pattern principale e dai UN consiglio concreto per la prossima set
 
 // ── Init ──
 (async () => {
-  if (window.PolySQLite?.runAutoMigrations) await window.PolySQLite.runAutoMigrations();
   await loadAll();
 })();
 updateClock();

@@ -649,18 +649,16 @@ const LSKEYS = {
 // ════════════════════════════════════════════════
 // STORAGE
 // ════════════════════════════════════════════════
+// Consumers below use arrays synchronously. Keep this adapter synchronous.
 const S = {
-  async get(k){
+  get(k){
     const key=LSKEYS[k];
-    if(window.db?.engineer?.getKey){try{const v=await window.db.engineer.getKey(key);if(v!=null)return v;}catch(_){}}
     try{return JSON.parse(localStorage.getItem(key)||'[]')}catch{return[]}
   },
-  async set(k,v){
-    const key=LSKEYS[k];
-    if(window.db?.engineer?.setKey){try{await window.db.engineer.setKey(key,v);}catch(_){}}
-    try{localStorage.setItem(key,JSON.stringify(v))}catch{}
+  set(k,v){
+    localStorage.setItem(LSKEYS[k],JSON.stringify(v));
   },
-  async push(k,item,max=200){const a=await this.get(k);a.unshift(item);await this.set(k,a.slice(0,max));},
+  push(k,item,max=200){const a=this.get(k);a.unshift(item);this.set(k,a.slice(0,max));},
 };
 
 // ════════════════════════════════════════════════
@@ -1498,7 +1496,7 @@ function renderProjList() {
         <div style="font-size:11px;color:var(--tx3)">${new Date(p.date).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'})} · ${(p.reqs||[]).length} req · ${tot} ms</div></div>
         <div style="text-align:right;display:flex;align-items:center;gap:8px">
           <div style="font-family:'Orbitron',monospace;font-size:18px;font-weight:900;color:var(--blue)">${pct}%</div>
-          <button class="btn bg" style="font-size:7px;padding:2px 7px" onclick="event.stopPropagation();S.get('projects').splice(${i},1);S.set('projects',S.get('projects'));renderProjList();toast('Eliminato')">✕</button>
+          <button class="btn bg" style="font-size:7px;padding:2px 7px" onclick="event.stopPropagation();const a=S.get('projects');a.splice(${i},1);S.set('projects',a);renderProjList();toast('Eliminato')">✕</button>
         </div>
       </div>
       <div class="prog-bar" style="margin-top:8px"><div style="height:100%;width:${pct}%;background:var(--blue);border-radius:2px;transition:width .4s"></div></div>

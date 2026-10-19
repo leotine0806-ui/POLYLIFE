@@ -38,7 +38,7 @@
   .tab.active { background:var(--surface2); color:var(--text); }
 
   /* Review mode */
-  #review-view { display:none; }
+  #review-view { display:block; }
   .review-progress { background:rgba(255,255,255,0.05); border-radius:4px; height:4px; margin-bottom:32px; overflow:hidden; }
   .review-progress-bar { height:100%; background:linear-gradient(90deg,var(--accent),var(--teal)); border-radius:4px; transition:width 0.3s; }
 
@@ -560,7 +560,7 @@ function closeModal() {
   document.getElementById('modal').classList.remove('open');
 }
 
-function saveCard() {
+async function saveCard() {
   const subject  = document.getElementById('m-subject').value;
   const question = document.getElementById('m-question').value.trim();
   const answer   = document.getElementById('m-answer').value.trim();
@@ -581,7 +581,7 @@ function saveCard() {
     await saveCard_db(newCard);
   }
 
-  saveCards(cards);
+  await saveCards(cards);
   closeModal();
   updateStats();
   loadSubjectsFilter();

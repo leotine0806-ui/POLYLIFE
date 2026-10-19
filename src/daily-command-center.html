@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>POLYMATH OS — Command Center</title>
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" href="icon-512.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#00e5ff">
@@ -623,11 +623,8 @@ async function loadCommandState() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
 }
 
-async function persistCommandState() {
-  if (window.db?.commandCenter?.saveState) {
-    try { await window.db.commandCenter.saveState(state); } catch (_) {}
-  }
-  persistCommandState();
+function persistCommandState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
 // ── INIT ─────────────────────────────────────────────────────────

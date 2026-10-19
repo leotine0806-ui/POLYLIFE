@@ -127,7 +127,7 @@
       <div class="setting-row">
         <div class="setting-info">
           <div class="setting-name">Briefing mattutino</div>
-          <div class="setting-desc">Ogni giorno alle 07:00 — streak, verifiche, check-in mancanti</div>
+          <div class="setting-desc">Promemoria generico alle 07:00, mentre l’app è aperta</div>
         </div>
         <div class="setting-action">
           <button class="btn btn-secondary" onclick="testNotif('briefing')">Test ora</button>
@@ -136,16 +136,16 @@
       <div class="setting-row">
         <div class="setting-info">
           <div class="setting-name">Alert pre-verifica</div>
-          <div class="setting-desc">Ogni giorno alle 19:00 — avviso per verifiche del giorno dopo</div>
+          <div class="setting-desc">Non disponibile: richiede un archivio condiviso delle verifiche</div>
         </div>
         <div class="setting-action">
-          <button class="btn btn-secondary" onclick="testNotif('preVerifica')">Test ora</button>
+          <button class="btn btn-secondary" disabled>Non disponibile</button>
         </div>
       </div>
       <div class="setting-row">
         <div class="setting-info">
           <div class="setting-name">Streak check serale</div>
-          <div class="setting-desc">Ogni giorno alle 20:00 — promemoria se non hai ancora registrato la sessione</div>
+          <div class="setting-desc">Promemoria generico alle 20:00, mentre l’app è aperta</div>
         </div>
         <div class="setting-action">
           <button class="btn btn-secondary" onclick="testNotif('streak')">Test ora</button>
@@ -169,8 +169,8 @@
     <div class="card">
       <div class="setting-row">
         <div class="setting-info">
-          <div class="setting-name">Backup automatico</div>
-          <div class="setting-desc">Ogni domenica alle 23:00 → Documents/Polylife Backup/ (ultime 8 settimane)</div>
+          <div class="setting-name">Backup completo</div>
+          <div class="setting-desc">Non ancora disponibile. Alcune sezioni offrono esportazioni manuali dei propri dati.</div>
         </div>
         <div class="setting-action">
           <button class="btn btn-success" id="backup-btn" onclick="runBackup()">💚 Backup ora</button>
@@ -200,8 +200,8 @@
     <div class="card">
       <div class="setting-row">
         <div class="setting-info">
-          <div class="setting-name">SQLite <span class="tag" id="db-status-tag">—</span></div>
-          <div class="setting-desc">better-sqlite3 — archiviazione locale sicura e veloce</div>
+          <div class="setting-name">Archivio dati <span class="tag" id="db-status-tag">—</span></div>
+          <div class="setting-desc">I dati sono attualmente salvati nel browser locale dell’app. L’archivio condiviso è da realizzare.</div>
         </div>
       </div>
       <div class="setting-row">
@@ -283,10 +283,8 @@ async function testAPI() {
 async function testNotif(type) {
   if (!window.notif) { toast('Notifiche non disponibili in questa modalità', 'err'); return; }
   try {
-    if (type === 'test')        await window.notif.test();
-    else if (type === 'briefing')    await window.notif.briefing();
-    else if (type === 'streak')      await window.notif.streak();
-    else if (type === 'preVerifica') await window.notif.preVerifica();
+    const result = await window.notif[type]?.();
+    if (result !== true) throw new Error('Notifica non disponibile');
     toast('✅ Notifica inviata!', 'ok');
   } catch (e) {
     toast('Errore notifica: ' + e.message, 'err');
@@ -295,13 +293,13 @@ async function testNotif(type) {
 
 // Backup
 async function runBackup() {
-  if (!window.backup) { toast('Backup disponibile solo nell\'app desktop', 'err'); return; }
+  if (!window.backup) { toast('Backup completo non ancora disponibile', 'err'); return; }
   const btn = document.getElementById('backup-btn');
   btn.textContent = '⏳ Backup in corso...';
   btn.disabled = true;
   try {
     const result = await window.backup.run();
-    if (result.error) throw new Error(result.error);
+    if (result.success !== true || !result.path) throw new Error(result.error || 'Backup non creato');
     toast(`✅ Backup salvato! (${result.records} sezioni)`, 'ok');
     loadBackups();
   } catch (e) {
@@ -315,7 +313,9 @@ async function runBackup() {
 async function loadBackups() {
   const container = document.getElementById('backup-list');
   if (!window.backup) {
-    container.innerHTML = '<div style="font-size:13px;color:var(--muted)">Disponibile solo nell\'app desktop</div>';
+    document.getElementById('backup-dir-display').textContent = 'Non configurata';
+    document.getElementById('backup-btn').disabled = true;
+    container.innerHTML = '<div style="font-size:13px;color:var(--muted)">Backup completo non ancora disponibile</div>';
     return;
   }
   try {
@@ -341,8 +341,8 @@ async function loadBackups() {
 // DB stats
 async function loadDBStats() {
   if (!window.db) {
-    document.getElementById('db-stats-display').textContent = 'Database non disponibile (usa npm install better-sqlite3)';
-    document.getElementById('db-status-tag').textContent = 'NO SQLite';
+    document.getElementById('db-stats-display').textContent = 'Salvataggio locale per sezione. Sincronizzazione completa non ancora disponibile.';
+    document.getElementById('db-status-tag').textContent = 'LOCALE';
     document.getElementById('db-status-tag').className = 'tag tag-warn';
     return;
   }

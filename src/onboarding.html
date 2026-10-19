@@ -321,26 +321,28 @@ async function completeOnboarding() {
     onboardingDate: new Date().toISOString(),
     bonusXP: 50
   };
-  localStorage.setItem('polylife_profile', JSON.stringify(profile));
-
-  // Se il DB è disponibile, salva anche lì come meta
-  if (window.electronAPI) {
-    try {
-      // Salva il primo libro se inserito
-      if (state.book) {
-        await window.db.library.saveBook({
-          id: 'book_onboarding_' + Date.now(),
-          title: state.book,
-          author: '',
-          status: 'reading',
-          pages: null,
-          progress: 0,
-          rating: null,
-          why: 'Primo libro aggiunto in onboarding',
-          note: ''
-        });
+  try {
+    // Use the same state and book format consumed by Library.
+    if (state.book) {
+      const today = new Date().toISOString().slice(0, 10);
+      const raw = localStorage.getItem('leo_library_v1');
+      const library = raw ? JSON.parse(raw) : {
+        books: [], sessions: {}, intellect: 0,
+        subSkills: { deep_read: 0, analysis: 0, logic_r: 0, synthesis: 0, critical: 0, empathy: 0 },
+        readingLog: [], streakHistory: [], lastDate: today, todayPages: 0, todaySessionsDone: {},
+      };
+      if (!library || !Array.isArray(library.books)) throw new Error('Dati Library non validi: conserva un’esportazione prima di procedere');
+      if (!library.books.some(book => book.title === state.book)) {
+        library.books.push({ id: 'book_onboarding_' + Date.now(), title: state.book,
+          author: '', cat: 'altro', diff: 'med', status: 'reading', pages: 200, xp: 50,
+          progress: 0, addedDate: today, why: 'Primo libro aggiunto in onboarding' });
+        localStorage.setItem('leo_library_v1', JSON.stringify(library));
       }
-    } catch (_) {}
+    }
+    localStorage.setItem('polylife_profile', JSON.stringify(profile));
+  } catch (error) {
+    alert('Configurazione non salvata: ' + error.message);
+    return;
   }
 
   // Vai all'app principale

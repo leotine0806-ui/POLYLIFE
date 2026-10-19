@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Life RPG</title>
 <!-- PWA -->
-<link rel="manifest" href="manifest-rpg.json">
-<link rel="apple-touch-icon" href="icon-rpg-180.png">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-512.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Life RPG">
@@ -2031,7 +2031,7 @@ renderMissionsPage();
 
 if('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker-rpg.js')
+    navigator.serviceWorker.register('./service-worker.js')
       .then(() => console.log('SW RPG registrato ✓'))
       .catch(err => console.warn('SW errore:', err));
   });

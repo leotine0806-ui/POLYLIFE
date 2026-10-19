@@ -2067,7 +2067,7 @@ function activateMentorMode() {
 
 // Patch sendMessage to prepend mentor context when active
 const _origSend = sendMessage;
-async function sendMessage() {
+sendMessage = async function sendMentorMessage() {
   if(window._mentorMode) {
     const input = document.getElementById('chat-input');
     if(input.value.trim()) {
