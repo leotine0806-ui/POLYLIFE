@@ -1,0 +1,53 @@
+{
+  "name": "polylife",
+  "version": "2.0.0",
+  "description": "Polymath OS — Il tuo sistema operativo personale",
+  "author": "Polylife",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.polymath.polylife",
+    "productName": "Polylife",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      ".env",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "src/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "src/icon-512.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "src/icon-512.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "src/icon.ico",
+      "installerHeaderIcon": "src/icon.ico"
+    }
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "node-schedule": "^2.1.1"
+  }
+}
